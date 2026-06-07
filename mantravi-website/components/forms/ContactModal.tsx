@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
 import { useContact } from "@/components/providers/ContactProvider";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Card";
@@ -166,15 +166,21 @@ export function ContactModal() {
 }
 
 export function FloatingContactButton() {
-  const { openContact } = useContact();
+  const { openContact, isOpen } = useContact();
+
+  if (isOpen) return null;
 
   return (
     <button
       type="button"
       onClick={openContact}
-      className="fixed bottom-6 right-6 z-40 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-transform hover:scale-105"
+      className="floating-contact-btn"
+      aria-label="Get in touch"
     >
-      Get In Touch
+      <span className="floating-contact-btn__icon" aria-hidden="true">
+        <MessageCircle className="h-4 w-4" />
+      </span>
+      <span className="floating-contact-btn__label">Get In Touch</span>
     </button>
   );
 }

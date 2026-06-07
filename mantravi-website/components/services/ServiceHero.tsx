@@ -28,7 +28,7 @@ export function ServiceHero({
   return (
     <section
       className={cn(
-        "service-hero relative overflow-hidden",
+        "service-hero service-decor-section relative overflow-hidden",
         `service-hero--${theme}`,
       )}
     >

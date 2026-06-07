@@ -6,8 +6,9 @@ import { Linkedin, Twitter, Instagram } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-[#050a30] text-slate-300">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <footer className="site-footer border-t border-white/10">
+      <div className="site-footer__bg" aria-hidden="true" />
+      <div className="site-footer__content mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <MantraviLogo variant="light" />

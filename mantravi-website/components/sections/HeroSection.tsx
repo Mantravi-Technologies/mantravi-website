@@ -6,16 +6,16 @@ import { motion } from "framer-motion";
 import { useContact } from "@/components/providers/ContactProvider";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { SwapTextButton } from "@/components/ui/SwapTextButton";
-import { contactForm, trustBadges, siteConfig } from "@/lib/content/site-data";
+import { trustBadges, siteConfig } from "@/lib/content/site-data";
 import { fadeUp, staggerContainer } from "@/lib/animations/variants";
 
 const heroLines = [
-  { text: "Engineering Digital", accent: false },
-  { text: "Systems That Deliver", accent: false },
+  { text: "Web, Mobile & AI" },
+  { text: "Engineering That Scales" },
 ];
 
-const heroAccentMobile = ["AI, Intelligence,", "and Impact"];
-const heroAccentDesktop = [`AI, ${siteConfig.headlineAccent}`];
+const heroAccentMobile = ["Built for Growth"];
+const heroAccentDesktop = ["Built for Growth"];
 
 function HeroVideoBackground() {
   const reducedMotion = useReducedMotion();
@@ -98,18 +98,9 @@ export function HeroSection() {
               {siteConfig.description}
             </motion.p>
 
-            <motion.div
-              variants={fadeUp}
-              className="mt-8 flex flex-wrap items-center gap-3 sm:mt-10 sm:gap-4"
-            >
+            <motion.div variants={fadeUp} className="mt-8 sm:mt-10">
               <SwapTextButton onClick={openContact}>
                 Consult Our Experts
-              </SwapTextButton>
-              <SwapTextButton onClick={openContact} variant="dark">
-                {contactForm.submitLabel}
-              </SwapTextButton>
-              <SwapTextButton href="/portfolio" variant="dark" showIcon={false}>
-                View Our Work
               </SwapTextButton>
             </motion.div>
           </motion.div>

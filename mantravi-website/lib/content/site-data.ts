@@ -1,9 +1,9 @@
 export const siteConfig = {
   name: "Mantravi",
-  headlineAccent: "Intelligence, and Impact",
-  tagline: "Engineering the Next Generation of Digital Systems with AI",
+  headlineAccent: "Built for Growth",
+  tagline: "Web, Mobile & AI Product Engineering",
   description:
-    "Mantravi engineers secure, scalable digital systems by combining strong architecture, data engineering, and AI capabilities for measurable business outcomes.",
+    "We help startups and enterprises design, build, and launch web, mobile, and AI products with clear timelines and reliable delivery.",
   url: "https://mantravi.com",
   email: "hello@mantravi.com",
   phone: "+91 98765 43210",

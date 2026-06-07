@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { navLinks, servicesMenu } from "@/lib/content/site-data";
@@ -23,6 +23,7 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<MegaType | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const scrolledRef = useRef(false);
   const { openContact } = useContact();
   const lenis = useLenis();
 
@@ -46,7 +47,10 @@ export function Header() {
 
   useEffect(() => {
     const updateScrolled = (scrollY: number) => {
-      setScrolled(scrollY > SCROLL_THRESHOLD);
+      const next = scrollY > SCROLL_THRESHOLD;
+      if (next === scrolledRef.current) return;
+      scrolledRef.current = next;
+      setScrolled(next);
     };
 
     if (lenis) {

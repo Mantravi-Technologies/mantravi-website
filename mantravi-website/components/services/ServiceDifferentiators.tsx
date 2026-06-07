@@ -18,7 +18,7 @@ export function ServiceDifferentiators({
 }) {
   return (
     <SectionShell id="why-us" variant="surface" className="!py-16 md:!py-20">
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-16">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -59,18 +59,19 @@ export function ServiceDifferentiators({
           </motion.div>
         </motion.div>
 
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-          variants={fadeUp}
-          className="lg:order-1 lg:sticky lg:top-28 lg:self-start"
-        >
-          <ServiceImageSlot
-            slot={{ ...whyUsImage, aspect: whyUsImage.aspect ?? "portrait" }}
-            className="mx-auto w-full max-w-md lg:max-w-none"
-          />
-        </motion.div>
+        <div className="lg:order-1 lg:sticky lg:top-28 lg:self-start">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={fadeUp}
+          >
+            <ServiceImageSlot
+              slot={{ ...whyUsImage, aspect: whyUsImage.aspect ?? "portrait" }}
+              className="mx-auto w-full max-w-md lg:max-w-none"
+            />
+          </motion.div>
+        </div>
       </div>
     </SectionShell>
   );

@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SectionShell, SectionHeading } from "@/components/ui/SectionShell";
-import { Badge } from "@/components/ui/Card";
-import { HoverCard } from "@/components/motion/HoverCard";
 import { getCaseStudiesForServices } from "@/lib/content/case-studies";
 import { techExpertise } from "@/lib/content/site-data";
 import { staggerContainer, fadeUp } from "@/lib/animations/variants";
+import { cn } from "@/lib/utils";
 
 export function ServiceCaseStudies({ serviceTags }: { serviceTags: string[] }) {
   const studies = getCaseStudiesForServices(serviceTags).slice(0, 4);
@@ -16,47 +15,87 @@ export function ServiceCaseStudies({ serviceTags }: { serviceTags: string[] }) {
   if (studies.length === 0) return null;
 
   return (
-    <SectionShell id="work" variant="dark" className="!py-16 md:!py-20">
-      <SectionHeading title="Client Success Stories" />
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="mt-12 grid gap-6 sm:grid-cols-2"
-      >
-        {studies.map((study) => (
-          <motion.div key={study.slug} variants={fadeUp}>
-            <HoverCard>
+    <SectionShell
+      id="work"
+      variant="none"
+      container={false}
+      className="service-case-studies service-dark-band !py-16 md:!py-24"
+    >
+      <div className="relative z-[1] mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="Selected work"
+          title="Client Success Stories"
+          description="Products we've shipped for teams like yours, with measurable outcomes across conversion, adoption, and operational speed."
+          align="left"
+          display
+        />
+
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="mt-12 grid gap-5 sm:grid-cols-2"
+        >
+          {studies.map((study) => (
+            <motion.article key={study.slug} variants={fadeUp}>
               <Link
                 href={`/portfolio/${study.slug}`}
-                className="group block glass-card p-6 h-full hover:border-primary/30 transition-colors"
+                className="service-case-card group block h-full"
               >
-                <Badge dark>{study.client}</Badge>
-                <h3 className="mt-4 text-xl font-bold text-white group-hover:text-primary transition-colors">
-                  {study.title}
-                </h3>
-                <p className="mt-2 text-sm text-slate-400 line-clamp-2">
-                  {study.summary}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-6">
-                  {study.metrics.slice(0, 2).map((m) => (
-                    <div key={m.label}>
-                      <div className="text-2xl font-bold text-primary">
-                        {m.value}
-                      </div>
-                      <div className="text-xs text-slate-400">{m.label}</div>
-                    </div>
-                  ))}
+                <div
+                  className={cn(
+                    "service-case-card__visual bg-gradient-to-br",
+                    study.gradient || "from-primary/35 to-primary/10",
+                  )}
+                >
+                  <div
+                    className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.22),transparent_52%)]"
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgba(8,8,8,0.92)_100%)]"
+                    aria-hidden="true"
+                  />
+                  <span className="service-case-card__client">
+                    {study.client}
+                  </span>
+                  <span className="service-case-card__arrow" aria-hidden="true">
+                    <ArrowUpRight className="h-4 w-4" />
+                  </span>
                 </div>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                  View Case Study <ArrowRight className="h-3 w-3" />
-                </span>
+
+                <div className="service-case-card__body">
+                  <h3 className="text-lg font-bold leading-snug text-white transition-colors group-hover:text-primary md:text-xl">
+                    {study.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400 line-clamp-2">
+                    {study.summary}
+                  </p>
+
+                  <div className="service-case-card__metrics">
+                    {study.metrics.slice(0, 2).map((m) => (
+                      <div key={m.label}>
+                        <div className="text-xl font-bold tracking-tight text-primary md:text-2xl">
+                          {m.value}
+                        </div>
+                        <div className="mt-0.5 text-xs text-slate-500">
+                          {m.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <span className="service-case-card__link">
+                    View Case Study
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </div>
               </Link>
-            </HoverCard>
-          </motion.div>
-        ))}
-      </motion.div>
+            </motion.article>
+          ))}
+        </motion.div>
+      </div>
     </SectionShell>
   );
 }

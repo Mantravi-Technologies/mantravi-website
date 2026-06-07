@@ -58,6 +58,12 @@ export const fadeIn = {
   visible: { opacity: 1, transition: { duration: 0.5 } },
 };
 
+/** Opacity-only reveal for wrappers around sticky content (transform breaks sticky + scroll perf). */
+export const fadeInSoft = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.45, ease: "easeOut" as const } },
+};
+
 export function reducedMotionVariants<T extends Record<string, unknown>>(variants: T): T {
   if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     return {

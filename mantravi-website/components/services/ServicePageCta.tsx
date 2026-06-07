@@ -7,7 +7,7 @@ export function ServicePageCta({ serviceTitle }: { serviceTitle: string }) {
   const { openContact } = useContact();
   const shortName = serviceTitle.split("&")[0]?.trim() ?? serviceTitle;
   return (
-    <SectionShell variant="none" className="!py-12 md:!py-16">
+    <SectionShell variant="none" className="service-page-cta-section !py-12 md:!py-16">
       {" "}
       <div className="service-page-cta">
         {" "}
