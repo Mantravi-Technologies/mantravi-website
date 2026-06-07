@@ -1,0 +1,47 @@
+[
+  {
+    "_type": "caseStudy",
+    "title": "Digital Wallet Platform for Global Payments",
+    "slug": { "current": "fintech-wallet-platform" },
+    "client": "FinanceHub",
+    "industry": ["fintech"],
+    "services": ["mobile", "ai"],
+    "region": "mena",
+    "summary": "Engineered a unified digital payments ecosystem across 5 markets with AI-powered fraud detection.",
+    "featured": true,
+    "metrics": [
+      { "value": "45%", "label": "Higher conversion rate" },
+      { "value": "2M+", "label": "Active users" }
+    ],
+    "technologies": ["React Native", "Node.js", "AWS"]
+  },
+  {
+    "_type": "blogPost",
+    "title": "How Much Does AI Development Cost in 2026?",
+    "slug": { "current": "ai-development-cost-2026" },
+    "excerpt": "AI development costs vary widely based on scope and integration complexity.",
+    "publishedAt": "2026-06-04T00:00:00.000Z",
+    "featured": true
+  },
+  {
+    "_type": "teamMember",
+    "name": "Aakash Kumar Singh",
+    "title": "CEO & Director",
+    "bio": "Visionary leader driving Mantravi's AI-first engineering mission.",
+    "order": 1
+  },
+  {
+    "_type": "testimonial",
+    "quote": "Mantravi exceeded our expectations in every aspect of our partnership.",
+    "name": "Rajesh Kumar",
+    "title": "Director - Digital Engineering",
+    "company": "FinanceHub",
+    "type": "client"
+  },
+  {
+    "_type": "siteSettings",
+    "companyName": "Mantravi",
+    "tagline": "Engineering the Next Generation of Digital Systems with AI",
+    "email": "hello@mantravi.com"
+  }
+]
