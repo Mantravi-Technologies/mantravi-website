@@ -9,7 +9,9 @@ import {
   ContactModal,
   FloatingContactButton,
 } from "@/components/forms/ContactModal";
+import { SiteJsonLd } from "@/components/seo/SiteJsonLd";
 import { siteConfig } from "@/lib/content/site-data";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,31 +21,28 @@ const inter = Inter({
 const display = Bebas_Neue({
   subsets: ["latin"],
   weight: "400",
-  variable: "--font-display",
+  variable: "--font-bebas-neue",
 });
 
 const script = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
   style: ["italic"],
-  variable: "--font-script",
+  variable: "--font-instrument",
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
+  icons: { icon: "/favicon.svg" },
   title: {
     default: `${siteConfig.name} | AI-Native Digital Solutions`,
     template: `%s | ${siteConfig.name}`,
   },
-  description: siteConfig.description,
-  metadataBase: new URL(siteConfig.url),
-  icons: { icon: "/favicon.svg" },
-  openGraph: {
-    title: siteConfig.name,
+  ...buildPageMetadata({
+    title: `${siteConfig.name} | AI-Native Digital Solutions`,
     description: siteConfig.description,
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    type: "website",
-  },
+    path: "/",
+  }),
 };
 
 export default function RootLayout({
@@ -57,6 +56,7 @@ export default function RootLayout({
       className={`${inter.variable} ${display.variable} ${script.variable}`}
     >
       <body className="antialiased">
+        <SiteJsonLd />
         <ContactProvider>
           <SmoothScrollProvider>
             <Header />

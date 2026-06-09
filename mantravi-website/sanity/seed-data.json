@@ -1,47 +1,124 @@
 [
   {
     "_type": "caseStudy",
-    "title": "Digital Wallet Platform for Global Payments",
-    "slug": { "current": "fintech-wallet-platform" },
-    "client": "FinanceHub",
-    "industry": ["fintech"],
-    "services": ["mobile", "ai"],
-    "region": "mena",
-    "summary": "Engineered a unified digital payments ecosystem across 5 markets with AI-powered fraud detection.",
+    "title": "E-commerce Store for Mobile Case Hub",
+    "slug": { "current": "mobile-case-hub" },
+    "client": "Mobile Case Hub",
+    "industry": ["d2c", "ecommerce"],
+    "services": ["web", "mobile"],
+    "region": "asia",
+    "summary": "Designed and built an e-commerce store from the ground up — smooth across devices, fast checkout, and a catalog built to scale.",
     "featured": true,
+    "status": "published",
+    "showOnHomepage": true,
+    "homepageOrder": 1,
+    "pinnedOnServices": ["product-engineering"],
     "metrics": [
-      { "value": "45%", "label": "Higher conversion rate" },
-      { "value": "2M+", "label": "Active users" }
+      { "value": "Multi-device", "label": "Storefront experience" },
+      { "value": "Fast", "label": "Checkout flow" }
     ],
-    "technologies": ["React Native", "Node.js", "AWS"]
+    "technologies": ["Next.js", "React", "Node.js"],
+    "gradient": "from-cyan-600/40 to-primary/20"
+  },
+  {
+    "_type": "caseStudy",
+    "title": "On-Demand Garden Care App for Plantropan",
+    "slug": { "current": "plantropan" },
+    "client": "Plantropan",
+    "industry": ["saas"],
+    "services": ["mobile", "web"],
+    "region": "asia",
+    "summary": "Garden care platform where users book trusted gardeners on demand — simple booking flow, polished UX, and reliable production performance.",
+    "featured": true,
+    "status": "published",
+    "showOnHomepage": true,
+    "homepageOrder": 2,
+    "pinnedOnServices": ["product-engineering"],
+    "metrics": [
+      { "value": "On-demand", "label": "Booking flow" },
+      { "value": "Reliable", "label": "Production uptime" }
+    ],
+    "technologies": ["React Native", "Node.js", "PostgreSQL"],
+    "gradient": "from-emerald-600/40 to-teal-500/20"
+  },
+  {
+    "_type": "caseStudy",
+    "title": "Kidswear Brand Storefront for Ameyru",
+    "slug": { "current": "ameyru" },
+    "client": "Ameyru",
+    "industry": ["d2c", "ecommerce"],
+    "services": ["web", "ui"],
+    "region": "asia",
+    "summary": "Brand and storefront experience for a kidswear label — trustworthy to parents, easy to shop, and tuned for performance.",
+    "featured": true,
+    "status": "published",
+    "showOnHomepage": true,
+    "homepageOrder": 3,
+    "pinnedOnServices": ["consulting"],
+    "metrics": [
+      { "value": "Brand-led", "label": "Shopping experience" },
+      { "value": "Performance", "label": "Core Web Vitals focus" }
+    ],
+    "technologies": ["Next.js", "Tailwind CSS", "Shopify"],
+    "gradient": "from-violet-600/40 to-fuchsia-500/20"
+  },
+  {
+    "_type": "caseStudy",
+    "title": "AI Tech Intelligence App for Vedlik",
+    "slug": { "current": "vedlik" },
+    "client": "Vedlik",
+    "industry": ["saas", "edtech"],
+    "services": ["mobile", "ai", "web"],
+    "region": "asia",
+    "summary": "Mantravi built Vedlik, a free AI and tech intelligence app for iOS and Android that turns noisy headlines into structured 4-Point Insights, flip-card signals, and a personal Intel Library for developers, founders, and students.",
+    "challenge": "AI and startup news is fast-moving and full of fluff. Vedlik needed a mobile product that delivers facts, market context, builder angles, and big-picture takeaways without feeling like another social feed.",
+    "solution": "End-to-end product engineering with Flutter, Firestore, Python, and integrated LLMs: structured insights, contextual glossary, anti-fluff feed, Intel Library, and a marketing site aligned with the product narrative.",
+    "featured": true,
+    "status": "published",
+    "showOnHomepage": true,
+    "homepageOrder": 4,
+    "pinnedOnServices": ["ai-data", "product-engineering"],
+    "projectUrl": "https://vedlik.com",
+    "highlights": [
+      "3 Point Insight format on every story",
+      "3D Intelligence Flip for funding and technical signals",
+      "Learner and Builder onboarding paths",
+      "Intel Library for saved research",
+      "Free core experience with source attribution"
+    ],
+    "metrics": [
+      { "value": "iOS & Android", "label": "Cross-platform launch" },
+      { "value": "4-Point", "label": "Structured insight format" },
+      { "value": "Free", "label": "Core experience" }
+    ],
+    "heroMetrics": [
+      { "value": "iOS & Android", "label": "Cross-platform launch" },
+      { "value": "4-Point", "label": "Structured insight format" },
+      { "value": "Free", "label": "Core experience" }
+    ],
+    "technologies": [
+      "Flutter",
+      "Firestore",
+      "Python",
+      "LLM Integration"
+    ],
+    "gradient": "from-cyan-600/40 to-indigo-600/20"
   },
   {
     "_type": "blogPost",
-    "title": "How Much Does AI Development Cost in 2026?",
-    "slug": { "current": "ai-development-cost-2026" },
-    "excerpt": "AI development costs vary widely based on scope and integration complexity.",
-    "publishedAt": "2026-06-04T00:00:00.000Z",
-    "featured": true
-  },
-  {
-    "_type": "teamMember",
-    "name": "Aakash Kumar Singh",
-    "title": "CEO & Director",
-    "bio": "Visionary leader driving Mantravi's AI-first engineering mission.",
-    "order": 1
-  },
-  {
-    "_type": "testimonial",
-    "quote": "Mantravi exceeded our expectations in every aspect of our partnership.",
-    "name": "Rajesh Kumar",
-    "title": "Director - Digital Engineering",
-    "company": "FinanceHub",
-    "type": "client"
+    "title": "How to Choose the Right Tech Stack for Your Product in 2026",
+    "slug": { "current": "choosing-right-tech-stack-2026" },
+    "excerpt": "A practical guide to picking frameworks and infrastructure that match your timeline, team, and growth plans.",
+    "publishedAt": "2026-05-28T00:00:00.000Z",
+    "featured": true,
+    "featuredRank": 1,
+    "status": "published",
+    "readTime": "8 min"
   },
   {
     "_type": "siteSettings",
     "companyName": "Mantravi",
-    "tagline": "Engineering the Next Generation of Digital Systems with AI",
+    "tagline": "Web, Mobile & AI Engineering That Scales",
     "email": "hello@mantravi.com"
   }
 ]

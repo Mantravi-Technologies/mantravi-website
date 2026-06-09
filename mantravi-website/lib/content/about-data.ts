@@ -6,6 +6,7 @@ export type Testimonial = {
   company?: string;
   type: "client" | "employee";
 };
+
 export const testimonials: Testimonial[] = [
   {
     id: "1",
@@ -34,112 +35,236 @@ export const testimonials: Testimonial[] = [
     type: "client",
   },
 ];
-export type TeamMember = { name: string; title: string; bio?: string };
-export const teamMembers: TeamMember[] = [
-  {
-    name: "Aakash Kumar Singh",
-    title: "CEO & Director",
-    bio: "Leads Mantravi's vision for AI-native product engineering and client partnerships.",
-  },
-  {
-    name: "Engineering Lead",
-    title: "Head of Engineering",
-    bio: "Architects scalable systems across web, mobile, and cloud platforms.",
-  },
-  {
-    name: "Design Lead",
-    title: "Head of Design",
-    bio: "Shapes user experiences that balance clarity, brand, and conversion.",
-  },
-  {
-    name: "Delivery Lead",
-    title: "Head of Delivery",
-    bio: "Ensures projects ship on time with transparent client communication.",
-  },
-];
-export type TimelineEvent = {
-  year: number;
-  title: string;
-  description: string;
+
+export const aboutHero = {
+  eyebrow: "About Mantravi",
+  title: "Engineering AI-Native Digital Experiences",
+  subtitle:
+    "We are a team of senior engineers, architects, and product minds who care deeply about building fast, resilient, and scalable digital systems, not just shipping screens.",
 };
-export const timeline: TimelineEvent[] = [
+
+export const aboutStats = [
   {
-    year: 2020,
-    title: "Mantravi Founded",
-    description:
-      "Started as a small team focused on web development and digital marketing for local businesses in Noida.",
+    value: 50,
+    suffix: "+",
+    label: "Production Deployments",
+    sub: "Systems shipped and running in real environments",
   },
   {
-    year: 2021,
-    title: "Mobile & SaaS Expansion",
-    description:
-      "Expanded into mobile app development and began delivering SaaS MVPs for early-stage founders.",
+    value: 25,
+    suffix: "+",
+    label: "Engineers & Specialists",
+    sub: "Senior talent across engineering, design, and delivery",
   },
   {
-    year: 2022,
-    title: "AI Integration Practice",
-    description:
-      "Introduced AI-assisted development workflows and smart analytics into client projects.",
-  },
-  {
-    year: 2023,
-    title: "100+ Clients Milestone",
-    description:
-      "Crossed 100 clients across D2C, EdTech, healthcare, and hospitality sectors.",
-  },
-  {
-    year: 2024,
-    title: "Full-Stack Digital Partner",
-    description:
-      "Unified development, marketing, and QA under one delivery model for end-to-end client success.",
-  },
-  {
-    year: 2025,
-    title: "Global Delivery",
-    description:
-      "Scaled remote delivery across time zones with dedicated teams for US and MENA clients.",
+    value: 4,
+    suffix: "",
+    label: "Core Service Areas",
+    sub: "Web, mobile, digital marketing, and QA under one roof",
   },
 ];
+
+export const aboutStory = {
+  title: "Our Engineering Story",
+  description:
+    "How Mantravi grew from shipping products in the field to building the studio we always wished we had.",
+  paragraphs: [
+    "Mantravi was started by engineers who spent years shipping products, fixing broken architectures, and scaling systems under real-world load. We built the studio we always wished we had on previous projects: opinionated about quality, obsessed with performance, and pragmatic about delivery.",
+    "Our work is grounded in solid engineering principles: clean architecture, predictable deployments, strong observability, and security by design. From modern frontends to cloud-native backends and AI integrations, we focus on building systems that are easy to evolve, easy to monitor, and hard to break.",
+  ],
+};
+
+export const partnershipHighlights = [
+  {
+    title: "Partnership Model",
+    description:
+      "We collaborate with experts across disciplines so every engagement gets the right skills at the right time.",
+  },
+  {
+    title: "Specialized Expertise",
+    description:
+      "Best-in-class talent for each project, from architecture and UX to QA, DevOps, and AI integration.",
+  },
+  {
+    title: "Flexible & Scalable",
+    description:
+      "Teams and scope adapt to your stage, whether you need an MVP squad or long-term engineering support.",
+  },
+];
+
+export const engineeringPractices = [
+  {
+    title: "Modern Engineering Stack",
+    description:
+      "TypeScript-first development, component-driven UI, cloud-native backends, and CI/CD baked into every engagement, with no legacy-by-default choices.",
+  },
+  {
+    title: "Performance & Efficiency",
+    description:
+      "Lighthouse, Core Web Vitals, and profiling are not afterthoughts. We design for low latency, low overhead, and high conversion from day one.",
+  },
+  {
+    title: "Scalable Architectures",
+    description:
+      "Modular architectures, clean separation of concerns, and API contracts that make it easy to plug in new channels, markets, or features.",
+  },
+  {
+    title: "Observability & Monitoring",
+    description:
+      "Logs, metrics, traces, and alerts wired from day zero so issues are visible before users feel them, with dashboards your team can actually read.",
+  },
+  {
+    title: "Automation Everywhere",
+    description:
+      "Infrastructure as code, repeatable environments, and automated checks so shipping often does not mean shipping risky.",
+  },
+  {
+    title: "Security by Design",
+    description:
+      "Authentication, authorization, and data protection from the first commit, following industry standards and compliance-friendly patterns.",
+  },
+  {
+    title: "Architecture First",
+    description:
+      "Serious time on system design, data modeling, and integration boundaries so your product can grow without constant rewrites.",
+  },
+  {
+    title: "Data-Driven Decisions",
+    description:
+      "Analytics, experiment frameworks, and reporting connected so you validate assumptions with data instead of opinions.",
+  },
+  {
+    title: "Continuous Improvement",
+    description:
+      "Release cycles, feedback loops, and technical retros keep your product improving instead of stagnating after launch.",
+  },
+];
+
+export const whatWeDo = [
+  {
+    title: "Web Development",
+    description:
+      "Custom websites, web applications, and e-commerce solutions built with modern technologies for performance and user experience.",
+    bullets: [
+      "React & Next.js applications",
+      "E-commerce platforms",
+      "WordPress development",
+    ],
+  },
+  {
+    title: "Mobile App Development",
+    description:
+      "Native and cross-platform mobile applications that engage users and support business growth across iOS and Android.",
+    bullets: [
+      "Native iOS & Android apps",
+      "Cross-platform solutions",
+      "App store optimization",
+    ],
+  },
+  {
+    title: "Digital Marketing",
+    description:
+      "SEO, content strategy, and campaign management to strengthen your online presence and drive measurable growth.",
+    bullets: [
+      "SEO & content strategy",
+      "Social media management",
+      "Paid advertising campaigns",
+    ],
+  },
+  {
+    title: "QA & Support",
+    description:
+      "Quality assurance, testing, and ongoing support so your applications run reliably and securely in production.",
+    bullets: [
+      "Automated testing",
+      "Performance optimization",
+      "24/7 technical support",
+    ],
+  },
+];
+
+export const engineeringPrinciples = [
+  {
+    title: "Problem First, Tech Second",
+    description:
+      "We invest in understanding the problem space, constraints, and edge cases so technical decisions support business outcomes.",
+  },
+  {
+    title: "Robust Engineering",
+    description:
+      "Clean code, automated tests, code reviews, and documented decisions. We optimize for long-term maintainability, not just first delivery.",
+  },
+  {
+    title: "Reliability & Support",
+    description:
+      "We care about uptime, incident response, and smooth releases. The less you have to think about infrastructure, the better we have done our job.",
+  },
+];
+
+export const whyChooseMantravi = [
+  {
+    title: "Expert Network",
+    description:
+      "Access to 25+ specialized professionals across engineering, design, marketing, QA, and AI.",
+  },
+  {
+    title: "Specialized Focus",
+    description:
+      "Each expert brings deep knowledge in their domain, so work is led by people who have shipped in that space before.",
+  },
+  {
+    title: "Flexible Scaling",
+    description:
+      "Scale your team up or down based on project needs, from focused MVPs to ongoing product engineering.",
+  },
+  {
+    title: "Personal Partnership",
+    description:
+      "A direct relationship with dedicated project leads who keep communication clear and delivery predictable.",
+  },
+];
+
 export type FAQ = { question: string; answer: string };
+
 export const faqs: FAQ[] = [
   {
-    question: "What makes Mantravi different?",
+    question: "What kind of company is Mantravi?",
     answer:
-      "We combine AI-first development, unified marketing and engineering, and transparent communication. You get one partner from strategy through launch and ongoing support, not disconnected vendors.",
+      "Mantravi is an AI-native digital product studio. We help startups and growing businesses design, build, and scale web apps, mobile products, marketing systems, and QA pipelines with senior engineering talent and production-grade practices.",
   },
   {
-    question: "How do I reach Mantravi?",
+    question: "What makes Mantravi different from a typical dev agency?",
     answer:
-      "Use our contact form, email hello@mantravi.com, or book a free consultation. Share your goals and we'll respond with a tailored plan, timeline, and transparent pricing.",
+      "We think like an engineering team of record: architecture first, observability from day one, and a bias toward systems that stay fast and maintainable after launch. You get senior talent and modern practices, not throwaway prototypes.",
   },
   {
-    question: "Can I be involved in the development process?",
+    question: "What services does Mantravi offer?",
     answer:
-      "Yes. We work in agile sprints with regular demos and feedback checkpoints. You stay informed and involved at every stage through shared tools and direct access to your project team.",
+      "We provide web development, mobile app development, digital marketing and SEO, and QA and IT support. Many clients work with us across more than one area so product, growth, and quality stay aligned.",
   },
   {
-    question: "Do you provide ongoing support and maintenance?",
+    question: "How does Mantravi approach AI in product development?",
     answer:
-      "We offer 24/7 monitoring, security updates, performance optimization, and technical assistance. Our maintenance plans keep your platform secure and running smoothly after launch.",
+      "We integrate AI where it creates real business value: grounded assistants, workflow automation, smart analytics, and production pipelines with guardrails. AI is part of the architecture conversation, not a bolt-on feature.",
   },
   {
-    question: "Do you offer flexible payment plans?",
+    question: "How do I start a project with Mantravi?",
     answer:
-      "Yes, typically 40% at project start, 40% after mid-phase demo, and 20% upon final delivery. For long-term support or marketing, we offer monthly retainers scaled to your needs.",
+      "Share your goals through our contact form or email hello@mantravi.com. We respond with scope options, a realistic timeline, and a clear plan for how we would partner on your product or platform.",
   },
   {
-    question: "Are there hidden costs after project delivery?",
+    question: "Does Mantravi provide ongoing support after launch?",
     answer:
-      "No hidden charges for agreed scope. New features or pages are quoted separately. We recommend a maintenance plan for security patches, backups, and updates to keep your platform future-proof.",
+      "Yes. We offer monitoring, performance tuning, security updates, and QA retainers so your platform stays reliable as usage and requirements grow.",
   },
   {
-    question: "How is AI implemented in your solutions?",
+    question: "Can Mantravi work with our existing team or codebase?",
     answer:
-      "We use AI for smart analytics, automated testing, predictive marketing, and personalisation, always tied to a clear business outcome, not added for its own sake.",
+      "Absolutely. We often embed alongside in-house teams, audit existing systems, and help stabilize or extend products that are already in market.",
   },
   {
-    question: "Which industries do you have expertise in?",
+    question: "Which industries has Mantravi worked with?",
     answer:
-      "D2C & E-Commerce, EdTech, Healthcare, Real Estate, Hospitality, Manufacturing, Restaurants, SaaS, and more. We've delivered across startups and growing mid-market companies.",
+      "We have delivered for D2C and e-commerce, EdTech, healthcare, hospitality, SaaS, and other sectors where performance, trust, and clear UX matter.",
   },
 ];

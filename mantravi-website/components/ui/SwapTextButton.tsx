@@ -9,7 +9,8 @@ type SwapTextButtonProps = {
   onClick?: () => void;
   href?: string;
   className?: string;
-  variant?: "light" | "dark";
+  /** light = white pill on dark bg · dark = ghost on dark bg · ink = filled on light/cream bg */
+  variant?: "light" | "dark" | "ink";
   showIcon?: boolean;
 };
 
@@ -23,7 +24,9 @@ export function SwapTextButton({
 }: SwapTextButtonProps) {
   const classes = cn(
     "swap-text-button group inline-flex items-center gap-2",
-    variant === "light" ? "swap-text-button--light" : "swap-text-button--dark",
+    variant === "light" && "swap-text-button--light",
+    variant === "dark" && "swap-text-button--dark",
+    variant === "ink" && "swap-text-button--ink",
     className,
   );
 

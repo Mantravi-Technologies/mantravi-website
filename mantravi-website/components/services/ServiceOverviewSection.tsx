@@ -12,15 +12,23 @@ export function ServiceOverviewSection({
   introExtended,
   outcomes,
   overviewImage,
+  showImage = true,
 }: {
   intro: string;
   introExtended: string;
   outcomes: string[];
   overviewImage: ServiceImageSlotConfig;
+  showImage?: boolean;
 }) {
   return (
     <SectionShell id="overview" variant="cream" className="!py-16 md:!py-20">
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-16">
+      <div
+        className={
+          showImage
+            ? "grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-16"
+            : "grid gap-12 lg:grid-cols-1"
+        }
+      >
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -37,24 +45,28 @@ export function ServiceOverviewSection({
           <p className="mt-5 text-base leading-relaxed text-[#050505]/70 md:text-lg">
             {introExtended}
           </p>
-          <div className="mt-8 hidden md:block">
-            <ServiceImageSlot
-              slot={overviewImage}
-              className="w-full max-w-lg"
-            />
-          </div>
+          {showImage && (
+            <div className="mt-8 hidden md:block">
+              <ServiceImageSlot
+                slot={overviewImage}
+                className="w-full max-w-lg"
+              />
+            </div>
+          )}
         </motion.div>
 
         <div className="flex flex-col gap-8">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={fadeUp}
-            className="md:hidden"
-          >
-            <ServiceImageSlot slot={overviewImage} className="w-full" />
-          </motion.div>
+          {showImage && (
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-60px" }}
+              variants={fadeUp}
+              className="md:hidden"
+            >
+              <ServiceImageSlot slot={overviewImage} className="w-full" />
+            </motion.div>
+          )}
 
           <motion.ul
             variants={staggerContainer}

@@ -13,8 +13,11 @@ function testimonialSubtitle(t: Testimonial) {
 
 export function TestimonialsSection() {
   return (
-    <SectionShell variant="cinematic" className="!py-16 md:!py-20">
-      <div className="grain-overlay opacity-15" aria-hidden="true" />
+    <SectionShell
+      variant="cinematic"
+      grain={0.12}
+      className="section-cinematic--flat testimonials-band !py-16 md:!py-20"
+    >
       <SectionHeading title="What Our Partners Say" display />
       <div className="mt-10 grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3">
         {testimonials.map((t) => (

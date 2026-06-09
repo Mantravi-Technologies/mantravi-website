@@ -21,8 +21,8 @@ export function LogoMarquee({
   return (
     <div
       className={cn(
-        "group py-4",
-        pods ? "logo-marquee-shell" : "overflow-hidden",
+        "group",
+        pods ? "logo-marquee-shell" : "overflow-hidden py-4",
         className,
       )}
     >

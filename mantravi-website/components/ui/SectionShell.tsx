@@ -25,28 +25,38 @@ export function SectionShell({
   className = "",
   children,
   container = true,
+  grain,
 }: {
   id?: string;
   variant?: SectionVariant;
   className?: string;
   children: React.ReactNode;
   container?: boolean;
+  /** Full-bleed film grain at section level (opacity 0–1). */
+  grain?: number;
 }) {
   return (
     <section
       id={id}
       className={cn(
-        "relative py-16 md:py-24 lg:py-28",
+        "relative isolate py-16 md:py-24 lg:py-28",
         variantClasses[variant],
         className,
       )}
     >
+      {grain != null && grain > 0 && (
+        <div
+          className="grain-overlay pointer-events-none"
+          style={{ opacity: grain }}
+          aria-hidden="true"
+        />
+      )}
       {container ? (
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {children}
         </div>
       ) : (
-        <div className="relative">{children}</div>
+        <div className="relative z-10">{children}</div>
       )}
     </section>
   );

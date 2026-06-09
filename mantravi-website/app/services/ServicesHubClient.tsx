@@ -3,11 +3,11 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionShell, SectionHeading } from "@/components/ui/SectionShell";
 import { FAQAccordion } from "@/components/ui/Accordion";
-import { StatCounter } from "@/components/ui/StatCounter";
+import { ServicesHubTrustStats } from "@/components/services/ServicesHubTrustStats";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { ServiceImageSlot } from "@/components/services/ServiceImageSlot";
 import { ServicesHubCta } from "@/components/services/ServicesHubCta";
-import { servicesMenu, stats, trustBadges } from "@/lib/content/site-data";
+import { servicesMenu, trustBadges } from "@/lib/content/site-data";
 import {
   servicesHubFaqs,
   servicesHubHero,
@@ -333,19 +333,7 @@ export default function ServicesHubPage() {
           ))}{" "}
         </div>{" "}
       </SectionShell>{" "}
-      <SectionShell variant="cinematic" className="!py-16 md:!py-20">
-        {" "}
-        <div className="grain-overlay opacity-15" aria-hidden="true" />{" "}
-        <SectionHeading
-          title="Trusted delivery at scale"
-          description="Experience across product builds, SEO programs, QA automation, and production AI systems."
-          display
-        />{" "}
-        <div className="relative mt-12">
-          {" "}
-          <StatCounter stats={stats.slice(0, 4)} dark />{" "}
-        </div>{" "}
-      </SectionShell>{" "}
+      <ServicesHubTrustStats />{" "}
       <SectionShell id="faq" variant="cream" className="!py-16 md:!py-20">
         {" "}
         <SectionHeading

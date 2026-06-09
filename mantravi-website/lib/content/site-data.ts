@@ -98,40 +98,40 @@ export const contactForm = {
 export const heroInitCard = contactForm;
 export const stats = [
   {
-    value: 8,
+    value: 50,
     suffix: "+",
-    label: "Years of Experience",
-    sub: "as a digital engineering firm",
+    label: "Production Deployments",
+    sub: "Systems shipped and running in real environments",
   },
   {
-    value: 120,
+    value: 25,
     suffix: "+",
-    label: "Technology Specialists",
-    sub: "building AI-led, cloud-native systems",
+    label: "Engineers & Specialists",
+    sub: "Senior talent across engineering, design, and delivery",
   },
   {
-    value: 250,
+    value: 100,
     suffix: "+",
-    label: "Solutions Delivered",
-    sub: "across consulting and engineering",
+    label: "Client Engagements",
+    sub: "Startups and growing teams since 2020",
   },
   {
-    value: 40,
-    suffix: "+",
-    label: "AI Models Deployed",
-    sub: "across production workflows",
+    value: 4,
+    suffix: "",
+    label: "Core Service Areas",
+    sub: "Web, mobile, digital marketing, and QA",
   },
   {
-    value: 20,
+    value: 6,
     suffix: "+",
-    label: "Industries Mastered",
-    sub: "including regulated sectors",
+    label: "Years in Operation",
+    sub: "Building digital products since 2020",
   },
   {
-    value: 10,
-    suffix: "+",
-    label: "Global Recognitions",
-    sub: "acknowledging engineering excellence",
+    value: 2,
+    suffix: "",
+    label: "Delivery Hubs",
+    sub: "Noida and Lucknow, India",
   },
 ];
 export type ServicePillar = {
@@ -210,10 +210,16 @@ export const portfolioSection = {
   viewAllLabel: "View All Projects",
 };
 export const aiSection = {
-  eyebrow: "Mantravi AI",
-  title: "AI Built for Business, Not Just Demos",
+  title: "AI That Fits How You Work",
   description:
-    "We design and deploy AI that fits your workflows: assistants your team can trust, automation that saves hours, and data systems that keep models accurate over time.",
+    "From assistants and automation to data pipelines — we design AI around your workflows, your data, and the standards your releases need to meet.",
+};
+
+export const homeCtaSection = {
+  title: "Have a Product or AI Initiative in Mind?",
+  description:
+    "Share where you are today and what you need to ship next. We'll respond with a clear scope, timeline, and the right team.",
+  button: "Talk to Our Team",
 };
 export const mantraviLabs = [
   {
@@ -369,35 +375,28 @@ export const awards = [
 ];
 export const companyStats = [
   {
-    value: 8,
+    value: 50,
     suffix: "+",
-    label: "Years of Experience",
-    sub: "Delivering enterprise-grade solutions",
+    label: "Production Deployments",
+    sub: "Systems running in real environments",
   },
   {
-    value: 120,
+    value: 25,
     suffix: "+",
-    label: "Technology Specialists",
-    sub: "Engineers, designers, and strategists",
+    label: "Engineers & Specialists",
+    sub: "Across product, QA, marketing, and AI",
   },
   {
-    value: 250,
-    suffix: "+",
-    label: "Solutions Delivered",
-    sub: "Across 20+ industries",
-  },
-  {
-    value: 20,
-    suffix: "+",
-    label: "Industries Mastered",
-    sub: "Including regulated sectors",
+    value: 4,
+    suffix: "",
+    label: "Core Service Areas",
+    sub: "Engineering, brand & SEO, QA, and AI",
   },
 ];
 export const offices = [{ city: "Noida" }, { city: "Lucknow" }];
 export const footerLinks = {
   company: [
     { label: "About", href: "/about" },
-    { label: "Core Team", href: "/about#team" },
     { label: "Careers", href: "/about#careers" },
     { label: "FAQ", href: "/#faq" },
   ],
@@ -408,12 +407,7 @@ export const footerLinks = {
     { label: "QA & IT", href: "/services/qa-it" },
     { label: "AI Solutions", href: "/services/ai-data" },
   ],
-  portfolio: [
-    { label: "Case Studies", href: "/portfolio" },
-    { label: "FinTech", href: "/portfolio?industry=fintech" },
-    { label: "Healthcare", href: "/portfolio?industry=healthcare" },
-    { label: "eCommerce", href: "/portfolio?industry=ecommerce" },
-  ],
+  portfolio: [{ label: "Case Studies", href: "/portfolio" }],
   resources: [
     { label: "Blog", href: "/blog" },
     { label: "Guides", href: "/blog" },

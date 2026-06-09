@@ -63,7 +63,7 @@ export function ServicesSection() {
                     ))}
                   </ul>
                   <div className="mt-6">
-                    <SwapTextButton href={pillar.href} variant="dark">
+                    <SwapTextButton href={pillar.href} variant="ink">
                       {pillar.cta}
                     </SwapTextButton>
                   </div>

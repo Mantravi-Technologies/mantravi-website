@@ -17,11 +17,13 @@ export function ServiceHero({
   subtitle,
   theme = "engineering",
   heroImage,
+  showImage = true,
 }: {
   title: string;
   subtitle: string;
   theme?: HeroTheme;
   heroImage: ServiceImageSlotConfig;
+  showImage?: boolean;
 }) {
   const { openContact } = useContact();
 
@@ -52,7 +54,12 @@ export function ServiceHero({
           </nav>
         </ScrollReveal>
 
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14 xl:gap-16">
+        <div
+          className={cn(
+            "grid items-center gap-10",
+            showImage && "lg:grid-cols-2 lg:gap-14 xl:gap-16",
+          )}
+        >
           <div>
             <ScrollReveal>
               <h1 className="title-display text-4xl text-white md:text-5xl lg:text-6xl xl:text-7xl">
@@ -83,14 +90,16 @@ export function ServiceHero({
             </ScrollReveal>
           </div>
 
-          <ScrollReveal className="lg:justify-self-end lg:w-full lg:max-w-xl">
-            <ServiceImageSlot
-              slot={heroImage}
-              priority
-              variant="dark"
-              className="w-full shadow-2xl shadow-black/40"
-            />
-          </ScrollReveal>
+          {showImage && (
+            <ScrollReveal className="lg:justify-self-end lg:w-full lg:max-w-xl">
+              <ServiceImageSlot
+                slot={heroImage}
+                priority
+                variant="dark"
+                className="w-full shadow-2xl shadow-black/40"
+              />
+            </ScrollReveal>
+          )}
         </div>
       </div>
     </section>

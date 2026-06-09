@@ -6,11 +6,10 @@ import { stats } from "@/lib/content/site-data";
 
 export function StatsSection() {
   return (
-    <SectionShell variant="cinematic" className="!py-20 md:!py-28">
-      <div className="grain-overlay opacity-15" aria-hidden="true" />
+    <SectionShell variant="cinematic" grain={0.15} className="!py-20 md:!py-28">
       <SectionHeading
         title="Built on Experience, Measured in Outcomes"
-        description="Numbers that reflect years of delivery across AI, engineering, and enterprise transformation."
+        description="Figures from Mantravi's delivery track record across engineering, growth, QA, and AI."
         display
       />
       <div className="relative mt-16">

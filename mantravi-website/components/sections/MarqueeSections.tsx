@@ -6,7 +6,10 @@ import { clientLogos, partners } from "@/lib/content/site-data";
 
 export function ClientMarqueeSection() {
   return (
-    <SectionShell variant="cream" className="!py-16 md:!py-20">
+    <SectionShell
+      variant="cream"
+      className="trusted-by-band relative z-[1] !py-16 md:!py-20"
+    >
       <SectionHeading
         eyebrow="Trusted By"
         title="Brands That Scale With Mantravi"

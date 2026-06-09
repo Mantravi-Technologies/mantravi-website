@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,62 +11,147 @@ import { useContact } from "@/components/providers/ContactProvider";
 import { useLenis } from "@/components/providers/SmoothScrollProvider";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { portfolioSection } from "@/lib/content/site-data";
-import {
-  getCarouselCaseStudies,
-  type CaseStudy,
-} from "@/lib/content/case-studies";
+import { type CaseStudy } from "@/lib/content/case-studies";
+import { getCaseStudyImage } from "@/lib/content/case-study-images";
 import { cn } from "@/lib/utils";
 
-const CAROUSEL_ITEMS = getCarouselCaseStudies();
-const CARD_COUNT = CAROUSEL_ITEMS.length;
-const ANGLE_STEP = 360 / CARD_COUNT;
-const INTRO_PORTION = 0.15;
-const CAROUSEL_PORTION = 1 - INTRO_PORTION;
+/** Single pin: intro timeline + carousel rotation share one ScrollTrigger progress */
+const CAROUSEL_FADE_START = 0.18;
+const ROTATION_DEADZONE = 0.14;
+const SCENE_SCRUB = 0.85;
+/** Scroll with SHIP only before text→card transition begins */
+const INTRO_HOLD_VH = 0.7;
+/** Scroll span for SHIP blur/fade + carousel reveal */
+const INTRO_TRANSITION_VH = 0.55;
+/** Extra viewport scroll after the last card centers before the section unpins */
+const CAROUSEL_EXIT_HOLD_VH = 0.55;
 
-function radiusFromStageWidth(width: number) {
-  if (width < 768) return Math.min(260, Math.max(180, width * 0.42));
-  return Math.min(400, Math.max(240, width * 0.38));
+function getIntroHoldDistance() {
+  if (typeof window === "undefined") return 480;
+  return window.innerHeight * INTRO_HOLD_VH;
 }
 
-function getScrollDistance() {
-  if (typeof window === "undefined") return 2800;
-  return window.innerHeight * (1.2 + CARD_COUNT * 0.45);
+function getIntroTransitionDistance() {
+  if (typeof window === "undefined") return 320;
+  return window.innerHeight * INTRO_TRANSITION_VH;
 }
 
-function normalizeIndex(index: number) {
-  return ((index % CARD_COUNT) + CARD_COUNT) % CARD_COUNT;
+function getIntroScrollDistance() {
+  return getIntroHoldDistance() + getIntroTransitionDistance();
 }
 
-function rotationToIndex(degrees: number) {
+function getCarouselCardScrollDistance(cardCount: number) {
+  if (typeof window === "undefined") return 1650;
+  return window.innerHeight * (1.1 + cardCount * 0.74);
+}
+
+function getCarouselHoldDistance() {
+  if (typeof window === "undefined") return 420;
+  return window.innerHeight * CAROUSEL_EXIT_HOLD_VH;
+}
+
+function getCarouselScrollDistance(cardCount: number) {
+  return getCarouselCardScrollDistance(cardCount) + getCarouselHoldDistance();
+}
+
+function getCarouselActivePortion(cardCount: number) {
+  const total = getCarouselScrollDistance(cardCount);
+  if (total <= 0) return 1;
+  return getCarouselCardScrollDistance(cardCount) / total;
+}
+
+function rawCarouselPhaseToVisualPhase(rawPhase: number, cardCount: number) {
+  const activePortion = getCarouselActivePortion(cardCount);
+  if (activePortion <= 0) return Math.min(1, rawPhase);
+  return Math.min(1, rawPhase / activePortion);
+}
+
+function visualCarouselPhaseToRawPhase(visualPhase: number, cardCount: number) {
+  return visualPhase * getCarouselActivePortion(cardCount);
+}
+
+function maxVisualProgress(cardCount: number) {
+  if (cardCount <= 1) return 0;
+  return (cardCount - 1) / cardCount;
+}
+
+function angleStep(cardCount: number) {
+  return 360 / cardCount;
+}
+
+function cardWidthFromStage(width: number) {
+  if (width < 768) return Math.min(280, Math.max(230, width * 0.68));
+  return Math.min(245, Math.max(165, width * 0.2));
+}
+
+/** Tight ring radius so adjacent cards sit close like Appinventiv's 360 carousel */
+function radiusFromStageWidth(width: number, cardCount: number) {
+  const cardWidth = cardWidthFromStage(width);
+  const halfAngle = Math.PI / Math.max(2, cardCount);
+  const edgeGapRatio = 0.06;
+  const chord = cardWidth * (1 + edgeGapRatio);
+  return Math.round(chord / (2 * Math.sin(halfAngle)));
+}
+
+
+function carouselPhaseFromIndex(index: number, cardCount: number) {
+  const maxVis = maxVisualProgress(cardCount);
+  const visual = visualProgressFromIndex(index, cardCount);
+  if (maxVis <= 0 || visual <= 0) return 0;
+  const raw = visual / maxVis;
+  return ROTATION_DEADZONE + raw * (1 - ROTATION_DEADZONE);
+}
+
+function visualFromCarouselPhase(phase: number, cardCount: number) {
+  if (phase <= ROTATION_DEADZONE) return 0;
+  const normalized =
+    (phase - ROTATION_DEADZONE) / (1 - ROTATION_DEADZONE);
+  return normalized * maxVisualProgress(cardCount);
+}
+
+function normalizeIndex(index: number, cardCount: number) {
+  return ((index % cardCount) + cardCount) % cardCount;
+}
+
+function rotationToIndex(degrees: number, cardCount: number) {
+  const step = angleStep(cardCount);
   const normalized = ((degrees % 360) + 360) % 360;
-  return normalizeIndex(Math.round(normalized / ANGLE_STEP));
+  return normalizeIndex(Math.round(normalized / step), cardCount);
 }
 
-function progressFromIndex(index: number) {
-  return (
-    INTRO_PORTION + (normalizeIndex(index) / CARD_COUNT) * CAROUSEL_PORTION
-  );
+function visualProgressFromIndex(index: number, cardCount: number) {
+  if (cardCount <= 1) return 0;
+  return normalizeIndex(index, cardCount) / cardCount;
 }
 
-function applyCarouselProgress(
-  p: number,
+function scrollPosForIndex(
+  index: number,
+  cardCount: number,
+  sceneSt: ScrollTrigger,
+  introPortion: number,
+) {
+  const carouselPhase = carouselPhaseFromIndex(index, cardCount);
+  const carouselRawPhase =
+    carouselPhase <= 0 ? 0.001 : visualCarouselPhaseToRawPhase(carouselPhase, cardCount);
+  const overallProgress =
+    introPortion + carouselRawPhase * (1 - introPortion);
+  return sceneSt.start + overallProgress * (sceneSt.end - sceneSt.start);
+}
+
+function applyCarouselVisual(
+  visualProgress: number,
+  cardCount: number,
   ring: HTMLDivElement,
   syncCardStates: (rotationDeg: number, active: number) => void,
-  setActiveIndex: (index: number) => void,
+  setActiveIndexIfChanged: (index: number) => void,
 ) {
-  let carouselProgress = 0;
-  let active = 0;
-
-  if (p > INTRO_PORTION) {
-    carouselProgress = (p - INTRO_PORTION) / CAROUSEL_PORTION;
-    carouselProgress = Math.min(1, Math.max(0, carouselProgress));
-    active = rotationToIndex(carouselProgress * 360);
-  }
-
-  const rotateY = -carouselProgress * 360;
-  gsap.set(ring, { rotateY });
-  syncCardStates(carouselProgress * 360, active);
-  setActiveIndex(active);
+  const maxVis = maxVisualProgress(cardCount);
+  const carouselProgress = gsap.utils.clamp(0, maxVis, visualProgress);
+  const rotationDeg = carouselProgress * 360;
+  const active = rotationToIndex(rotationDeg, cardCount);
+  gsap.set(ring, { rotateY: -rotationDeg, force3D: true });
+  syncCardStates(rotationDeg, active);
+  setActiveIndexIfChanged(active);
 }
 
 function PortfolioDetailCaption({ study }: { study: CaseStudy }) {
@@ -96,6 +182,8 @@ function CardVisual({
   study: CaseStudy;
   isActive: boolean;
 }) {
+  const cardImage = getCaseStudyImage(study, "homepageCarousel");
+
   return (
     <Link
       href={`/portfolio/${study.slug}`}
@@ -110,17 +198,30 @@ function CardVisual({
         className={cn(
           "portfolio-360-card-visual bg-gradient-to-br",
           study.gradient || "from-primary/40 to-primary/10",
+          isActive && !cardImage && "from-primary/55 to-primary/20",
         )}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_55%)]" />
-        <div className="absolute right-4 top-4 h-24 w-36 rounded-lg border border-white/15 bg-white/10 backdrop-blur-sm shadow-lg">
-          <div className="h-2.5 border-b border-white/15 bg-white/10" />
-          <div className="space-y-1.5 p-2">
-            <div className="h-1.5 w-3/4 rounded bg-white/30" />
-            <div className="h-1.5 w-1/2 rounded bg-white/20" />
-            <div className="mt-2 h-6 w-full rounded bg-white/25" />
-          </div>
-        </div>
+        {cardImage ? (
+          <Image
+            src={cardImage}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 72vw, 280px"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_55%)]" />
+            <div className="absolute right-4 top-4 h-24 w-36 rounded-lg border border-white/15 bg-white/10 backdrop-blur-sm shadow-lg">
+              <div className="h-2.5 border-b border-white/15 bg-white/10" />
+              <div className="space-y-1.5 p-2">
+                <div className="h-1.5 w-3/4 rounded bg-white/30" />
+                <div className="h-1.5 w-1/2 rounded bg-white/20" />
+                <div className="mt-2 h-6 w-full rounded bg-white/25" />
+              </div>
+            </div>
+          </>
+        )}
         <div className="portfolio-360-card-overlay" />
         <div className="portfolio-360-card-meta">
           <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
@@ -132,9 +233,10 @@ function CardVisual({
   );
 }
 
-function Portfolio360Fallback() {
+function Portfolio360Fallback({ items }: { items: CaseStudy[] }) {
+  const cardCount = items.length;
   const [active, setActive] = useState(0);
-  const study = CAROUSEL_ITEMS[active];
+  const study = items[active] ?? items[0];
   const { openContact } = useContact();
 
   return (
@@ -164,7 +266,9 @@ function Portfolio360Fallback() {
               type="button"
               className="portfolio-360-nav-btn"
               aria-label="Previous project"
-              onClick={() => setActive((i) => normalizeIndex(i - 1))}
+              onClick={() =>
+                setActive((i) => normalizeIndex(i - 1, cardCount))
+              }
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -179,7 +283,9 @@ function Portfolio360Fallback() {
               type="button"
               className="portfolio-360-nav-btn"
               aria-label="Next project"
-              onClick={() => setActive((i) => normalizeIndex(i + 1))}
+              onClick={() =>
+                setActive((i) => normalizeIndex(i + 1, cardCount))
+              }
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -193,50 +299,80 @@ function Portfolio360Fallback() {
   );
 }
 
-function Portfolio360Experience() {
+function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
+  const cardCount = items.length;
+  const step = angleStep(cardCount);
+
   const triggerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
+  const focusBackdropRef = useRef<HTMLDivElement>(null);
   const carouselWrapRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
-  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const introScrollTriggerRef = useRef<ScrollTrigger | null>(null);
+  const activeIndexRef = useRef(0);
   const lenis = useLenis();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [radius, setRadius] = useState(320);
   const { openContact } = useContact();
 
-  const activeStudy = CAROUSEL_ITEMS[activeIndex];
+  const activeStudy = items[activeIndex] ?? items[0];
 
-  const syncCardStates = useCallback((rotationDeg: number, active: number) => {
-    if (!ringRef.current) return;
-    const cards = ringRef.current.querySelectorAll<HTMLElement>(
-      "[data-carousel-card]",
-    );
-    cards.forEach((card, i) => {
-      const cardAngle = (i * ANGLE_STEP + rotationDeg) % 360;
-      const dist = Math.min(Math.abs(cardAngle), Math.abs(360 - cardAngle));
-      const isActive = i === active;
-      card.style.opacity = String(isActive ? 1 : Math.max(0.35, 1 - dist / 90));
-      card.style.filter = isActive
-        ? "blur(0px)"
-        : `blur(${Math.min(2, dist / 45)}px)`;
-      card.classList.toggle("is-active", isActive);
-    });
+  const setActiveIndexIfChanged = useCallback((index: number) => {
+    if (activeIndexRef.current === index) return;
+    activeIndexRef.current = index;
+    setActiveIndex(index);
   }, []);
+
+  const syncCardStates = useCallback(
+    (rotationDeg: number, active: number) => {
+      if (!ringRef.current) return;
+      const cards = ringRef.current.querySelectorAll<HTMLElement>(
+        "[data-carousel-card]",
+      );
+      cards.forEach((card, i) => {
+        const cardAngle = (i * step + rotationDeg) % 360;
+        const dist = Math.min(Math.abs(cardAngle), Math.abs(360 - cardAngle));
+        const isActive = i === active;
+        const isMobile = window.matchMedia("(max-width: 767px)").matches;
+        const sideScaleMin = isMobile ? 0.68 : 0.74;
+        const sideOpacityMin = isMobile ? 0.38 : 0.5;
+        const scale = isActive ? 1 : Math.max(sideScaleMin, 1 - dist / 200);
+        card.style.setProperty("--card-scale", String(scale));
+        card.style.opacity = String(
+          isActive ? 1 : Math.max(sideOpacityMin, 1 - dist / 110),
+        );
+        card.style.filter = isActive
+          ? "none"
+          : `blur(${Math.min(1.5, dist / 60)}px) brightness(0.82)`;
+        card.style.zIndex = String(isActive ? 10 : Math.max(1, 6 - Math.round(dist / 25)));
+        card.classList.toggle("is-active", isActive);
+      });
+    },
+    [step],
+  );
 
   const goToIndex = useCallback(
     (index: number) => {
-      const target = normalizeIndex(index);
-      const st = scrollTriggerRef.current;
-      if (!st) {
+      const target = normalizeIndex(index, cardCount);
+      const sceneSt = introScrollTriggerRef.current;
+      if (!sceneSt) {
         setActiveIndex(target);
         return;
       }
 
-      const targetProgress = progressFromIndex(target);
-      const scrollPos = st.start + (st.end - st.start) * targetProgress;
+      const introDistance = getIntroScrollDistance();
+      const carouselDistance = getCarouselScrollDistance(cardCount);
+      const introPortion =
+        introDistance / (introDistance + carouselDistance);
+      const scrollPos = scrollPosForIndex(
+        target,
+        cardCount,
+        sceneSt,
+        introPortion,
+      );
 
       if (lenis) {
         lenis.scrollTo(scrollPos, { duration: 1.1 });
@@ -244,7 +380,7 @@ function Portfolio360Experience() {
         window.scrollTo({ top: scrollPos, behavior: "smooth" });
       }
     },
-    [lenis],
+    [lenis, cardCount],
   );
 
   useEffect(() => {
@@ -252,14 +388,14 @@ function Portfolio360Experience() {
     if (!stage) return;
 
     const updateRadius = () => {
-      setRadius(radiusFromStageWidth(stage.clientWidth));
+      setRadius(radiusFromStageWidth(stage.clientWidth, cardCount));
     };
 
     updateRadius();
     const observer = new ResizeObserver(updateRadius);
     observer.observe(stage);
     return () => observer.disconnect();
-  }, []);
+  }, [cardCount]);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -267,61 +403,119 @@ function Portfolio360Experience() {
     const trigger = triggerRef.current;
     const scene = sceneRef.current;
     const intro = introRef.current;
+    const focusBackdrop = focusBackdropRef.current;
     const carouselWrap = carouselWrapRef.current;
     const ring = ringRef.current;
 
-    if (!trigger || !scene || !intro || !carouselWrap || !ring) return;
+    if (!trigger || !scene || !intro || !focusBackdrop || !carouselWrap || !ring)
+      return;
 
-    const scrollDistance = getScrollDistance();
+    const introDistance = getIntroScrollDistance();
+    const introHoldDistance = getIntroHoldDistance();
+    const introHoldRatio =
+      introDistance > 0 ? introHoldDistance / introDistance : 0;
+    const carouselDistance = getCarouselScrollDistance(cardCount);
+    const totalDistance = introDistance + carouselDistance;
+    const introPortion = introDistance / totalDistance;
 
-    const syncFromProgress = (p: number) => {
-      applyCarouselProgress(p, ring, syncCardStates, setActiveIndex);
+    const applyVisual = (visual: number) => {
+      applyCarouselVisual(
+        visual,
+        cardCount,
+        ring,
+        syncCardStates,
+        setActiveIndexIfChanged,
+      );
     };
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger,
-        start: "top top",
-        end: `+=${scrollDistance}`,
-        pin: scene,
-        scrub: 0.85,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => syncFromProgress(self.progress),
-        onRefresh: (self) => syncFromProgress(self.progress),
-      },
+    const syncCarouselPhase = (phase: number) => {
+      const visual = visualFromCarouselPhase(phase, cardCount);
+      applyVisual(visual);
+    };
+
+    const syncSceneProgress = (progress: number) => {
+      if (progress <= introPortion) {
+        const introProgress = progress / introPortion;
+        if (introProgress <= introHoldRatio) {
+          introTl.progress(0);
+        } else {
+          const transitionProgress =
+            (introProgress - introHoldRatio) / (1 - introHoldRatio);
+          introTl.progress(transitionProgress);
+        }
+        syncCarouselPhase(0);
+        return;
+      }
+
+      introTl.progress(1);
+      const carouselRawPhase = (progress - introPortion) / (1 - introPortion);
+      const carouselPhase = rawCarouselPhaseToVisualPhase(
+        carouselRawPhase,
+        cardCount,
+      );
+      syncCarouselPhase(carouselPhase);
+    };
+
+    gsap.set(intro, { opacity: 1, scale: 1, filter: "none", visibility: "visible" });
+    gsap.set(focusBackdrop, { opacity: 0 });
+    gsap.set(carouselWrap, { autoAlpha: 0, y: 28, scale: 0.97 });
+
+    const introTl = gsap.timeline({ paused: true });
+
+    introTl
+      .to(
+        intro,
+        {
+          opacity: 0,
+          scale: 1.015,
+          filter: "blur(14px)",
+          duration: 0.42,
+          ease: "power2.inOut",
+        },
+        0,
+      )
+      .fromTo(
+        focusBackdrop,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.38, ease: "power1.out" },
+        0.06,
+      )
+      .fromTo(
+        carouselWrap,
+        { autoAlpha: 0, y: 28, scale: 0.97 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.48,
+          ease: "power2.out",
+        },
+        CAROUSEL_FADE_START,
+      );
+
+    const sceneSt = ScrollTrigger.create({
+      trigger,
+      start: "top top",
+      end: `+=${totalDistance}`,
+      pin: scene,
+      scrub: SCENE_SCRUB,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+      id: "portfolio-scene",
+      onUpdate: (self) => syncSceneProgress(self.progress),
+      onRefresh: (self) => syncSceneProgress(self.progress),
     });
 
-    tl.to(
-      intro,
-      {
-        opacity: 0,
-        scale: 1.02,
-        filter: "blur(16px)",
-        duration: 0.2,
-        ease: "power2.inOut",
-      },
-      0,
-    ).fromTo(
-      carouselWrap,
-      { opacity: 0, y: 40 },
-      { opacity: 1, y: 0, duration: 0.18, ease: "power2.out" },
-      0.1,
-    );
-
-    scrollTriggerRef.current = tl.scrollTrigger ?? null;
-    syncFromProgress(tl.scrollTrigger?.progress ?? 0);
-
-    const onResize = () => ScrollTrigger.refresh();
-    window.addEventListener("resize", onResize);
+    introScrollTriggerRef.current = sceneSt;
+    applyVisual(0);
+    syncSceneProgress(sceneSt.progress);
 
     return () => {
-      window.removeEventListener("resize", onResize);
-      tl.scrollTrigger?.kill();
-      tl.kill();
-      scrollTriggerRef.current = null;
+      sceneSt.kill();
+      introTl.kill();
+      introScrollTriggerRef.current = null;
     };
-  }, [syncCardStates]);
+  }, [cardCount, syncCardStates, setActiveIndexIfChanged]);
 
   return (
     <div ref={triggerRef} className="portfolio-360-trigger" id="portfolio">
@@ -338,7 +532,7 @@ function Portfolio360Experience() {
               <span className="portfolio-360-intro-label">
                 {portfolioSection.introLabel}
               </span>
-              <span className="portfolio-360-intro-title">
+              <span className="portfolio-360-intro-title title-display">
                 {portfolioSection.introTitle}
               </span>
             </div>
@@ -348,13 +542,19 @@ function Portfolio360Experience() {
           </div>
         </div>
 
+        <div
+          ref={focusBackdropRef}
+          className="portfolio-360-focus-backdrop"
+          aria-hidden="true"
+        />
+
         <div ref={carouselWrapRef} className="portfolio-360-carousel-wrap">
           <div className="portfolio-360-stage-area">
             <div ref={stageRef} className="portfolio-360-stage">
               <div className="portfolio-360-scene-inner">
                 <div className="portfolio-360-ring-pivot">
                   <div ref={ringRef} className="portfolio-360-ring">
-                    {CAROUSEL_ITEMS.map((study, i) => (
+                    {items.map((study, i) => (
                       <div
                         key={study.slug}
                         data-carousel-card
@@ -364,7 +564,7 @@ function Portfolio360Experience() {
                         )}
                         style={
                           {
-                            "--angle": `${i * ANGLE_STEP}deg`,
+                            "--angle": `${i * step}deg`,
                             "--radius": `${radius}px`,
                           } as React.CSSProperties
                         }
@@ -415,7 +615,7 @@ function Portfolio360Experience() {
             </div>
 
             <div className="portfolio-360-dots" aria-hidden="true">
-              {CAROUSEL_ITEMS.map((study, i) => (
+              {items.map((study, i) => (
                 <button
                   key={study.slug}
                   type="button"
@@ -439,12 +639,18 @@ function Portfolio360Experience() {
   );
 }
 
-export function PortfolioShowcaseSection() {
+export function PortfolioShowcaseSectionClient({
+  items,
+}: {
+  items: CaseStudy[];
+}) {
   const reducedMotion = useReducedMotion();
 
+  if (items.length === 0) return null;
+
   if (reducedMotion) {
-    return <Portfolio360Fallback />;
+    return <Portfolio360Fallback items={items} />;
   }
 
-  return <Portfolio360Experience />;
+  return <Portfolio360Experience items={items} />;
 }

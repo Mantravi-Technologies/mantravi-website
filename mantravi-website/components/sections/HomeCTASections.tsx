@@ -6,6 +6,7 @@ import { SectionShell, SectionHeading } from "@/components/ui/SectionShell";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { FAQAccordion } from "@/components/ui/Accordion";
 import { faqs } from "@/lib/content/about-data";
+import { homeCtaSection } from "@/lib/content/site-data";
 
 export function FAQSection() {
   return (
@@ -40,17 +41,16 @@ export function CTASection() {
         <div className="relative z-10 mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-12 lg:px-8">
           <ScrollReveal>
             <h2 className="title-display text-4xl text-slate-950 md:text-5xl lg:text-6xl">
-              Ready to innovate and drive an impact?
+              {homeCtaSection.title}
             </h2>
           </ScrollReveal>
           <ScrollReveal>
             <p className="text-lg leading-relaxed text-slate-800">
-              Transform your business with cutting-edge technology. Let&apos;s
-              build something meaningful together.
+              {homeCtaSection.description}
             </p>
             <div className="mt-6">
               <SwapTextButton variant="light" onClick={openContact}>
-                Partner With Us
+                {homeCtaSection.button}
               </SwapTextButton>
             </div>
           </ScrollReveal>

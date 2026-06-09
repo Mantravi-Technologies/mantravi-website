@@ -35,6 +35,20 @@ export type ServiceImages = {
   process: ServiceImageSlot;
   whyUs: ServiceImageSlot;
 };
+export type ServiceLayoutVariant =
+  | "editorial"
+  | "authority"
+  | "qa-technical"
+  | "modular"
+  | "ai-futuristic";
+export type ServiceShowSections = {
+  showcase: boolean;
+  overviewImage: boolean;
+  whyUsImage: boolean;
+  heroImage: boolean;
+  processImage: boolean;
+};
+export type ServiceTrustMetric = { value: string; label: string };
 export type ServicePage = {
   slug: string;
   title: string;
@@ -61,6 +75,9 @@ export type ServicePage = {
   faqHeading?: string;
   faqDescription?: string;
   heroTheme?: "engineering" | "marketing" | "qa" | "ai";
+  layoutVariant: ServiceLayoutVariant;
+  showSections: ServiceShowSections;
+  trustMetrics?: ServiceTrustMetric[];
   images: ServiceImages;
   seoContent?: ServiceSeoContent;
   relatedSlugs?: string[];
@@ -128,6 +145,15 @@ function serviceImages(
     whyUs: { ...copy.whyUs, path: `${base}/why-us.webp`, aspect: "portrait" },
   };
 }
+
+const defaultShowSections: ServiceShowSections = {
+  showcase: false,
+  overviewImage: false,
+  whyUsImage: false,
+  heroImage: false,
+  processImage: false,
+};
+
 export const servicePages: ServicePage[] = [
   {
     slug: "product-engineering",
@@ -259,28 +285,41 @@ export const servicePages: ServicePage[] = [
     faqDescription:
       "Common questions about MVPs, timelines, and working with Mantravi on custom software.",
     heroTheme: "engineering",
-    images: serviceImages("product-engineering", {
-      hero: {
-        alt: "Mantravi product engineering team building a web and mobile application",
-        hint: "Hero, team at work, product UI mockup, or sprint demo",
-      },
-      overview: {
-        alt: "Digital product dashboard and mobile app interfaces",
-        hint: "Overview, shipped product screens or design system preview",
-      },
-      showcase: {
-        alt: "Full-width showcase of Mantravi product development work",
-        hint: "Showcase banner, case study collage or flagship product shot",
-      },
-      process: {
-        alt: "Product development workflow from discovery to launch",
-        hint: "Process, workshop, wireframes, or sprint board photo",
-      },
-      whyUs: {
-        alt: "Mantravi engineers collaborating on a digital product",
-        hint: "Why us, team culture, pairing session, or client workshop",
-      },
-    }),
+    layoutVariant: "editorial",
+    showSections: {
+      ...defaultShowSections,
+      processImage: true,
+    },
+    images: (() => {
+      const imgs = serviceImages("product-engineering", {
+        hero: {
+          alt: "Mantravi product engineering team building a web and mobile application",
+          hint: "Hero, team at work, product UI mockup, or sprint demo",
+        },
+        overview: {
+          alt: "Digital product dashboard and mobile app interfaces",
+          hint: "Overview, shipped product screens or design system preview",
+        },
+        showcase: {
+          alt: "Full-width showcase of Mantravi product development work",
+          hint: "Showcase banner, case study collage or flagship product shot",
+        },
+        process: {
+          alt: "Mantravi engineers collaborating on code and mobile UI designs",
+          hint: "Process, workshop, wireframes, or sprint board photo",
+        },
+        whyUs: {
+          alt: "Mantravi engineers collaborating on a digital product",
+          hint: "Why us, team culture, pairing session, or client workshop",
+        },
+      });
+      imgs.process = {
+        ...imgs.process,
+        src: "/images/services/product-engineering/process.webp",
+        aspect: "portrait",
+      };
+      return imgs;
+    })(),
     faqs: [
       {
         question: "Do you build both web and mobile from one codebase?",
@@ -455,6 +494,8 @@ export const servicePages: ServicePage[] = [
     faqDescription:
       "Answers about SEO timelines, social strategy, and combining redesign with search optimization.",
     heroTheme: "marketing",
+    layoutVariant: "authority",
+    showSections: defaultShowSections,
     images: serviceImages("consulting", {
       hero: {
         alt: "Brand identity and SEO marketing strategy session",
@@ -469,7 +510,7 @@ export const servicePages: ServicePage[] = [
         hint: "Showcase banner, before/after rankings or campaign visuals",
       },
       process: {
-        alt: "SEO audit and marketing strategy planning",
+        alt: "SEO and marketing analytics dashboard showing traffic and keyword growth",
         hint: "Process, keyword research, content planning, or ad creative review",
       },
       whyUs: {
@@ -662,6 +703,14 @@ export const servicePages: ServicePage[] = [
     faqDescription:
       "Questions about test automation, CI/CD integration, and ongoing QA retainers.",
     heroTheme: "qa",
+    layoutVariant: "qa-technical",
+    showSections: defaultShowSections,
+    trustMetrics: [
+      { value: "87%", label: "Typical test coverage target" },
+      { value: "12/day", label: "Deployment frequency" },
+      { value: "18 min", label: "Mean time to recovery" },
+      { value: "50+", label: "Projects tested" },
+    ],
     images: serviceImages("qa-it", {
       hero: {
         alt: "QA engineers running automated tests and CI/CD pipelines",
@@ -676,7 +725,7 @@ export const servicePages: ServicePage[] = [
         hint: "Showcase banner, CI/CD flow diagram or testing toolchain",
       },
       process: {
-        alt: "QA release process with automated and manual testing",
+        alt: "CI/CD pipeline overview with automated test and deployment stages",
         hint: "Process, regression suite, staging sign-off, or load test",
       },
       whyUs: {
@@ -870,6 +919,14 @@ export const servicePages: ServicePage[] = [
     faqDescription:
       "Common questions about RAG, data readiness, hallucination control, and integrating AI into existing software.",
     heroTheme: "ai",
+    layoutVariant: "ai-futuristic",
+    trustMetrics: [
+      { value: "RAG", label: "Grounded GenAI patterns" },
+      { value: "<2s", label: "Target assistant latency" },
+      { value: "24/7", label: "Pipeline & model monitoring" },
+      { value: "MLOps", label: "Governed production rollouts" },
+    ],
+    showSections: defaultShowSections,
     images: serviceImages("ai-data", {
       hero: {
         alt: "AI and data engineering, LLM agents and analytics pipelines",
@@ -884,7 +941,7 @@ export const servicePages: ServicePage[] = [
         hint: "Showcase banner, agent workflow or analytics insight screen",
       },
       process: {
-        alt: "AI delivery process from discovery to MLOps",
+        alt: "AI assistant interface with smart insights and product recommendations",
         hint: "Process, model evaluation, integration, or governance review",
       },
       whyUs: {

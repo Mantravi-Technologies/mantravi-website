@@ -24,11 +24,7 @@ export function MantraviLabsSection() {
       <div className="grain-overlay opacity-15" aria-hidden="true" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-10 lg:px-8">
-        <SectionHeading
-          eyebrow={aiSection.eyebrow}
-          title={aiSection.title}
-          display
-        />
+        <SectionHeading title={aiSection.title} display />
 
         <div className="mx-auto mt-5 max-w-3xl text-center md:mt-6">
           <TextReveal
@@ -61,18 +57,19 @@ export function MantraviLabsSection() {
           ))}
         </div>
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={lab.title}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
+            initial={{ y: 10 }}
+            animate={{ y: 0 }}
+            exit={{ y: -10 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
             className="mt-8 grid gap-4 sm:grid-cols-3 md:mt-9"
           >
             {lab.items.map((item) => (
               <div
                 key={item}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm transition-colors hover:border-primary/25"
+                className="labs-card rounded-2xl p-6 transition-colors hover:border-primary/25"
               >
                 <div className="mb-3 h-1 w-8 rounded-full bg-primary" />
                 <h3 className="text-lg font-bold text-white">{item}</h3>

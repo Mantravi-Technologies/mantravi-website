@@ -1,40 +1,58 @@
 import type { MetadataRoute } from "next";
+import { blogCategories } from "@/lib/content/blog-data";
 import { siteConfig } from "@/lib/content/site-data";
-import { caseStudies } from "@/lib/content/case-studies";
-import { blogPosts } from "@/lib/content/blog-data";
-
+import { getPortfolioListing } from "@/lib/content/portfolio";
+import { getAllBlogPosts } from "@/lib/content/blog";
 import { getAllServiceSlugs } from "@/lib/content/services-data";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+const BUILD_DATE = new Date();
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
 
-  const staticPages = ["", "/about", "/portfolio", "/blog", "/services"].map((path) => ({
-    url: `${base}${path}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: path === "" ? 1 : 0.8,
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: `${base}`, lastModified: BUILD_DATE, changeFrequency: "weekly", priority: 1 },
+    { url: `${base}/services`, lastModified: BUILD_DATE, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${base}/about`, lastModified: BUILD_DATE, changeFrequency: "monthly", priority: 0.75 },
+    { url: `${base}/portfolio`, lastModified: BUILD_DATE, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/blog`, lastModified: BUILD_DATE, changeFrequency: "weekly", priority: 0.8 },
+  ];
+
+  const servicePages = getAllServiceSlugs().map((slug) => ({
+    url: `${base}/services/${slug}`,
+    lastModified: BUILD_DATE,
+    changeFrequency: "monthly" as const,
+    priority: 0.85,
   }));
 
+  const caseStudies = await getPortfolioListing();
   const portfolioPages = caseStudies.map((cs) => ({
     url: `${base}/portfolio/${cs.slug}`,
-    lastModified: new Date(),
+    lastModified: BUILD_DATE,
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
 
+  const blogPosts = await getAllBlogPosts();
   const blogPages = blogPosts.map((post) => ({
     url: `${base}/blog/${post.slug}`,
-    lastModified: new Date(post.publishedAt),
+    lastModified: new Date(post.updatedAt ?? post.publishedAt),
     changeFrequency: "monthly" as const,
-    priority: 0.6,
+    priority: 0.7,
   }));
 
-  const servicePages = getAllServiceSlugs().map((slug) => ({
-    url: `${base}/services/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
+  const categoryPages = blogCategories.map((cat) => ({
+    url: `${base}/blog/category/${cat.slug}`,
+    lastModified: BUILD_DATE,
+    changeFrequency: "weekly" as const,
+    priority: 0.65,
   }));
 
-  return [...staticPages, ...servicePages, ...portfolioPages, ...blogPages];
+  return [
+    ...staticPages,
+    ...servicePages,
+    ...portfolioPages,
+    ...blogPages,
+    ...categoryPages,
+  ];
 }

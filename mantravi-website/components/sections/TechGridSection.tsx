@@ -8,9 +8,7 @@ import { serviceLink } from "@/lib/utils/service-link";
 import { staggerContainer, fadeUp } from "@/lib/animations/variants";
 export function TechGridSection() {
   return (
-    <SectionShell variant="cinematic" className="!py-16 md:!py-20">
-      {" "}
-      <div className="grain-overlay opacity-15" aria-hidden="true" />{" "}
+    <SectionShell variant="cinematic" grain={0.15} className="!py-16 md:!py-20">
       <SectionHeading
         title="Technology Expertise That Powers Innovation"
         description="Deep capabilities across AI, cloud, data, and full-stack engineering, engineered for enterprise reliability."

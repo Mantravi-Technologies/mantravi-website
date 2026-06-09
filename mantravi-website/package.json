@@ -7,8 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sanity:dev": "sanity dev",
-    "sanity:deploy": "sanity deploy"
+    "optimize:service-images": "node scripts/optimize-service-images.mjs",
+    "sanity:dev": "node scripts/run-sanity-cli.mjs dev",
+    "sanity:deploy": "node scripts/run-sanity-cli.mjs deploy",
+    "sanity:login": "sanity login",
+    "seed:sanity": "node scripts/seed-sanity.mjs",
+    "seed:blogs": "node scripts/seed-blogs.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -39,6 +43,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.7",
     "postcss": "^8.5.15",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3"
   }

@@ -65,17 +65,17 @@ export function SmoothScrollProvider({
 
     gsap.registerPlugin(ScrollTrigger);
 
+    const useScrollTrigger = needsScrollTriggerIntegration(pathname);
+
     const instance = new Lenis({
-      lerp: 0.1,
+      lerp: useScrollTrigger ? 0.07 : 0.1,
       smoothWheel: true,
-      wheelMultiplier: 0.9,
+      wheelMultiplier: 1,
       touchMultiplier: 1,
       autoResize: true,
     });
 
     setLenis(instance);
-
-    const useScrollTrigger = needsScrollTriggerIntegration(pathname);
 
     if (useScrollTrigger) {
       ScrollTrigger.scrollerProxy(document.documentElement, {
@@ -99,18 +99,9 @@ export function SmoothScrollProvider({
       });
     }
 
-    let scrollTriggerRaf = 0;
-    const queueScrollTriggerUpdate = () => {
-      if (scrollTriggerRaf) return;
-      scrollTriggerRaf = requestAnimationFrame(() => {
-        ScrollTrigger.update();
-        scrollTriggerRaf = 0;
-      });
-    };
-
     const { handler, cleanup: cleanupScrollClass } = attachScrollEndClass(() => {
-      if (useScrollTrigger && ScrollTrigger.getAll().length > 0) {
-        queueScrollTriggerUpdate();
+      if (useScrollTrigger) {
+        ScrollTrigger.update();
       }
     });
     instance.on("scroll", handler);
@@ -137,7 +128,6 @@ export function SmoothScrollProvider({
 
     return () => {
       cleanupScrollClass();
-      if (scrollTriggerRaf) cancelAnimationFrame(scrollTriggerRaf);
       gsap.ticker.remove(onTick);
       if (useScrollTrigger) {
         ScrollTrigger.removeEventListener("refresh", onStRefresh);

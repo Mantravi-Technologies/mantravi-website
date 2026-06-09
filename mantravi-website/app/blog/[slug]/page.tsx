@@ -2,115 +2,156 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { SectionShell } from "@/components/ui/SectionShell";
-import { Badge, Card } from "@/components/ui/Card";
+import { BlogPostCard } from "@/components/blog/BlogCategoryRow";
+import { BlogPostCover } from "@/components/blog/BlogPostCover";
+import {
+  BlogFaqSection,
+  BlogKeyTakeaways,
+} from "@/components/blog/BlogGeoSection";
+import { BlogArticleMeta } from "@/components/blog/BlogArticleMeta";
+import { BlogPostLayout } from "@/components/content/BlogPostLayout";
+import { JsonLdMulti } from "@/components/seo/JsonLd";
 import { CTASection } from "@/components/sections/HomeCTASections";
-import { blogPosts } from "@/lib/content/blog-data";
+import {
+  getAllBlogPosts,
+  getBlogPostBySlug,
+  getBlogRelated,
+  getAllBlogPostsSync,
+  getBlogPostBySlugSync,
+} from "@/lib/content/blog";
+import { resolveBlogBody } from "@/lib/content/portable-text";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+import {
+  blogPostingSchema,
+  breadcrumbSchema,
+  faqPageSchema,
+} from "@/lib/seo/schema";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
-  return blogPosts.map((p) => ({ slug: p.slug }));
+  const posts = await getAllBlogPosts();
+  const slugs = posts.length > 0 ? posts : getAllBlogPostsSync();
+  return slugs.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+  const post =
+    (await getBlogPostBySlug(slug)) ?? getBlogPostBySlugSync(slug);
   if (!post) return { title: "Post Not Found" };
-  return { title: post.title, description: post.excerpt };
-}
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
+  return buildPageMetadata({
+    title: post.seoTitle ?? post.title,
+    description: post.seoDescription ?? post.excerpt,
+    path: `/blog/${post.slug}`,
+    image: post.featuredImage,
+    type: "article",
+    publishedTime: post.publishedAt,
+    modifiedTime: post.updatedAt ?? post.publishedAt,
+    authors: [post.author],
   });
 }
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+  const post = (await getBlogPostBySlug(slug)) ?? getBlogPostBySlugSync(slug);
   if (!post) notFound();
 
-  const related = blogPosts
-    .filter((p) => p.categorySlug === post.categorySlug && p.slug !== slug)
-    .slice(0, 3);
+  const related = await getBlogRelated(post, 3);
+  const bodyBlocks = resolveBlogBody(post);
+  const takeaways = post.keyTakeaways ?? [];
+  const faqs = post.faq ?? [];
 
-  const paragraphs = (post.body || post.excerpt).split("\n\n");
+  const jsonLd = [
+    blogPostingSchema(post),
+    breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Blog", path: "/blog" },
+      ...(post.categorySlug
+        ? [
+            {
+              name: post.category,
+              path: `/blog/category/${post.categorySlug}`,
+            },
+          ]
+        : []),
+      { name: post.title, path: `/blog/${post.slug}` },
+    ]),
+    faqPageSchema(faqs),
+  ];
 
   return (
     <>
-      <SectionShell
-        variant="none"
-        className="bg-[#050a30] hero-pattern !py-12 md:!py-16"
-      >
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to Blog
-        </Link>
-        <Badge dark className="mt-6">
-          {post.category}
-        </Badge>
-        <h1 className="mt-4 max-w-3xl text-3xl font-bold text-white md:text-5xl">
-          {post.title}
-        </h1>
-        <p className="mt-4 text-slate-400">
-          {post.author} · {formatDate(post.publishedAt)}
-          {post.readTime && ` · ${post.readTime} read`}
-        </p>
-      </SectionShell>
+      <JsonLdMulti schemas={jsonLd} />
+      <article>
+        <header className="border-b border-[#050505]/10 bg-white">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="py-8 md:py-10">
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back to Blog
+              </Link>
+              <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-primary">
+                {post.category}
+              </p>
+              <h1 className="title-display mt-3 max-w-4xl text-[#050505] text-3xl md:text-4xl lg:text-[2.75rem] lg:leading-tight">
+                {post.title}
+              </h1>
+            </div>
+            {post.featuredImage && (
+              <div className="pb-8 md:pb-10">
+                <BlogPostCover
+                  title={post.title}
+                  gradient={post.imageGradient}
+                  featuredImage={post.featuredImage}
+                  className="blog-post-hero-cover h-[200px] w-full overflow-hidden rounded-xl border border-[#050505]/10 sm:h-[240px] md:h-[280px] lg:h-[300px]"
+                />
+              </div>
+            )}
+          </div>
+        </header>
 
-      <SectionShell variant="light" className="!pt-0">
-        <div className="grid gap-12 lg:grid-cols-3">
-          <article className="lg:col-span-2 prose-mantravi">
-            {paragraphs.map((para, i) => {
-              if (para.startsWith("## ")) {
-                return (
-                  <h2
-                    key={i}
-                    className="text-2xl font-bold mt-8 mb-4 text-foreground-dark"
-                  >
-                    {para.replace("## ", "")}
-                  </h2>
-                );
-              }
-              return (
-                <p key={i} className="text-muted-light leading-relaxed my-4">
-                  {para}
-                </p>
-              );
-            })}
-          </article>
-          <aside>
-            <Card variant="light">
-              <h3 className="font-bold">About the Author</h3>
-              <p className="mt-2 text-sm text-muted-light">{post.author}</p>
-            </Card>
-          </aside>
+        <div className="bg-white py-8 md:py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <BlogArticleMeta
+              author={post.author}
+              publishedAt={post.publishedAt}
+              updatedAt={post.updatedAt}
+              readTime={post.readTime}
+              excerpt={post.excerpt}
+            />
+            <div className="mt-8 lg:mt-10">
+              <BlogKeyTakeaways items={takeaways} />
+            </div>
+            {bodyBlocks.length > 0 ? (
+              <div className="mt-8 lg:mt-10">
+                <BlogPostLayout blocks={bodyBlocks} />
+              </div>
+            ) : (
+              <p className="mt-8 text-base leading-relaxed text-[#050505]/75">
+                {post.excerpt}
+              </p>
+            )}
+            <BlogFaqSection faqs={faqs} />
+          </div>
         </div>
-      </SectionShell>
+      </article>
 
       {related.length > 0 && (
-        <SectionShell variant="dark">
-          <h2 className="text-2xl font-bold text-white">Related Articles</h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {related.map((r) => (
-              <Link key={r.slug} href={`/blog/${r.slug}`}>
-                <div className="glass-card p-6">
-                  <h3 className="font-bold text-white hover:text-accent">
-                    {r.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-slate-400 line-clamp-2">
-                    {r.excerpt}
-                  </p>
-                </div>
-              </Link>
-            ))}
+        <section className="border-t border-[#050505]/10 bg-white py-14 md:py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="title-display text-2xl text-[#050505] md:text-3xl">
+              Related Articles
+            </h2>
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((r) => (
+                <BlogPostCard key={r.slug} post={r} />
+              ))}
+            </div>
           </div>
-        </SectionShell>
+        </section>
       )}
 
       <CTASection />
