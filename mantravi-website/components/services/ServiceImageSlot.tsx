@@ -16,6 +16,17 @@ const aspectClasses: Record<
   wide: "aspect-[21/9]",
 };
 
+const aspectSizes: Record<
+  NonNullable<ServiceImageSlotConfig["aspect"]>,
+  string
+> = {
+  hero: "(max-width: 1024px) 100vw, 576px",
+  landscape: "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px",
+  square: "(max-width: 768px) 100vw, 448px",
+  portrait: "(max-width: 768px) 100vw, 400px",
+  wide: "(max-width: 768px) 100vw, 960px",
+};
+
 type Props = {
   slot: ServiceImageSlotConfig;
   className?: string;
@@ -46,7 +57,7 @@ export function ServiceImageSlot({
           fill
           priority={priority}
           className="object-cover"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+          sizes={aspectSizes[aspect]}
         />
       </figure>
     );

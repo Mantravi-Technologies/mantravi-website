@@ -115,7 +115,11 @@ body {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: #050505 url("/mantravi-labs/labs-bg.jpg") center center / cover no-repeat;
+  background: #050505 center center / cover no-repeat;
+  background-image: image-set(
+    url("/mantravi-labs/labs-bg.webp") type("image/webp"),
+    url("/mantravi-labs/labs-bg.jpg") type("image/jpeg")
+  );
 }
 
 .labs-section__scrim {

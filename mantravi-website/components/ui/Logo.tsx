@@ -40,7 +40,6 @@ export function MantraviLogo({
         height={logo.height}
         className="h-7 w-auto sm:h-8"
         sizes="(max-width: 640px) 140px, 180px"
-        unoptimized
         priority
       />
     </Link>

@@ -5,10 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { ContactProvider } from "@/components/providers/ContactProvider";
-import {
-  ContactModal,
-  FloatingContactButton,
-} from "@/components/forms/ContactModal";
+import { LazyContactUI } from "@/components/forms/LazyContactUI";
 import { SiteJsonLd } from "@/components/seo/SiteJsonLd";
 import { siteConfig } from "@/lib/content/site-data";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -16,12 +13,14 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 const display = Bebas_Neue({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-bebas-neue",
+  display: "swap",
 });
 
 const script = Instrument_Serif({
@@ -29,15 +28,13 @@ const script = Instrument_Serif({
   weight: "400",
   style: ["italic"],
   variable: "--font-instrument",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "32x32" },
-    ],
+    icon: [{ url: "/favicon.ico", sizes: "32x32" }],
     apple: "/apple-icon.png",
   },
   title: {
@@ -68,8 +65,7 @@ export default function RootLayout({
             <Header />
             <main>{children}</main>
             <Footer />
-            <ContactModal />
-            <FloatingContactButton />
+            <LazyContactUI />
           </SmoothScrollProvider>
         </ContactProvider>
       </body>

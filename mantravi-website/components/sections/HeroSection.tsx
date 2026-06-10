@@ -23,7 +23,7 @@ function HeroVideoBackground() {
   return (
     <div className="hero-media" aria-hidden="true">
       <img
-        src="/hero/hero-poster.jpg"
+        src="/hero/hero-poster.webp"
         alt=""
         className="hero-media__poster"
         fetchPriority="high"
@@ -37,7 +37,7 @@ function HeroVideoBackground() {
           loop
           playsInline
           preload="metadata"
-          poster="/hero/hero-poster.jpg"
+          poster="/hero/hero-poster.webp"
         >
           <source src="/hero/hero-bg.mp4" type="video/mp4" />
         </video>

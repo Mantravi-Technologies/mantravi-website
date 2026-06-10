@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/content/site-data";
 
-const DEFAULT_OG = "/favicon.svg";
+const DEFAULT_OG = "/apple-icon.png";
 
 type PageMetadataInput = {
   title: string;
