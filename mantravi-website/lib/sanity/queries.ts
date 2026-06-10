@@ -167,7 +167,7 @@ export async function getCaseStudiesFromSanity(): Promise<CaseStudy[]> {
   try {
     const results = await client.fetch<
       Record<string, unknown>[]
-    >(`*[_type == "caseStudy"] | order(homepageOrder asc, order asc) ${caseStudyListFields}`);
+    >(`*[_type == "caseStudy" && coalesce(status, "published") == "published"] | order(homepageOrder asc, order asc) ${caseStudyListFields}`);
     if (!results?.length) return [];
     return results.map(normalizeCaseStudy);
   } catch {
@@ -183,7 +183,7 @@ export async function getCaseStudyBySlugFromSanity(
 
   try {
     const result = await client.fetch<Record<string, unknown> | null>(
-      `*[_type == "caseStudy" && slug.current == $slug][0] ${caseStudyDetailFields}`,
+      `*[_type == "caseStudy" && slug.current == $slug && coalesce(status, "published") == "published"][0] ${caseStudyDetailFields}`,
       { slug },
     );
     return result ? normalizeCaseStudy(result) : null;

@@ -5,6 +5,7 @@ import {
   getAllServiceSlugs,
   getServiceBySlug,
 } from "@/lib/content/services-data";
+import { getServiceCaseStudies } from "@/lib/content/portfolio";
 import { siteConfig } from "@/lib/content/site-data";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -89,10 +90,15 @@ export default async function ServiceDetailPage({ params }: Props) {
   const { slug } = await params;
   const service = getServiceBySlug(slug);
   if (!service) notFound();
+  const caseStudies = await getServiceCaseStudies(
+    service.slug,
+    service.serviceTags,
+    4,
+  );
   return (
     <>
       <ServiceJsonLd slug={slug} />
-      <ServicePageLayout service={service} />
+      <ServicePageLayout service={service} caseStudies={caseStudies} />
     </>
   );
 }

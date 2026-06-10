@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { footerLinks, offices, siteConfig } from "@/lib/content/site-data";
 import { MantraviLogo } from "@/components/ui/Logo";
-import { Linkedin, Twitter, Instagram } from "lucide-react";
+import { Linkedin, Instagram } from "lucide-react";
 
 export function Footer() {
   return (
@@ -22,13 +22,6 @@ export function Footer() {
                 className="hover:text-accent transition-colors"
               >
                 <Linkedin className="h-5 w-5" />
-              </a>
-              <a
-                href={siteConfig.social.twitter}
-                aria-label="Twitter"
-                className="hover:text-accent transition-colors"
-              >
-                <Twitter className="h-5 w-5" />
               </a>
               <a
                 href={siteConfig.social.instagram}
@@ -85,7 +78,7 @@ export function Footer() {
             Rights Reserved.
           </p>
           <div className="flex gap-6 text-sm">
-            <Link href="/" className="hover:text-accent">
+            <Link href="/privacy-policy" className="hover:text-accent">
               Privacy Policy
             </Link>
             <a

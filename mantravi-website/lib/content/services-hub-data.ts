@@ -21,6 +21,7 @@ export const servicesHubImages: {
     alt: "Digital engineering and growth partner across product, marketing, QA, and AI",
     hint: "Intro, client workshop, sprint demo, or delivery snapshot",
     path: `${hubImageBase}/intro.webp`,
+    src: `${hubImageBase}/intro.webp`,
     aspect: "landscape",
   },
   showcase: {
@@ -33,6 +34,7 @@ export const servicesHubImages: {
     alt: "Mantravi delivery team and client partnership",
     hint: "Trust, team photo, stand-up, or client success moment",
     path: `${hubImageBase}/trust.webp`,
+    src: `${hubImageBase}/trust.webp`,
     aspect: "portrait",
   },
 };

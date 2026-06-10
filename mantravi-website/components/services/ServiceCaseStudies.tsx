@@ -2,19 +2,16 @@
 
 import { motion } from "framer-motion";
 import { SectionShell, SectionHeading } from "@/components/ui/SectionShell";
-import { getServiceCaseStudiesSync } from "@/lib/content/portfolio";
+import type { CaseStudy } from "@/lib/content/case-studies";
 import { techExpertise } from "@/lib/content/site-data";
 import { staggerContainer, fadeUp } from "@/lib/animations/variants";
 import { ServiceCaseStudyCard } from "@/components/services/ServiceCaseStudyCard";
 
 export function ServiceCaseStudies({
-  serviceSlug,
-  serviceTags,
+  studies,
 }: {
-  serviceSlug: string;
-  serviceTags: string[];
+  studies: CaseStudy[];
 }) {
-  const studies = getServiceCaseStudiesSync(serviceSlug, serviceTags, 4);
 
   if (studies.length === 0) return null;
 

@@ -33,7 +33,13 @@ const script = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  icons: { icon: "/favicon.svg" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" },
+    ],
+    apple: "/apple-icon.png",
+  },
   title: {
     default: `${siteConfig.name} | AI-Native Digital Solutions`,
     template: `%s | ${siteConfig.name}`,

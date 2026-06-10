@@ -13,8 +13,7 @@ export const siteConfig = {
     "To be a trusted digital engineering partner for organizations navigating AI-driven transformation.",
   social: {
     linkedin: "https://linkedin.com/company/mantravi",
-    twitter: "https://twitter.com/mantravi",
-    instagram: "https://instagram.com/mantravi",
+    instagram: "https://instagram.com/mantravi_",
   },
 };
 export const navLinks = {

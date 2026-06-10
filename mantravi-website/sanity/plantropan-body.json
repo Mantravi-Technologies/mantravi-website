@@ -1,0 +1,418 @@
+[
+  {
+    "_type": "block",
+    "_key": "pr-intro",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-intro-span",
+        "text": "Plantropan connects urban residents with professional gardeners for on-demand garden care. The idea is simple: discover a trusted provider, book a visit, and get the job done without phone tag or guesswork. Mantravi built and stabilized the platform end to end, from a fluid Flutter mobile experience to a Java backend that could handle scheduling, payments, and user growth without the friction that was slowing the product down.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-challenge-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-challenge-h2-span",
+        "text": "The Challenge",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-challenge-p1",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-challenge-p1-span",
+        "text": "Service marketplaces look straightforward in a pitch deck. In production they punish weak architecture. Plantropan was gaining traction with urban customers who wanted reliable garden help, but the platform was hitting backend friction that showed up exactly where trust matters: during booking and payment.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-challenge-p2",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-challenge-p2-span",
+        "text": "Payment verifications lagged. Memory leaks appeared during the booking flow on certain devices. Database load spiked under concurrent requests, which made the app feel heavier than the service it was selling. The front end also needed a refresh: modern, accessible, and calm enough that a first-time user could complete a booking without coaching.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-context-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-context-h2-span",
+        "text": "Who Plantropan Serves",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-context-li1",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-context-li1-span",
+        "text": "Urban homeowners and renters who want garden maintenance without sourcing providers manually.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-context-li2",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-context-li2-span",
+        "text": "Professional gardeners who need predictable scheduling and clear job details on mobile.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-context-li3",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-context-li3-span",
+        "text": "Operations teams tracking bookings, payouts, and service quality as volume grows.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-approach-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-approach-h2-span",
+        "text": "Our Approach",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-approach-p1",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-approach-p1-span",
+        "text": "We audited the full booking journey first: search, provider selection, slot confirmation, payment, and post-job feedback. Profiling surfaced where memory climbed, which API calls blocked the UI, and which queries repeated under load. That evidence shaped the roadmap so fixes targeted real user pain, not theoretical refactors.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-approach-p2",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-approach-p2-span",
+        "text": "Design and engineering moved together on the Flutter rebuild. We simplified screens, clarified status messaging at each booking step, and introduced motion that guides attention instead of decorating empty states. On the backend, we hardened the Java services around scheduling logic, transactional integrity, and observability so the team could scale with confidence.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-built-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-built-h2-span",
+        "text": "What We Built",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-built-h3-flutter",
+    "style": "h3",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-built-h3-flutter-span",
+        "text": "Unified Flutter front end",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-built-p-flutter",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-built-p-flutter-span",
+        "text": "We delivered a cross-platform mobile app in Flutter with a clean visual system and responsive layouts across phone sizes. Discovery, booking, and job tracking share consistent patterns so users always know where they are in the flow. Animations reinforce state changes, for example when a slot is held, confirmed, or completed, without adding noise to the interface.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-built-h3-java",
+    "style": "h3",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-built-h3-java-span",
+        "text": "Enterprise-grade Java backend",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-built-p-java",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-built-p-java-span",
+        "text": "Complex scheduling, user management, and payment records run on a Java backend chosen for stability and multi-threaded performance. Service boundaries separate booking orchestration from account and payout logic, which makes the system easier to extend as Plantropan adds markets or service types.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-built-h3-perf",
+    "style": "h3",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-built-h3-perf-span",
+        "text": "Performance and reliability work",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-built-p-perf",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-built-p-perf-span",
+        "text": "We resolved the bottlenecks that were hurting conversion. Asynchronous processing took slow payment verification off the critical path. API response caching cut repeat load on hot endpoints. Database queries were rewritten and indexed where analytics showed contention. On mobile, memory leaks in the booking stack were traced and eliminated so long sessions stayed stable.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "richCallout",
+    "_key": "pr-ai-callout",
+    "variant": "tip",
+    "title": "AI-native delivery, human-centered product",
+    "body": "We used modern AI-assisted engineering workflows to accelerate debugging, test generation, and iteration during the rebuild. The customer experience stayed firmly human: clear copy, predictable booking states, and support paths when something unexpected happens."
+  },
+  {
+    "_type": "block",
+    "_key": "pr-eng-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-eng-h2-span",
+        "text": "Engineering Highlights",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-eng-li1",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-eng-li1-span",
+        "text": "Flutter app for iOS and Android with accessible typography, touch targets, and state-driven UI.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-eng-li2",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-eng-li2-span",
+        "text": "Java services for scheduling, accounts, and transactional workflows with clear service boundaries.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-eng-li3",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-eng-li3-span",
+        "text": "Async payment verification, API caching, and query optimization to remove booking lag.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-eng-li4",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-eng-li4-span",
+        "text": "Memory profiling and leak fixes across the critical booking path on production devices.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "pr-results-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "pr-results-h2-span",
+        "text": "Results & Deliverables",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "richTable",
+    "_key": "pr-results-table",
+    "caption": "Project outcomes at a glance",
+    "headers": ["Area", "Outcome"],
+    "rows": [
+      {
+        "cells": [
+          "User experience",
+          "Modern Flutter app with a frictionless discover-to-book journey"
+        ]
+      },
+      {
+        "cells": [
+          "Backend stability",
+          "Java architecture built for scheduling scale and transactional integrity"
+        ]
+      },
+      {
+        "cells": [
+          "Payments",
+          "Faster verification through async processing and reduced blocking calls"
+        ]
+      },
+      {
+        "cells": [
+          "Performance",
+          "Resolved memory leaks and database load issues during peak booking"
+        ]
+      },
+      {
+        "cells": [
+          "Growth readiness",
+          "Platform prepared for more users, providers, and service categories"
+        ]
+      }
+    ]
+  },
+  {
+    "_type": "richQuote",
+    "_key": "pr-quote",
+    "quote": "Mantravi built the Plantropan app, a garden care platform where users book trusted gardeners on demand. The booking flow is simple, the experience feels polished, and the app runs reliably for our customers.",
+    "attribution": "Vikash Srivastva, Founder, Plantropan"
+  },
+  {
+    "_type": "richCta",
+    "_key": "pr-cta",
+    "eyebrow": "Scaling a service marketplace?",
+    "headline": "Ship a booking app that holds up in production",
+    "body": "Mantravi stabilizes marketplaces under real load: mobile UX, payment flows, and backends that do not buckle when demand spikes.",
+    "bullets": [
+      "Flutter apps with booking flows users actually finish",
+      "Java backends for scheduling, payments, and operations at scale",
+      "Performance audits that fix leaks, lag, and database bottlenecks"
+    ],
+    "buttonLabel": "Start a conversation",
+    "actionType": "contact",
+    "variant": "primary"
+  }
+]

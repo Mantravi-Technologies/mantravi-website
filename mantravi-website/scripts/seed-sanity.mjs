@@ -145,8 +145,14 @@ async function main() {
     }
 
     if (_type === "caseStudy") {
-      if (slugCurrent === "vedlik") {
-        const bodyPath = join(root, "sanity", "vedlik-body.json");
+      const bodyFiles = {
+        vedlik: "vedlik-body.json",
+        plantropan: "plantropan-body.json",
+        "dp-jewellers": "dp-jewellers-body.json",
+      };
+      const bodyFile = bodyFiles[slugCurrent];
+      if (bodyFile) {
+        const bodyPath = join(root, "sanity", bodyFile);
         if (existsSync(bodyPath)) {
           rest.body = JSON.parse(readFileSync(bodyPath, "utf8"));
         }

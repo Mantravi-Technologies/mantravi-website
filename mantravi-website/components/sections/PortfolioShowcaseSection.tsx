@@ -80,8 +80,8 @@ function angleStep(cardCount: number) {
 }
 
 function cardWidthFromStage(width: number) {
-  if (width < 768) return Math.min(280, Math.max(230, width * 0.68));
-  return Math.min(245, Math.max(165, width * 0.2));
+  if (width < 768) return Math.min(300, Math.max(248, width * 0.74));
+  return Math.min(280, Math.max(185, width * 0.22));
 }
 
 /** Tight ring radius so adjacent cards sit close like Appinventiv's 360 carousel */
@@ -207,7 +207,7 @@ function CardVisual({
             alt=""
             fill
             className="object-cover"
-            sizes="(max-width: 768px) 72vw, 280px"
+            sizes="(max-width: 768px) 80vw, 300px"
           />
         ) : (
           <>
@@ -253,8 +253,10 @@ function Portfolio360Fallback({ items }: { items: CaseStudy[] }) {
           {portfolioSection.description}
         </p>
       </div>
-      <div className="mx-auto w-full max-w-md px-6">
-        <CardVisual study={study} isActive />
+      <div className="portfolio-360-fallback-stage mx-auto w-full px-6">
+        <div className="portfolio-360-fallback-card">
+          <CardVisual study={study} isActive />
+        </div>
         <div className="portfolio-360-bottom static max-w-none px-0">
           <div className="portfolio-360-details">
             <AnimatePresence mode="wait">

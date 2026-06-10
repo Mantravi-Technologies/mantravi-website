@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,11 +22,13 @@ type FormData = z.infer<typeof schema>;
 
 export function ContactModal() {
   const { isOpen, closeContact } = useContact();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   useEffect(() => {
@@ -45,10 +47,54 @@ export function ContactModal() {
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, closeContact]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setSubmitError(null);
+      setSubmitSuccess(false);
+      reset();
+    }
+  }, [isOpen, reset]);
+
   const onSubmit = async (data: FormData) => {
-    await new Promise((r) => setTimeout(r, 800));
-    console.log("Contact form:", data);
-    reset();
+    setSubmitError(null);
+
+    const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+    if (!accessKey) {
+      setSubmitError(
+        "Form is not configured. Please try again later or email us directly.",
+      );
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("access_key", accessKey);
+    formData.append("name", data.name);
+    formData.append("email", data.email);
+    formData.append("phone", data.phone);
+    formData.append("company", data.company ?? "");
+    formData.append("message", data.message);
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+      const result = (await response.json()) as {
+        success?: boolean;
+        message?: string;
+      };
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Submission failed");
+      }
+
+      setSubmitSuccess(true);
+      reset();
+    } catch {
+      setSubmitError(
+        "Something went wrong. Please try again or email us directly.",
+      );
+    }
   };
 
   if (!isOpen) return null;
@@ -86,7 +132,7 @@ export function ContactModal() {
           </h2>
           <p className="mt-2 text-sm text-slate-400">{contactForm.subtitle}</p>
 
-          {isSubmitSuccessful ? (
+          {submitSuccess ? (
             <div className="mt-8 rounded-xl border border-primary/30 bg-primary/10 p-6 text-center">
               <p className="font-semibold text-primary">
                 Thank you! We&apos;ll be in touch shortly.
@@ -94,6 +140,11 @@ export function ContactModal() {
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+              {submitError ? (
+                <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                  {submitError}
+                </p>
+              ) : null}
               <div>
                 <Input
                   dark

@@ -12,6 +12,11 @@ import {
 
 const LenisContext = createContext<Lenis | null>(null);
 
+/** Global scroll feel — lower lerp = slower ease; lower multipliers = less distance per input. */
+const LENIS_LERP = { default: 0.07, scrollTrigger: 0.05 } as const;
+const LENIS_WHEEL_MULTIPLIER = 0.75;
+const LENIS_TOUCH_MULTIPLIER = 0.8;
+
 export function useLenis() {
   return useContext(LenisContext);
 }
@@ -68,10 +73,12 @@ export function SmoothScrollProvider({
     const useScrollTrigger = needsScrollTriggerIntegration(pathname);
 
     const instance = new Lenis({
-      lerp: useScrollTrigger ? 0.07 : 0.1,
+      lerp: useScrollTrigger
+        ? LENIS_LERP.scrollTrigger
+        : LENIS_LERP.default,
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1,
+      wheelMultiplier: LENIS_WHEEL_MULTIPLIER,
+      touchMultiplier: LENIS_TOUCH_MULTIPLIER,
       autoResize: true,
     });
 

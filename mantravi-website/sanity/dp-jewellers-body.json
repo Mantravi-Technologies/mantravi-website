@@ -1,0 +1,434 @@
+[
+  {
+    "_type": "block",
+    "_key": "dp-intro",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-intro-span",
+        "text": "DP Jewellers is a luxury jewelry brand whose reputation was built in the showroom: the lighting, the craftsmanship on display, the quiet confidence of a high-value purchase. Mantravi partnered with the team to carry that same feeling into a digital product. We built a cross-platform consumer app and a secure admin control center so inventory, imagery, and store updates stay in sync without losing the premium tone that defines the brand.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-challenge-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-challenge-h2-span",
+        "text": "The Challenge",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-challenge-p1",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-challenge-p1-span",
+        "text": "The hurdle was never \"build another retail app.\" Luxury jewelry sells on trust, tactility, and visual restraint. A cluttered catalog or a sluggish product page does more damage here than in everyday e-commerce. DP Jewellers needed a digital showcase that felt as considered as walking through their physical showroom, with photography, typography, and motion that put the pieces first.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-challenge-p2",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-challenge-p2-span",
+        "text": "Behind the scenes, the operational bar was just as high. High-value inventory changes often, new collections arrive, and store teams need to update stock and imagery without waiting on a developer. The product had to pair a polished customer experience with a dependable admin backbone that non-technical staff could use every day.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-context-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-context-h2-span",
+        "text": "What the Brand Needed",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-context-li1",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-context-li1-span",
+        "text": "A mobile experience that feels native on both iOS and Android, not a compromised web wrapper.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-context-li2",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-context-li2-span",
+        "text": "Room for high-resolution product photography without sacrificing load times on mid-range devices.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-context-li3",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-context-li3-span",
+        "text": "Real-time sync between showroom updates and what customers see in the app.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-context-li4",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-context-li4-span",
+        "text": "An admin panel fast enough for daily operations, with clear stock management and analytics.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-approach-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-approach-h2-span",
+        "text": "Our Approach",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-approach-p1",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-approach-p1-span",
+        "text": "We started by mapping the in-store journey: how a customer moves from discovery to consultation, which details matter on a small screen, and where digital can support the sale without replacing the human relationship. Design explored a minimalist visual language with generous whitespace, subtle transitions, and typography that reads as editorial rather than promotional.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-approach-p2",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-approach-p2-span",
+        "text": "Engineering ran in parallel. Mobile and admin were treated as one ecosystem: shared data models, consistent image pipelines, and authentication flows that keep staff actions auditable. That alignment reduced rework later when the client began uploading full seasonal catalogs.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-built-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-built-h2-span",
+        "text": "What We Built",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-built-h3-mobile",
+    "style": "h3",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-built-h3-mobile-span",
+        "text": "The mobile experience",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-built-p-mobile",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-built-p-mobile-span",
+        "text": "We engineered the consumer app with React Native so iOS and Android share a single codebase without feeling generic. Product galleries use progressive loading and tuned image sizes so gold, stone, and finish detail stay crisp. Navigation stays shallow: collections, piece detail, and store contact paths are always one or two taps away, which matters when a customer is comparing options in a showroom or on the couch the same evening.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-built-h3-admin",
+    "style": "h3",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-built-h3-admin-span",
+        "text": "The admin control center",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-built-p-admin",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-built-p-admin-span",
+        "text": "Operations run through a Next.js admin panel built for speed and clarity. Staff can manage stock, publish collections, review performance metrics, and upload imagery through workflows that mirror how the team already thinks about inventory. Server-side rendering and a lean component architecture keep dashboards responsive even when catalogs grow into hundreds of SKUs.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-built-h3-infra",
+    "style": "h3",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-built-h3-infra-span",
+        "text": "Real-time infrastructure",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-built-p-infra",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-built-p-infra-span",
+        "text": "Firebase anchors the stack: real-time database sync for inventory state, Cloud Storage for high-resolution assets, and secure authentication separating customer and staff roles. When a piece is marked unavailable in the admin, the change propagates to the app without a manual refresh cycle. That immediacy is essential when customers and sales staff are looking at the same item from different screens.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "richCallout",
+    "_key": "dp-trust-callout",
+    "variant": "insight",
+    "title": "Luxury is a performance problem too",
+    "body": "Premium brands lose credibility in milliseconds. We treated image delivery, transition timing, and offline resilience as part of the luxury brief, not as afterthoughts once the UI looked right."
+  },
+  {
+    "_type": "block",
+    "_key": "dp-eng-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-eng-h2-span",
+        "text": "Engineering Highlights",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-eng-li1",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-eng-li1-span",
+        "text": "React Native app with platform-aware UI polish and shared business logic across iOS and Android.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-eng-li2",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-eng-li2-span",
+        "text": "Next.js admin with role-based access, fast catalog editing, and analytics views for merchandising decisions.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-eng-li3",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-eng-li3-span",
+        "text": "Firebase real-time sync, secure auth, and cloud storage tuned for large jewelry photography sets.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-eng-li4",
+    "style": "normal",
+    "listItem": "bullet",
+    "level": 1,
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-eng-li4-span",
+        "text": "Image pipeline with responsive sizes and caching so repeat browsing stays smooth on mobile networks.",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "block",
+    "_key": "dp-results-h2",
+    "style": "h2",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "dp-results-h2-span",
+        "text": "Results & Deliverables",
+        "marks": []
+      }
+    ]
+  },
+  {
+    "_type": "richTable",
+    "_key": "dp-results-table",
+    "caption": "Project outcomes at a glance",
+    "headers": ["Area", "Outcome"],
+    "rows": [
+      {
+        "cells": [
+          "Brand experience",
+          "Digital showroom that mirrors in-store elegance and restraint"
+        ]
+      },
+      {
+        "cells": [
+          "Cross-platform reach",
+          "Single React Native codebase shipping native-quality iOS and Android apps"
+        ]
+      },
+      {
+        "cells": [
+          "Operations",
+          "Next.js admin for real-time stock, collections, and analytics"
+        ]
+      },
+      {
+        "cells": [
+          "Data sync",
+          "Firebase-backed updates between showroom inventory and consumer app"
+        ]
+      },
+      {
+        "cells": [
+          "Scalability",
+          "Architecture ready for seasonal catalog growth and richer merchandising"
+        ]
+      }
+    ]
+  },
+  {
+    "_type": "richQuote",
+    "_key": "dp-quote",
+    "quote": "Jewelry is emotional commerce. The app had to feel calm, confident, and worthy of the pieces it represents. Every screen was judged against that standard.",
+    "attribution": "Product direction, DP Jewellers engagement"
+  },
+  {
+    "_type": "richCta",
+    "_key": "dp-cta",
+    "eyebrow": "Building a premium retail product?",
+    "headline": "Digitize the showroom without diluting the brand",
+    "body": "From luxury catalogs to high-value inventory workflows, Mantravi pairs mobile engineering, admin tooling, and real-time infrastructure in one delivery team.",
+    "bullets": [
+      "React Native apps with a native feel on iOS and Android",
+      "Fast Next.js admin panels your operations team can own",
+      "Firebase or cloud backends built for sync and scale"
+    ],
+    "buttonLabel": "Start a conversation",
+    "actionType": "contact",
+    "variant": "primary"
+  }
+]

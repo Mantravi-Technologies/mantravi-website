@@ -1,0 +1,1130 @@
+[
+  {
+    "fields": [
+      {
+        "name": "companyName",
+        "type": "string"
+      },
+      {
+        "name": "tagline",
+        "type": "string"
+      },
+      {
+        "name": "email",
+        "type": "string",
+        "title": "Contact Email"
+      },
+      {
+        "name": "phone",
+        "type": "string"
+      },
+      {
+        "fields": [
+          {
+            "validation": [
+              {
+                "level": "error",
+                "rules": [
+                  {
+                    "flag": "uri",
+                    "constraint": {
+                      "options": {
+                        "scheme": [
+                          "/^http$/",
+                          "/^https$/"
+                        ],
+                        "allowRelative": false,
+                        "relativeOnly": false,
+                        "allowCredentials": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "name": "linkedin",
+            "type": "url"
+          },
+          {
+            "validation": [
+              {
+                "level": "error",
+                "rules": [
+                  {
+                    "flag": "uri",
+                    "constraint": {
+                      "options": {
+                        "scheme": [
+                          "/^http$/",
+                          "/^https$/"
+                        ],
+                        "allowRelative": false,
+                        "relativeOnly": false,
+                        "allowCredentials": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "name": "twitter",
+            "type": "url"
+          },
+          {
+            "validation": [
+              {
+                "level": "error",
+                "rules": [
+                  {
+                    "flag": "uri",
+                    "constraint": {
+                      "options": {
+                        "scheme": [
+                          "/^http$/",
+                          "/^https$/"
+                        ],
+                        "allowRelative": false,
+                        "relativeOnly": false,
+                        "allowCredentials": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "name": "instagram",
+            "type": "url"
+          }
+        ],
+        "name": "socialLinks",
+        "type": "object"
+      }
+    ],
+    "name": "siteSettings",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "role",
+        "type": "string"
+      },
+      {
+        "name": "bio",
+        "type": "text"
+      },
+      {
+        "name": "image",
+        "type": "image"
+      }
+    ],
+    "name": "author",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "title"
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ]
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      }
+    ],
+    "name": "category",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "caption",
+        "type": "string",
+        "title": "Caption (optional)"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 1
+              }
+            ]
+          }
+        ],
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "headers",
+        "type": "array"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "of": [
+                  {
+                    "type": "string"
+                  }
+                ],
+                "name": "cells",
+                "type": "array"
+              }
+            ],
+            "type": "object",
+            "name": "tableRow"
+          }
+        ],
+        "name": "rows",
+        "type": "array"
+      }
+    ],
+    "name": "richTable",
+    "type": "object",
+    "title": "Table"
+  },
+  {
+    "fields": [
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Tip",
+              "value": "tip"
+            },
+            {
+              "title": "Insight",
+              "value": "insight"
+            },
+            {
+              "title": "Warning",
+              "value": "warning"
+            }
+          ]
+        },
+        "initialValue": "insight",
+        "name": "variant",
+        "type": "string"
+      },
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "name": "body",
+        "type": "text"
+      }
+    ],
+    "name": "richCallout",
+    "type": "object",
+    "title": "Callout"
+  },
+  {
+    "fields": [
+      {
+        "name": "eyebrow",
+        "type": "string"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "headline",
+        "type": "string"
+      },
+      {
+        "description": "Shown when the reader opens the CTA panel",
+        "name": "body",
+        "type": "text",
+        "title": "Expanded content"
+      },
+      {
+        "description": "Short proof points shown in the expanded panel",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "bullets",
+        "type": "array",
+        "title": "Trust bullets"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "buttonLabel",
+        "type": "string"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Open contact form",
+              "value": "contact"
+            },
+            {
+              "title": "Go to link",
+              "value": "link"
+            }
+          ],
+          "layout": "radio"
+        },
+        "initialValue": "contact",
+        "name": "actionType",
+        "type": "string",
+        "title": "Button action"
+      },
+      {
+        "description": "Used when action is Go to link (internal or external)",
+        "hidden": "conditional",
+        "name": "buttonUrl",
+        "type": "string",
+        "title": "Button URL"
+      },
+      {
+        "initialValue": false,
+        "name": "defaultExpanded",
+        "type": "boolean",
+        "title": "Show expanded by default"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Light",
+              "value": "primary"
+            },
+            {
+              "title": "Dark",
+              "value": "dark"
+            }
+          ]
+        },
+        "initialValue": "primary",
+        "name": "variant",
+        "type": "string"
+      }
+    ],
+    "name": "richCta",
+    "type": "object",
+    "title": "Call to Action"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ]
+          }
+        ],
+        "name": "quote",
+        "type": "text"
+      },
+      {
+        "name": "attribution",
+        "type": "string"
+      },
+      {
+        "name": "role",
+        "type": "string",
+        "title": "Role / Company"
+      }
+    ],
+    "name": "richQuote",
+    "type": "object",
+    "title": "Quote"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "title"
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ]
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "name": "excerpt",
+        "type": "text"
+      },
+      {
+        "name": "featuredImage",
+        "type": "image"
+      },
+      {
+        "to": [
+          {
+            "type": "author"
+          }
+        ],
+        "name": "author",
+        "type": "reference"
+      },
+      {
+        "of": [
+          {
+            "to": [
+              {
+                "type": "category"
+              }
+            ],
+            "type": "reference",
+            "title": "Reference to category"
+          }
+        ],
+        "name": "categories",
+        "type": "array"
+      },
+      {
+        "name": "publishedAt",
+        "type": "datetime"
+      },
+      {
+        "of": [
+          {
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bullet"
+              },
+              {
+                "value": "number",
+                "title": "Numbered"
+              }
+            ],
+            "marks": {
+              "annotations": [
+                {
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "level": "error",
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "name": "href",
+                      "type": "url"
+                    },
+                    {
+                      "initialValue": true,
+                      "name": "blank",
+                      "type": "boolean",
+                      "title": "Open in new tab"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object",
+                  "title": "External link"
+                },
+                {
+                  "fields": [
+                    {
+                      "to": [
+                        {
+                          "type": "blogPost"
+                        },
+                        {
+                          "type": "caseStudy"
+                        }
+                      ],
+                      "name": "reference",
+                      "type": "reference"
+                    }
+                  ],
+                  "name": "internalLink",
+                  "type": "object",
+                  "title": "Internal link"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Emphasis"
+                }
+              ]
+            },
+            "of": [],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h2",
+                "title": "H2"
+              },
+              {
+                "value": "h3",
+                "title": "H3"
+              }
+            ],
+            "type": "block"
+          },
+          {
+            "options": {
+              "hotspot": true
+            },
+            "fields": [
+              {
+                "name": "alt",
+                "type": "string",
+                "title": "Alt text"
+              },
+              {
+                "name": "caption",
+                "type": "string"
+              }
+            ],
+            "type": "image"
+          },
+          {
+            "type": "richTable",
+            "title": "Table"
+          },
+          {
+            "type": "richCallout",
+            "title": "Callout"
+          },
+          {
+            "type": "richCta",
+            "title": "Call to Action"
+          },
+          {
+            "type": "richQuote",
+            "title": "Quote"
+          }
+        ],
+        "name": "body",
+        "type": "array"
+      },
+      {
+        "name": "featured",
+        "type": "boolean",
+        "title": "Featured on blog hero"
+      },
+      {
+        "name": "featuredRank",
+        "type": "number",
+        "title": "Featured rank (1 = primary)"
+      },
+      {
+        "options": {
+          "list": [
+            "published",
+            "draft"
+          ]
+        },
+        "initialValue": "published",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "name": "readTime",
+        "type": "string"
+      },
+      {
+        "name": "seoTitle",
+        "type": "string",
+        "title": "SEO title (≤60 chars)"
+      },
+      {
+        "name": "seoDescription",
+        "type": "text",
+        "title": "SEO description (≤160 chars)"
+      },
+      {
+        "name": "focusKeyword",
+        "type": "string",
+        "title": "Focus keyword"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "keyTakeaways",
+        "type": "array",
+        "title": "Key takeaways (GEO)"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "question",
+                "type": "string"
+              },
+              {
+                "name": "answer",
+                "type": "text"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "faq",
+        "type": "array",
+        "title": "FAQ (GEO + schema)"
+      },
+      {
+        "name": "updatedAt",
+        "type": "datetime",
+        "title": "Last updated"
+      }
+    ],
+    "name": "blogPost",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "options": {
+          "source": "title"
+        },
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ]
+          }
+        ],
+        "name": "slug",
+        "type": "slug"
+      },
+      {
+        "name": "client",
+        "type": "string"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "industry",
+        "type": "array"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "services",
+        "type": "array"
+      },
+      {
+        "name": "region",
+        "type": "string"
+      },
+      {
+        "name": "summary",
+        "type": "text"
+      },
+      {
+        "description": "Case study page hero, SEO/social preview, and default fallback for all cards below.",
+        "name": "featuredImage",
+        "type": "image",
+        "title": "Featured image (hero)"
+      },
+      {
+        "description": "Homepage portfolio showcase card. Falls back to Featured image.",
+        "name": "homepageCardImage",
+        "type": "image",
+        "title": "Homepage carousel image",
+        "fieldset": "placementImages"
+      },
+      {
+        "description": "/portfolio grid cards. Falls back to Featured image.",
+        "name": "listingImage",
+        "type": "image",
+        "title": "Portfolio listing image",
+        "fieldset": "placementImages"
+      },
+      {
+        "description": "Pinned case study cards on service pages. Falls back to Featured image.",
+        "name": "serviceCardImage",
+        "type": "image",
+        "title": "Service page card image",
+        "fieldset": "placementImages"
+      },
+      {
+        "description": "“Explore more work” cards on case study pages. Falls back to Featured image.",
+        "name": "relatedCardImage",
+        "type": "image",
+        "title": "Related / recommended image",
+        "fieldset": "placementImages"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "value",
+                "type": "string"
+              },
+              {
+                "name": "label",
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "metrics",
+        "type": "array"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "value",
+                "type": "string"
+              },
+              {
+                "name": "label",
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "heroMetrics",
+        "type": "array"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "highlights",
+        "type": "array"
+      },
+      {
+        "name": "challenge",
+        "type": "text"
+      },
+      {
+        "name": "solution",
+        "type": "text"
+      },
+      {
+        "name": "gradient",
+        "type": "string",
+        "title": "Tailwind gradient classes"
+      },
+      {
+        "validation": [
+          {
+            "level": "error",
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "name": "projectUrl",
+        "type": "url",
+        "title": "Live project URL"
+      },
+      {
+        "of": [
+          {
+            "lists": [
+              {
+                "value": "bullet",
+                "title": "Bullet"
+              },
+              {
+                "value": "number",
+                "title": "Numbered"
+              }
+            ],
+            "marks": {
+              "annotations": [
+                {
+                  "fields": [
+                    {
+                      "validation": [
+                        {
+                          "level": "error",
+                          "rules": [
+                            {
+                              "flag": "uri",
+                              "constraint": {
+                                "options": {
+                                  "scheme": [
+                                    "/^http$/",
+                                    "/^https$/",
+                                    "/^mailto$/"
+                                  ],
+                                  "allowRelative": true,
+                                  "relativeOnly": false,
+                                  "allowCredentials": false
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "name": "href",
+                      "type": "url"
+                    },
+                    {
+                      "initialValue": true,
+                      "name": "blank",
+                      "type": "boolean",
+                      "title": "Open in new tab"
+                    }
+                  ],
+                  "name": "link",
+                  "type": "object",
+                  "title": "External link"
+                },
+                {
+                  "fields": [
+                    {
+                      "to": [
+                        {
+                          "type": "blogPost"
+                        },
+                        {
+                          "type": "caseStudy"
+                        }
+                      ],
+                      "name": "reference",
+                      "type": "reference"
+                    }
+                  ],
+                  "name": "internalLink",
+                  "type": "object",
+                  "title": "Internal link"
+                }
+              ],
+              "decorators": [
+                {
+                  "value": "strong",
+                  "title": "Strong"
+                },
+                {
+                  "value": "em",
+                  "title": "Emphasis"
+                }
+              ]
+            },
+            "of": [],
+            "styles": [
+              {
+                "value": "normal",
+                "title": "Normal"
+              },
+              {
+                "value": "h2",
+                "title": "H2"
+              },
+              {
+                "value": "h3",
+                "title": "H3"
+              }
+            ],
+            "type": "block"
+          },
+          {
+            "options": {
+              "hotspot": true
+            },
+            "fields": [
+              {
+                "name": "alt",
+                "type": "string",
+                "title": "Alt text"
+              },
+              {
+                "name": "caption",
+                "type": "string"
+              }
+            ],
+            "type": "image"
+          },
+          {
+            "type": "richTable",
+            "title": "Table"
+          },
+          {
+            "type": "richCallout",
+            "title": "Callout"
+          },
+          {
+            "type": "richCta",
+            "title": "Call to Action"
+          },
+          {
+            "type": "richQuote",
+            "title": "Quote"
+          }
+        ],
+        "name": "body",
+        "type": "array"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "technologies",
+        "type": "array"
+      },
+      {
+        "name": "featured",
+        "type": "boolean"
+      },
+      {
+        "name": "showOnHomepage",
+        "type": "boolean",
+        "title": "Show on homepage carousel"
+      },
+      {
+        "name": "homepageOrder",
+        "type": "number",
+        "title": "Homepage carousel order"
+      },
+      {
+        "description": "e.g. product-engineering, ai-data, consulting, qa-it",
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "pinnedOnServices",
+        "type": "array",
+        "title": "Pinned service slugs"
+      },
+      {
+        "options": {
+          "list": [
+            "published",
+            "draft"
+          ]
+        },
+        "initialValue": "published",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "name": "order",
+        "type": "number",
+        "title": "Legacy sort order"
+      }
+    ],
+    "fieldsets": [
+      {
+        "name": "placementImages",
+        "title": "Card & placement images",
+        "options": {
+          "collapsible": true,
+          "collapsed": false
+        }
+      }
+    ],
+    "name": "caseStudy",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "name": "bio",
+        "type": "text"
+      },
+      {
+        "name": "photo",
+        "type": "image"
+      },
+      {
+        "name": "order",
+        "type": "number"
+      }
+    ],
+    "name": "teamMember",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "quote",
+        "type": "text"
+      },
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "name": "company",
+        "type": "string"
+      },
+      {
+        "options": {
+          "list": [
+            "client",
+            "employee"
+          ]
+        },
+        "name": "type",
+        "type": "string"
+      }
+    ],
+    "name": "testimonial",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "name": "year",
+        "type": "string"
+      },
+      {
+        "name": "image",
+        "type": "image"
+      }
+    ],
+    "name": "award",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "question",
+        "type": "string"
+      },
+      {
+        "name": "answer",
+        "type": "text"
+      },
+      {
+        "name": "order",
+        "type": "number"
+      }
+    ],
+    "name": "faq",
+    "type": "document",
+    "title": "FAQ"
+  }
+]

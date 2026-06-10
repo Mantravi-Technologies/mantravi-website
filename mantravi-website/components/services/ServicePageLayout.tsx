@@ -26,6 +26,7 @@ import {
 import { useServiceHashScroll } from "@/components/services/useServiceHashScroll";
 import { SectionShell, SectionHeading } from "@/components/ui/SectionShell";
 import { FAQAccordion } from "@/components/ui/Accordion";
+import type { CaseStudy } from "@/lib/content/case-studies";
 import {
   getServiceBySlug,
   type ServicePage,
@@ -62,9 +63,11 @@ function resolveServiceTitle(slug: string) {
 
 function SharedTail({
   service,
+  caseStudies,
   faqVariant,
 }: {
   service: ServicePage;
+  caseStudies: CaseStudy[];
   faqVariant: "surface" | "cream";
 }) {
   const faqItems = service.faqs.map((f) => ({
@@ -74,10 +77,7 @@ function SharedTail({
 
   return (
     <>
-      <ServiceCaseStudies
-        serviceSlug={service.slug}
-        serviceTags={service.serviceTags}
-      />
+      <ServiceCaseStudies studies={caseStudies} />
       <ServicePageCta serviceTitle={service.title} />
       <ServiceTechSection
         title={service.techSection.title}
@@ -110,7 +110,13 @@ function SharedTail({
   );
 }
 
-function EditorialLayout({ service }: { service: ServicePage }) {
+function EditorialLayout({
+  service,
+  caseStudies,
+}: {
+  service: ServicePage;
+  caseStudies: CaseStudy[];
+}) {
   const layout = layoutBySlug[service.slug] ?? layoutBySlug["product-engineering"];
   const show = service.showSections;
 
@@ -161,12 +167,22 @@ function EditorialLayout({ service }: { service: ServicePage }) {
         whyUsImage={service.images.whyUs}
         showImage={show.whyUsImage}
       />
-      <SharedTail service={service} faqVariant={layout.faqVariant} />
+      <SharedTail
+        service={service}
+        caseStudies={caseStudies}
+        faqVariant={layout.faqVariant}
+      />
     </>
   );
 }
 
-function AuthorityLayout({ service }: { service: ServicePage }) {
+function AuthorityLayout({
+  service,
+  caseStudies,
+}: {
+  service: ServicePage;
+  caseStudies: CaseStudy[];
+}) {
   const layout = layoutBySlug[service.slug] ?? layoutBySlug.consulting;
 
   return (
@@ -202,12 +218,22 @@ function AuthorityLayout({ service }: { service: ServicePage }) {
         whyUsImage={service.images.whyUs}
         showImage={false}
       />
-      <SharedTail service={service} faqVariant={layout.faqVariant} />
+      <SharedTail
+        service={service}
+        caseStudies={caseStudies}
+        faqVariant={layout.faqVariant}
+      />
     </>
   );
 }
 
-function QaTechnicalLayout({ service }: { service: ServicePage }) {
+function QaTechnicalLayout({
+  service,
+  caseStudies,
+}: {
+  service: ServicePage;
+  caseStudies: CaseStudy[];
+}) {
   const layout = layoutBySlug[service.slug] ?? layoutBySlug["qa-it"];
 
   return (
@@ -240,12 +266,22 @@ function QaTechnicalLayout({ service }: { service: ServicePage }) {
         whyUsImage={service.images.whyUs}
         showImage={false}
       />
-      <SharedTail service={service} faqVariant={layout.faqVariant} />
+      <SharedTail
+        service={service}
+        caseStudies={caseStudies}
+        faqVariant={layout.faqVariant}
+      />
     </>
   );
 }
 
-function ModularLayout({ service }: { service: ServicePage }) {
+function ModularLayout({
+  service,
+  caseStudies,
+}: {
+  service: ServicePage;
+  caseStudies: CaseStudy[];
+}) {
   const layout = layoutBySlug[service.slug] ?? layoutBySlug["ai-data"];
 
   return (
@@ -283,25 +319,40 @@ function ModularLayout({ service }: { service: ServicePage }) {
       {service.seoContent && (
         <ServiceSeoContentSection content={service.seoContent} />
       )}
-      <SharedTail service={service} faqVariant={layout.faqVariant} />
+      <SharedTail
+        service={service}
+        caseStudies={caseStudies}
+        faqVariant={layout.faqVariant}
+      />
     </>
   );
 }
 
-export function ServicePageLayout({ service }: { service: ServicePage }) {
+export function ServicePageLayout({
+  service,
+  caseStudies,
+}: {
+  service: ServicePage;
+  caseStudies: CaseStudy[];
+}) {
   useServiceHashScroll();
 
   switch (service.layoutVariant) {
     case "authority":
-      return <AuthorityLayout service={service} />;
+      return <AuthorityLayout service={service} caseStudies={caseStudies} />;
     case "qa-technical":
-      return <QaTechnicalLayout service={service} />;
+      return <QaTechnicalLayout service={service} caseStudies={caseStudies} />;
     case "ai-futuristic":
-      return <ServiceAiFuturisticLayout service={service} />;
+      return (
+        <ServiceAiFuturisticLayout
+          service={service}
+          caseStudies={caseStudies}
+        />
+      );
     case "modular":
-      return <ModularLayout service={service} />;
+      return <ModularLayout service={service} caseStudies={caseStudies} />;
     case "editorial":
     default:
-      return <EditorialLayout service={service} />;
+      return <EditorialLayout service={service} caseStudies={caseStudies} />;
   }
 }

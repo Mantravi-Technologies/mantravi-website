@@ -9,9 +9,9 @@ const LOGO = {
     height: 96,
   },
   dark: {
-    src: "/images/logo/mantravi-logo-dark.png",
-    width: 516,
-    height: 120,
+    src: "/images/logo/mantravi-logo-dark.webp",
+    width: 520,
+    height: 107,
   },
 } as const;
 

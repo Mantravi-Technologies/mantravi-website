@@ -10,11 +10,7 @@ export function organizationSchema() {
     email: siteConfig.email,
     telephone: siteConfig.phone,
     description: siteConfig.description,
-    sameAs: [
-      siteConfig.social.linkedin,
-      siteConfig.social.twitter,
-      siteConfig.social.instagram,
-    ].filter(Boolean),
+    sameAs: [siteConfig.social.linkedin, siteConfig.social.instagram],
   };
 }
 

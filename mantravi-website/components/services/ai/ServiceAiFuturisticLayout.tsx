@@ -16,13 +16,20 @@ import { ServiceTechSection } from "@/components/services/ServiceTechSection";
 import { ServiceRelatedServices } from "@/components/services/ServiceSeoContentSection";
 import { SectionShell, SectionHeading } from "@/components/ui/SectionShell";
 import { FAQAccordion } from "@/components/ui/Accordion";
+import type { CaseStudy } from "@/lib/content/case-studies";
 import { getServiceBySlug, type ServicePage } from "@/lib/content/services-data";
 
 function resolveServiceTitle(slug: string) {
   return getServiceBySlug(slug)?.title ?? slug;
 }
 
-export function ServiceAiFuturisticLayout({ service }: { service: ServicePage }) {
+export function ServiceAiFuturisticLayout({
+  service,
+  caseStudies,
+}: {
+  service: ServicePage;
+  caseStudies: CaseStudy[];
+}) {
   const faqItems = service.faqs.map((f) => ({
     question: f.question,
     answer: f.answer,
@@ -67,10 +74,7 @@ export function ServiceAiFuturisticLayout({ service }: { service: ServicePage })
 
       <ServiceAiWhySection differentiators={service.differentiators} />
 
-      <ServiceCaseStudies
-        serviceSlug={service.slug}
-        serviceTags={service.serviceTags}
-      />
+      <ServiceCaseStudies studies={caseStudies} />
 
       <ServicePageCta serviceTitle={service.title} />
 

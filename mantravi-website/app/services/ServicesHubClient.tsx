@@ -1,355 +1,310 @@
 "use client";
+
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { SectionShell, SectionHeading } from "@/components/ui/SectionShell";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight } from "lucide-react";
 import { FAQAccordion } from "@/components/ui/Accordion";
-import { ServicesHubTrustStats } from "@/components/services/ServicesHubTrustStats";
-import { ScrollReveal } from "@/components/motion/ScrollReveal";
-import { ServiceImageSlot } from "@/components/services/ServiceImageSlot";
-import { ServicesHubCta } from "@/components/services/ServicesHubCta";
-import { servicesMenu, trustBadges } from "@/lib/content/site-data";
+import {
+  ServicesHubIntroBand,
+  ServicesHubTrustBand,
+} from "@/components/services/ServicesHubEditorial";
+import { useContact } from "@/components/providers/ContactProvider";
+import { servicesMenu, stats } from "@/lib/content/site-data";
 import {
   servicesHubFaqs,
   servicesHubHero,
-  servicesHubImages,
   servicesHubIndustries,
-  servicesHubIntro,
   servicesHubPractices,
   servicesHubProcess,
-  servicesHubTrust,
 } from "@/lib/content/services-hub-data";
 import { serviceLink } from "@/lib/utils/service-link";
 import { cn } from "@/lib/utils";
+
+const hubStats = stats.slice(0, 4);
+
+const practiceAccents = [
+  "shub-practices__panel--indigo",
+  "shub-practices__panel--amber",
+  "shub-practices__panel--emerald",
+  "shub-practices__panel--violet",
+] as const;
+
 export default function ServicesHubPage() {
+  const { openContact } = useContact();
+  const [activePractice, setActivePractice] = useState(0);
+  const panelRefs = useRef<(HTMLElement | null)[]>([]);
+
+  useEffect(() => {
+    const panels = panelRefs.current.filter(Boolean) as HTMLElement[];
+    if (!panels.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) {
+          const idx = panels.indexOf(visible[0].target as HTMLElement);
+          if (idx >= 0) setActivePractice(idx);
+        }
+      },
+      { rootMargin: "-30% 0px -45% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] },
+    );
+
+    panels.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <>
-      {" "}
-      <section className="services-hub-hero services-hub-hero--editorial">
-        {" "}
-        <div className="services-hub-hero__bg" aria-hidden="true" />{" "}
-        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-10 sm:px-6 md:pb-16 md:pt-14 lg:px-8">
-          {" "}
-          <nav aria-label="Breadcrumb" className="mb-8 text-sm text-slate-400">
-            {" "}
-            <Link href="/" className="transition-colors hover:text-primary">
-              {" "}
-              Home{" "}
-            </Link>{" "}
-            <span className="mx-2 opacity-40">/</span>{" "}
-            <span className="text-slate-300">Services</span>{" "}
-          </nav>{" "}
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
-            {" "}
-            <div>
-              {" "}
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                {servicesHubHero.eyebrow}
-              </p>{" "}
-              <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight text-white md:text-5xl lg:text-[3.25rem]">
-                {" "}
-                {servicesHubHero.title}{" "}
-              </h1>{" "}
-              <p className="mt-6 text-lg leading-relaxed text-slate-300">
-                {servicesHubHero.subtitle}
-              </p>{" "}
-              <ul className="mt-8 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-400">
-                {" "}
-                {servicesHubHero.keywords.map((kw) => (
-                  <li key={kw} className="flex items-center gap-2">
-                    {" "}
-                    <span
-                      className="h-1 w-1 rounded-full bg-primary"
-                      aria-hidden
-                    />{" "}
-                    {kw}{" "}
-                  </li>
-                ))}{" "}
-              </ul>{" "}
-            </div>{" "}
-            <ScrollReveal className="lg:justify-self-end lg:w-full lg:max-w-xl">
-              {" "}
-              <ServiceImageSlot
-                slot={servicesHubImages.hero}
-                priority
-                variant="dark"
-                className="w-full shadow-2xl shadow-black/30"
-              />{" "}
-            </ScrollReveal>{" "}
-          </div>{" "}
-        </div>{" "}
-      </section>{" "}
-      <SectionShell variant="cream" className="!py-16 md:!py-20">
-        {" "}
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-          {" "}
-          <article>
-            {" "}
-            <h2 className="text-2xl font-bold md:text-3xl">
-              {servicesHubIntro.heading}
-            </h2>{" "}
-            <div className="mt-6 space-y-5 text-base leading-relaxed text-[#050505]/75 md:text-lg">
-              {" "}
-              {servicesHubIntro.paragraphs.map((p) => (
-                <p key={p.slice(0, 60)}>{p}</p>
-              ))}{" "}
-            </div>{" "}
-          </article>{" "}
-          <ScrollReveal>
-            {" "}
-            <ServiceImageSlot
-              slot={servicesHubImages.intro}
-              className="w-full"
-            />{" "}
-          </ScrollReveal>{" "}
-        </div>{" "}
-      </SectionShell>{" "}
-      <SectionShell
+    <div className="shub">
+      {/* Hero — light parchment, typographic watermark */}
+      <section className="shub-hero">
+        <div className="shub-wrap shub-hero__inner">
+          <div className="shub-hero__watermark" aria-hidden="true">
+            Services
+          </div>
+          <nav className="shub-crumb" aria-label="Breadcrumb">
+            <Link href="/">Home</Link>
+            <span aria-hidden="true">→</span>
+            <span>Services</span>
+          </nav>
+          <div className="shub-hero__content">
+            <p className="shub-label">{servicesHubHero.eyebrow}</p>
+            <h1 className="shub-hero__title">{servicesHubHero.title}</h1>
+            <p className="shub-hero__lead">{servicesHubHero.subtitle}</p>
+            <div className="shub-hero__tags">
+              {servicesHubHero.keywords.map((kw) => (
+                <span key={kw}>{kw}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <ServicesHubIntroBand />
+
+      {/* Practices — sticky nav + scroll panels (unique layout) */}
+      <section
         id="services-list"
-        variant="light"
-        className="!py-16 md:!py-24"
+        className="shub-practices"
+        aria-labelledby="practices-heading"
       >
-        {" "}
-        <SectionHeading
-          align="left"
-          title="Our service practices"
-          description="Select a practice to read capabilities, delivery process, technology stack, and case studies on the dedicated service page."
-          light
-        />{" "}
-        <div className="mt-12 divide-y divide-slate-200 border-y border-slate-200">
-          {" "}
-          {servicesHubPractices.map((practice, index) => {
-            const imageFirst = index % 2 === 1;
-            return (
+        <div className="shub-wrap shub-practices__layout">
+          <aside className="shub-practices__nav" aria-label="Service practices">
+            <p className="shub-label">Practices</p>
+            <h2 id="practices-heading" className="shub-practices__nav-title">
+              Our service practices
+            </h2>
+            <p className="shub-practices__nav-desc">
+              Select a practice to read capabilities, delivery process,
+              technology stack, and case studies.
+            </p>
+            <ol className="shub-practices__index">
+              {servicesHubPractices.map((practice, index) => (
+                <li key={practice.slug}>
+                  <a
+                    href={`#practice-${practice.slug}`}
+                    className={cn(
+                      "shub-practices__index-link",
+                      activePractice === index && "is-active",
+                    )}
+                    onClick={() => setActivePractice(index)}
+                  >
+                    <span className="shub-practices__index-bar" aria-hidden />
+                    {practice.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </aside>
+
+          <div className="shub-practices__panels">
+            {servicesHubPractices.map((practice, index) => (
               <article
                 key={practice.slug}
+                id={`practice-${practice.slug}`}
+                ref={(el) => {
+                  panelRefs.current[index] = el;
+                }}
                 className={cn(
-                  "grid gap-8 py-10 md:gap-10 md:py-12",
-                  "md:grid-cols-[4rem_minmax(0,1fr)_minmax(0,0.9fr)] md:items-center",
+                  "shub-practices__panel",
+                  practiceAccents[index],
                 )}
               >
-                {" "}
-                <span
-                  className="title-display text-4xl leading-none text-primary/25 md:text-5xl"
-                  aria-hidden="true"
-                >
-                  {" "}
-                  {String(index + 1).padStart(2, "0")}{" "}
-                </span>{" "}
-                <div className={cn(imageFirst && "md:order-3")}>
-                  {" "}
-                  <h3 className="text-xl font-bold md:text-2xl">
-                    {" "}
-                    <Link
-                      href={practice.href}
-                      className="transition-colors hover:text-primary"
-                    >
-                      {" "}
-                      {practice.title}{" "}
-                    </Link>{" "}
-                  </h3>{" "}
-                  <p className="mt-1 text-sm font-medium text-primary/80">
-                    {practice.summary}
-                  </p>{" "}
-                  <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-                    {practice.body}
-                  </p>{" "}
-                  <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
-                    {" "}
+                <div className="shub-practices__panel-inner">
+                  <p className="shub-practices__panel-tag">{practice.summary}</p>
+                  <h3>
+                    <Link href={practice.href}>{practice.title}</Link>
+                  </h3>
+                  <p className="shub-practices__panel-body">{practice.body}</p>
+                  <ul className="shub-practices__panel-list">
                     {practice.highlights.map((h) => (
-                      <li
-                        key={h}
-                        className="text-sm text-[#050505]/70 before:mr-2 before:text-primary before:content-['•']"
-                      >
-                        {" "}
-                        {h}{" "}
-                      </li>
-                    ))}{" "}
-                  </ul>{" "}
-                  <Link
-                    href={practice.href}
-                    className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
-                  >
-                    {" "}
-                    {practice.cta} <ArrowRight className="h-4 w-4" />{" "}
-                  </Link>{" "}
-                </div>{" "}
-                <ScrollReveal
-                  className={cn("md:order-2", imageFirst && "md:order-1")}
-                >
-                  {" "}
-                  <ServiceImageSlot
-                    slot={practice.image}
-                    className="w-full"
-                  />{" "}
-                </ScrollReveal>{" "}
+                      <li key={h}>{h}</li>
+                    ))}
+                  </ul>
+                  <Link href={practice.href} className="shub-link-arrow">
+                    {practice.cta}
+                    <ArrowUpRight className="h-4 w-4" aria-hidden />
+                  </Link>
+                </div>
               </article>
-            );
-          })}{" "}
-        </div>{" "}
-      </SectionShell>{" "}
-      <SectionShell variant="none" className="!py-8 md:!py-12">
-        {" "}
-        <ScrollReveal>
-          {" "}
-          <ServiceImageSlot
-            slot={servicesHubImages.showcase}
-            className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8"
-          />{" "}
-        </ScrollReveal>{" "}
-      </SectionShell>{" "}
-      <SectionShell variant="surface" className="!py-14 md:!py-18">
-        {" "}
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-16">
-          {" "}
-          <ScrollReveal className="lg:sticky lg:top-28">
-            {" "}
-            <ServiceImageSlot
-              slot={{ ...servicesHubImages.trust, aspect: "portrait" }}
-              className="mx-auto w-full max-w-sm lg:max-w-none"
-            />{" "}
-          </ScrollReveal>{" "}
-          <div>
-            {" "}
-            <SectionHeading
-              align="left"
-              title="Why teams trust Mantravi"
-              description="Accountability, production discipline, and direct communication, built into how we scope and deliver every engagement."
-              light
-            />{" "}
-            <div className="mt-10 grid gap-8 md:grid-cols-1">
-              {" "}
-              {servicesHubTrust.map((item) => (
-                <article
-                  key={item.title}
-                  className="border-l-2 border-primary/40 pl-5"
-                >
-                  {" "}
-                  <h3 className="text-lg font-bold">{item.title}</h3>{" "}
-                  <p className="mt-2 text-sm leading-relaxed text-muted md:text-base">
-                    {item.description}
-                  </p>{" "}
-                </article>
-              ))}{" "}
-            </div>{" "}
-            <ul className="mt-10 flex flex-wrap gap-3 border-t border-slate-200 pt-10">
-              {" "}
-              {trustBadges.map((badge) => (
-                <li
-                  key={badge}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-[#050505]/70 md:text-sm"
-                >
-                  {" "}
-                  {badge}{" "}
-                </li>
-              ))}{" "}
-            </ul>{" "}
-          </div>{" "}
-        </div>{" "}
-      </SectionShell>{" "}
-      <SectionShell variant="cream" className="!py-16 md:!py-20">
-        {" "}
-        <SectionHeading
-          align="left"
-          title={servicesHubIndustries.heading}
-          description={servicesHubIndustries.description}
-          light
-        />{" "}
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {" "}
-          {servicesHubIndustries.items.map((item) => (
-            <li
-              key={item}
-              className="border-l-2 border-primary/40 py-2 pl-4 text-sm font-medium text-[#050505]/80 md:text-base"
-            >
-              {" "}
-              {item}{" "}
-            </li>
-          ))}{" "}
-        </ul>{" "}
-      </SectionShell>{" "}
-      <SectionShell variant="light" className="!py-16 md:!py-20">
-        {" "}
-        <SectionHeading
-          title="How we deliver"
-          description="A consistent delivery model across engineering, marketing, QA, and AI, adapted to your timeline and team."
-          light
-        />{" "}
-        <ol className="services-hub-process mt-12">
-          {" "}
-          {servicesHubProcess.map((step) => (
-            <li key={step.num} className="services-hub-process__step">
-              {" "}
-              <span className="services-hub-process__num">{step.num}</span>{" "}
-              <div>
-                {" "}
-                <h3 className="font-bold">{step.title}</h3>{" "}
-                <p className="mt-2 text-sm leading-relaxed text-muted">
-                  {step.description}
-                </p>{" "}
-              </div>{" "}
-            </li>
-          ))}{" "}
-        </ol>{" "}
-      </SectionShell>{" "}
-      <SectionShell
-        id="capabilities"
-        variant="dark"
-        className="!py-16 md:!py-24"
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Industries — word mosaic */}
+      <section
+        className="shub-industries"
+        aria-labelledby="industries-heading"
       >
-        {" "}
-        <SectionHeading
-          align="left"
-          title="Browse capabilities by practice"
-          description="Deep links to specific offerings on each service page, useful when you know the outcome you need."
-        />{" "}
-        <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          {" "}
-          {servicesMenu.map((col) => (
-            <nav key={col.title} aria-label={col.title}>
-              {" "}
-              <Link
-                href={col.href}
-                className="font-bold text-white transition-colors hover:text-primary"
+        <div className="shub-wrap">
+          <p className="shub-label shub-label--light">Sectors</p>
+          <h2 id="industries-heading" className="shub-industries__title">
+            {servicesHubIndustries.heading}
+          </h2>
+          <p className="shub-industries__desc">{servicesHubIndustries.description}</p>
+          <div className="shub-industries__mosaic" role="list">
+            {servicesHubIndustries.items.map((item, i) => (
+              <span
+                key={item}
+                role="listitem"
+                className={cn(
+                  "shub-industries__word",
+                  i % 3 === 1 && "shub-industries__word--lg",
+                  i % 3 === 2 && "shub-industries__word--sm",
+                )}
               >
-                {" "}
-                {col.title}{" "}
-              </Link>{" "}
-              <ul className="mt-4 space-y-2 border-t border-white/10 pt-4">
-                {" "}
-                {col.items.map((item) => (
-                  <li key={item.label}>
-                    {" "}
-                    <Link
-                      href={serviceLink(col.href, item.anchor)}
-                      className="text-sm text-slate-400 transition-colors hover:text-primary"
-                    >
-                      {" "}
-                      {item.label}{" "}
-                    </Link>{" "}
-                  </li>
-                ))}{" "}
-              </ul>{" "}
-            </nav>
-          ))}{" "}
-        </div>{" "}
-      </SectionShell>{" "}
-      <ServicesHubTrustStats />{" "}
-      <SectionShell id="faq" variant="cream" className="!py-16 md:!py-20">
-        {" "}
-        <SectionHeading
-          title="Services FAQ"
-          description="Answers about Mantravi's software development, SEO, QA, and AI services, for search and procurement teams."
-          light
-        />{" "}
-        <div className="mx-auto mt-8 max-w-3xl">
-          {" "}
-          <FAQAccordion items={servicesHubFaqs} variant="light" />{" "}
-        </div>{" "}
-      </SectionShell>{" "}
-      <div className="pb-16 md:pb-24">
-        {" "}
-        <ServicesHubCta />{" "}
-      </div>{" "}
-    </>
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Process — vertical spine */}
+      <section className="shub-process" aria-labelledby="process-heading">
+        <div className="shub-wrap shub-process__layout">
+          <header className="shub-process__head">
+            <p className="shub-label">Delivery</p>
+            <h2 id="process-heading" className="shub-process__title">
+              How we deliver
+            </h2>
+            <p className="shub-process__desc">
+              A consistent delivery model across engineering, marketing, QA, and
+              AI — adapted to your timeline and team.
+            </p>
+          </header>
+          <ol className="shub-process__spine">
+            {servicesHubProcess.map((step, i) => (
+              <li key={step.num}>
+                <span className="shub-process__dot" aria-hidden="true" />
+                {i < servicesHubProcess.length - 1 ? (
+                  <span className="shub-process__line" aria-hidden="true" />
+                ) : null}
+                <div>
+                  <span className="shub-process__step-num">{step.num}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <ServicesHubTrustBand />
+
+      {/* Capabilities — flowing link river */}
+      <section
+        id="capabilities"
+        className="shub-caps"
+        aria-labelledby="capabilities-heading"
+      >
+        <div className="shub-wrap">
+          <p className="shub-label shub-label--light">Deep dive</p>
+          <h2 id="capabilities-heading" className="shub-caps__title">
+            Browse capabilities by practice
+          </h2>
+          <div className="shub-caps__river">
+            {servicesMenu.map((col) => (
+              <div key={col.title} className="shub-caps__group">
+                <Link href={col.href} className="shub-caps__group-title">
+                  {col.title}
+                </Link>
+                <ul>
+                  {col.items.map((item) => (
+                    <li key={item.label}>
+                      <Link href={serviceLink(col.href, item.anchor)}>
+                        <span aria-hidden="true">↳</span>
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats — asymmetric display */}
+      <section className="shub-stats" aria-label="Track record">
+        <div className="shub-wrap">
+          <dl className="shub-stats__display">
+            {hubStats.map((stat, i) => (
+              <div
+                key={stat.label}
+                className={cn("shub-stats__item", i % 2 === 1 && "shub-stats__item--offset")}
+              >
+                <dt>
+                  {stat.value}
+                  {stat.suffix}
+                </dt>
+                <dd>{stat.label}</dd>
+                {stat.sub ? <dd className="shub-stats__sub">{stat.sub}</dd> : null}
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      <section id="faq" className="shub-faq" aria-labelledby="faq-heading">
+        <div className="shub-wrap shub-faq__layout">
+          <header>
+            <p className="shub-label">FAQ</p>
+            <h2 id="faq-heading" className="shub-faq__title">
+              Services FAQ
+            </h2>
+            <p className="shub-faq__desc">
+              For search and procurement teams evaluating Mantravi&apos;s software,
+              SEO, QA, and AI services.
+            </p>
+          </header>
+          <div className="shub-faq__accordion">
+            <FAQAccordion items={servicesHubFaqs} variant="light" />
+          </div>
+        </div>
+      </section>
+
+      <section className="shub-cta" aria-labelledby="cta-heading">
+        <div className="shub-wrap shub-cta__inner">
+          <div>
+            <p className="shub-label shub-label--light">Consultation</p>
+            <h2 id="cta-heading" className="shub-cta__title">
+              Tell us what you&apos;re building
+            </h2>
+            <p className="shub-cta__quote">
+              We&apos;ll reply with scope options, tooling recommendations, and
+              realistic milestones — not a generic pitch deck.
+            </p>
+          </div>
+          <button type="button" onClick={openContact} className="shub-cta__action">
+            <span>Request a proposal</span>
+            <ArrowUpRight className="h-5 w-5" aria-hidden />
+          </button>
+        </div>
+      </section>
+    </div>
   );
 }

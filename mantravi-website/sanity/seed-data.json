@@ -28,18 +28,69 @@
     "industry": ["saas"],
     "services": ["mobile", "web"],
     "region": "asia",
-    "summary": "Garden care platform where users book trusted gardeners on demand — simple booking flow, polished UX, and reliable production performance.",
+    "summary": "Mantravi built Plantropan, an on-demand garden care platform where urban residents book trusted professional gardeners. We delivered a modern Flutter app, hardened the Java backend, and eliminated payment lag, memory leaks, and database bottlenecks that were breaking the booking journey.",
+    "challenge": "Plantropan was connecting customers with gardeners at scale, but production friction showed up in the worst places: slow payment verification, memory leaks during booking, and database load that made the app feel unreliable when users needed it most.",
+    "solution": "End-to-end rebuild and stabilization with Flutter for the mobile experience and Java for scheduling, payments, and user management. Async processing, API caching, and query optimization removed backend drag while a refreshed UI turned a complex flow into something users could finish in minutes.",
     "featured": true,
     "status": "published",
     "showOnHomepage": true,
     "homepageOrder": 2,
     "pinnedOnServices": ["product-engineering"],
+    "highlights": [
+      "Flutter app for discovery, booking, and job tracking on iOS and Android",
+      "Java backend for scheduling, accounts, and transactional integrity",
+      "Async payment verification and API caching on critical paths",
+      "Memory leak fixes and database optimization under concurrent load",
+      "Modern animations and accessible UI across the booking funnel"
+    ],
     "metrics": [
       { "value": "On-demand", "label": "Booking flow" },
-      { "value": "Reliable", "label": "Production uptime" }
+      { "value": "Flutter", "label": "Cross-platform app" },
+      { "value": "Java", "label": "Enterprise backend" }
     ],
-    "technologies": ["React Native", "Node.js", "PostgreSQL"],
+    "heroMetrics": [
+      { "value": "On-demand", "label": "Booking flow" },
+      { "value": "Flutter", "label": "Cross-platform app" },
+      { "value": "Java", "label": "Enterprise backend" }
+    ],
+    "technologies": ["Flutter", "Java"],
     "gradient": "from-emerald-600/40 to-teal-500/20"
+  },
+  {
+    "_type": "caseStudy",
+    "title": "Luxury Jewelry Digital Showroom for DP Jewellers",
+    "slug": { "current": "dp-jewellers" },
+    "client": "D.P. Jewellers",
+    "industry": ["d2c", "ecommerce"],
+    "services": ["mobile", "web"],
+    "region": "asia",
+    "summary": "Mantravi digitized the DP Jewellers showroom with a premium React Native app for iOS and Android, a Next.js admin control center for inventory and analytics, and Firebase infrastructure that keeps high-value jewelry catalogs in real-time sync across store and mobile.",
+    "challenge": "DP Jewellers needed more than a standard retail app. The digital experience had to match the trust, elegance, and visual impact of a luxury jewelry showroom, while giving the team a secure admin backbone to manage high-value inventory without developer bottlenecks.",
+    "solution": "A full digital showroom ecosystem: React Native mobile with minimalist, photography-led UX; a Next.js admin panel for stock, collections, and analytics; and Firebase for real-time sync, secure authentication, and high-resolution product imagery.",
+    "featured": true,
+    "status": "published",
+    "showOnHomepage": true,
+    "homepageOrder": 5,
+    "pinnedOnServices": ["product-engineering"],
+    "highlights": [
+      "Premium React Native app for iOS and Android from one codebase",
+      "Next.js admin for real-time stock, collections, and analytics",
+      "Firebase sync between showroom updates and the consumer app",
+      "High-resolution imagery pipeline tuned for mobile performance",
+      "Minimalist UX that puts craftsmanship and trust first"
+    ],
+    "metrics": [
+      { "value": "Luxury", "label": "Digital showroom" },
+      { "value": "Real-time", "label": "Inventory sync" },
+      { "value": "iOS & Android", "label": "Native-quality app" }
+    ],
+    "heroMetrics": [
+      { "value": "Luxury", "label": "Digital showroom" },
+      { "value": "Real-time", "label": "Inventory sync" },
+      { "value": "iOS & Android", "label": "Native-quality app" }
+    ],
+    "technologies": ["React Native", "Next.js", "Firebase"],
+    "gradient": "from-amber-600/40 to-rose-500/20"
   },
   {
     "_type": "caseStudy",
