@@ -14,6 +14,10 @@ import { portfolioSection } from "@/lib/content/site-data";
 import { type CaseStudy } from "@/lib/content/case-studies";
 import { getCaseStudyImage } from "@/lib/content/case-study-images";
 import { cn } from "@/lib/utils";
+import {
+  getStableViewportHeight,
+  isCoarsePointer,
+} from "@/lib/utils/scroll-profile";
 
 /** Single pin: intro timeline + carousel rotation share one ScrollTrigger progress */
 const CAROUSEL_FADE_START = 0.18;
@@ -28,12 +32,12 @@ const CAROUSEL_EXIT_HOLD_VH = 0.55;
 
 function getIntroHoldDistance() {
   if (typeof window === "undefined") return 480;
-  return window.innerHeight * INTRO_HOLD_VH;
+  return getStableViewportHeight() * INTRO_HOLD_VH;
 }
 
 function getIntroTransitionDistance() {
   if (typeof window === "undefined") return 320;
-  return window.innerHeight * INTRO_TRANSITION_VH;
+  return getStableViewportHeight() * INTRO_TRANSITION_VH;
 }
 
 function getIntroScrollDistance() {
@@ -42,12 +46,19 @@ function getIntroScrollDistance() {
 
 function getCarouselCardScrollDistance(cardCount: number) {
   if (typeof window === "undefined") return 1650;
-  return window.innerHeight * (1.1 + cardCount * 0.74);
+  return getStableViewportHeight() * (1.1 + cardCount * 0.74);
 }
 
 function getCarouselHoldDistance() {
   if (typeof window === "undefined") return 420;
-  return window.innerHeight * CAROUSEL_EXIT_HOLD_VH;
+  return getStableViewportHeight() * CAROUSEL_EXIT_HOLD_VH;
+}
+
+function isMobileCarouselViewport() {
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia("(max-width: 767px)").matches || isCoarsePointer()
+  );
 }
 
 function getCarouselScrollDistance(cardCount: number) {
@@ -80,8 +91,8 @@ function angleStep(cardCount: number) {
 }
 
 function cardWidthFromStage(width: number) {
-  if (width < 768) return Math.min(300, Math.max(248, width * 0.74));
-  return Math.min(280, Math.max(185, width * 0.22));
+  if (width < 768) return Math.min(276, Math.max(228, width * 0.68));
+  return Math.min(258, Math.max(170, width * 0.2));
 }
 
 /** Tight ring radius so adjacent cards sit close like Appinventiv's 360 carousel */
@@ -154,13 +165,86 @@ function applyCarouselVisual(
   setActiveIndexIfChanged(active);
 }
 
+function Portfolio360BottomChrome({
+  activeIndex,
+  cardCount,
+  onPrev,
+  onNext,
+  onDot,
+  onContact,
+  items,
+}: {
+  activeIndex: number;
+  cardCount: number;
+  onPrev: () => void;
+  onNext: () => void;
+  onDot: (index: number) => void;
+  onContact: () => void;
+  items: CaseStudy[];
+}) {
+  return (
+    <>
+      <div className="portfolio-360-controls">
+        <div className="portfolio-360-controls__pager">
+          <button
+            type="button"
+            className="portfolio-360-nav-btn"
+            aria-label="Previous project"
+            onClick={onPrev}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+
+          <div className="portfolio-360-dots" role="tablist" aria-label="Projects">
+            {items.map((study, i) => (
+              <button
+                key={study.slug}
+                type="button"
+                role="tab"
+                aria-selected={i === activeIndex}
+                className={cn(
+                  "portfolio-360-dot",
+                  i === activeIndex && "is-active",
+                )}
+                aria-label={`Go to project ${i + 1}`}
+                onClick={() => onDot(i)}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="portfolio-360-nav-btn"
+            aria-label="Next project"
+            onClick={onNext}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className="portfolio-360-cta-btn"
+          onClick={onContact}
+        >
+          {portfolioSection.ctaPill}
+        </button>
+      </div>
+
+      <Link href="/portfolio" className="portfolio-360-footer-link">
+        {portfolioSection.viewAllLabel} <ArrowRight className="h-4 w-4" />
+      </Link>
+    </>
+  );
+}
+
 function PortfolioDetailCaption({ study }: { study: CaseStudy }) {
   return (
     <motion.div
       key={study.slug}
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
+      exit={{ opacity: 0, y: -8, position: "absolute", left: 0, right: 0 }}
       transition={{ duration: 0.25 }}
       className="portfolio-360-detail-item"
     >
@@ -263,38 +347,15 @@ function Portfolio360Fallback({ items }: { items: CaseStudy[] }) {
               <PortfolioDetailCaption study={study} />
             </AnimatePresence>
           </div>
-          <div className="portfolio-360-controls">
-            <button
-              type="button"
-              className="portfolio-360-nav-btn"
-              aria-label="Previous project"
-              onClick={() =>
-                setActive((i) => normalizeIndex(i - 1, cardCount))
-              }
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              className="portfolio-360-cta-pill"
-              onClick={openContact}
-            >
-              {portfolioSection.ctaPill}
-            </button>
-            <button
-              type="button"
-              className="portfolio-360-nav-btn"
-              aria-label="Next project"
-              onClick={() =>
-                setActive((i) => normalizeIndex(i + 1, cardCount))
-              }
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-          <Link href="/portfolio" className="portfolio-360-footer-link">
-            {portfolioSection.viewAllLabel} <ArrowRight className="h-4 w-4" />
-          </Link>
+          <Portfolio360BottomChrome
+            activeIndex={active}
+            cardCount={cardCount}
+            items={items}
+            onPrev={() => setActive((i) => normalizeIndex(i - 1, cardCount))}
+            onNext={() => setActive((i) => normalizeIndex(i + 1, cardCount))}
+            onDot={setActive}
+            onContact={openContact}
+          />
         </div>
       </div>
     </section>
@@ -394,9 +455,19 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
     };
 
     updateRadius();
-    const observer = new ResizeObserver(updateRadius);
+
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+    const observer = new ResizeObserver(() => {
+      updateRadius();
+      if (refreshTimer) clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
+    });
     observer.observe(stage);
-    return () => observer.disconnect();
+
+    return () => {
+      if (refreshTimer) clearTimeout(refreshTimer);
+      observer.disconnect();
+    };
   }, [cardCount]);
 
   useEffect(() => {
@@ -495,13 +566,15 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
         CAROUSEL_FADE_START,
       );
 
+    const mobileCarousel = isMobileCarouselViewport();
+
     const sceneSt = ScrollTrigger.create({
       trigger,
       start: "top top",
       end: `+=${totalDistance}`,
       pin: scene,
-      scrub: SCENE_SCRUB,
-      anticipatePin: 1,
+      scrub: mobileCarousel ? 0.6 : SCENE_SCRUB,
+      anticipatePin: mobileCarousel ? 0 : 1,
       invalidateOnRefresh: true,
       id: "portfolio-scene",
       onUpdate: (self) => syncSceneProgress(self.progress),
@@ -511,6 +584,7 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
     introScrollTriggerRef.current = sceneSt;
     applyVisual(0);
     syncSceneProgress(sceneSt.progress);
+    ScrollTrigger.refresh();
 
     return () => {
       sceneSt.kill();
@@ -590,50 +664,15 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
               </AnimatePresence>
             </div>
 
-            <div className="portfolio-360-controls">
-              <button
-                type="button"
-                className="portfolio-360-nav-btn"
-                aria-label="Previous project"
-                onClick={() => goToIndex(activeIndex - 1)}
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                className="portfolio-360-cta-pill"
-                onClick={openContact}
-              >
-                {portfolioSection.ctaPill}
-              </button>
-              <button
-                type="button"
-                className="portfolio-360-nav-btn"
-                aria-label="Next project"
-                onClick={() => goToIndex(activeIndex + 1)}
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="portfolio-360-dots" aria-hidden="true">
-              {items.map((study, i) => (
-                <button
-                  key={study.slug}
-                  type="button"
-                  className={cn(
-                    "portfolio-360-dot",
-                    i === activeIndex && "is-active",
-                  )}
-                  aria-label={`Go to project ${i + 1}`}
-                  onClick={() => goToIndex(i)}
-                />
-              ))}
-            </div>
-
-            <Link href="/portfolio" className="portfolio-360-footer-link">
-              {portfolioSection.viewAllLabel} <ArrowRight className="h-4 w-4" />
-            </Link>
+            <Portfolio360BottomChrome
+              activeIndex={activeIndex}
+              cardCount={cardCount}
+              items={items}
+              onPrev={() => goToIndex(activeIndex - 1)}
+              onNext={() => goToIndex(activeIndex + 1)}
+              onDot={goToIndex}
+              onContact={openContact}
+            />
           </div>
         </div>
       </section>

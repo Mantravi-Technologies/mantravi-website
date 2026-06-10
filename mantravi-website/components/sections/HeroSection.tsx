@@ -57,7 +57,7 @@ export function HeroSection() {
   ]);
 
   return (
-    <section className="relative -mt-[var(--header-height)] flex min-h-[calc(100dvh+var(--header-height))] flex-col overflow-hidden bg-[#050505]">
+    <section className="relative -mt-[var(--header-height)] flex min-h-[calc(max(100svh,100dvh)+var(--header-height))] flex-col overflow-hidden bg-[#050505]">
       <HeroVideoBackground />
       <div className="grain-overlay opacity-15" aria-hidden="true" />
 

@@ -246,7 +246,7 @@ function ProjectStory({ blocks, fallback }: { blocks: PortableTextBlock[]; fallb
   );
 }
 
-/* ── Highlights: swipe row mobile, grid desktop ── */
+/* ── Highlights: stacked mobile, grid desktop ── */
 function ShippedWork({ items }: { items: string[] }) {
   if (!items.length) return null;
 
@@ -258,14 +258,14 @@ function ShippedWork({ items }: { items: string[] }) {
           Core capabilities delivered in the release.
         </p>
 
-        <div className="mt-8 flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <div
               key={item}
-              className="min-w-[min(100%,280px)] flex-shrink-0 snap-start rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition-colors hover:border-primary/30 sm:min-w-[300px] md:min-w-0"
+              className="min-w-0 w-full rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition-colors hover:border-primary/30"
             >
               <div className="mb-3 h-0.5 w-10 rounded-full bg-primary" aria-hidden />
-              <p className="text-sm leading-relaxed text-slate-200 sm:text-base">
+              <p className="text-sm leading-relaxed break-words text-slate-200 sm:text-base">
                 {item}
               </p>
             </div>

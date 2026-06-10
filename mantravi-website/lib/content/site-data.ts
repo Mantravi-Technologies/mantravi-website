@@ -203,7 +203,7 @@ export const portfolioSection = {
   introLabel: "Where ideas",
   introTitle: "Ship",
   introSuffix: "as products people love",
-  ctaPill: "Tell Us What You're Building",
+  ctaPill: "Discuss Your Project",
   ctaSummary:
     "Whether it's higher conversions or faster go-to-market, we build digital products designed to perform, not just look good.",
   viewAllLabel: "View All Projects",

@@ -34,7 +34,7 @@ const script = Instrument_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   icons: {
-    icon: [{ url: "/favicon.ico", sizes: "32x32" }],
+    icon: "/favicon.ico",
     apple: "/apple-icon.png",
   },
   title: {
