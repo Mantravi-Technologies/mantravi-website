@@ -1734,34 +1734,59 @@ html.is-scrolling .floating-contact-btn {
     padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
   }
 
+  .portfolio-360-grain {
+    display: none;
+  }
+
+  .portfolio-360-focus-backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .portfolio-360-scene-inner {
     transform: none;
   }
 
   .portfolio-360-carousel-wrap {
-    grid-template-rows: minmax(240px, 1fr) auto;
+    grid-template-rows: minmax(220px, 1fr) auto;
     max-height: calc(
       100dvh - var(--header-height, 4rem) - max(1.5rem, env(safe-area-inset-bottom, 0px))
     );
+    will-change: auto;
+  }
+
+  .portfolio-360-card.is-active .portfolio-360-card-glow {
+    opacity: 0.6;
+  }
+
+  .portfolio-360-card-glow {
+    transition: none;
   }
 
   .portfolio-360-stage-area {
-    padding: 0.25rem 0.625rem clamp(1.75rem, 7vw, 2.75rem);
+    padding: clamp(0.625rem, 2.5vh, 1rem) 0.625rem clamp(1.5rem, 6vw, 2.25rem);
     flex: 1 1 auto;
-    min-height: 240px;
-    max-height: min(56vh, calc(100dvh - var(--header-height, 4rem) - 17.5rem));
+    min-height: 220px;
+    max-height: min(48vh, calc(100dvh - var(--header-height, 4rem) - 18.5rem));
+    align-items: center;
   }
 
   .portfolio-360-stage {
-    height: clamp(272px, min(48vh, 360px), 360px);
-    min-height: clamp(272px, 48vh, 360px);
-    perspective: 760px;
-    perspective-origin: 50% 46%;
+    height: clamp(232px, min(42vh, 300px), 300px);
+    min-height: clamp(232px, 42vh, 300px);
+    perspective: 720px;
+    perspective-origin: 50% 50%;
   }
 
   .portfolio-360-card {
-    width: clamp(228px, 68vw, 276px);
-    height: clamp(256px, 84vw, 322px);
+    width: clamp(195px, 58vw, 238px);
+    height: clamp(220px, 72vw, 286px);
+    transition: none;
+  }
+
+  .portfolio-360-nav-btn {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   /* Caption lives below the stage — hide on-card client pill to avoid duplicate/overlap */

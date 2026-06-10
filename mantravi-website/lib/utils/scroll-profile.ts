@@ -9,6 +9,14 @@ export function getStableViewportHeight() {
   return window.visualViewport?.height ?? window.innerHeight;
 }
 
+/** Mobile/touch perf profile: lighter scroll-linked effects, no GPU blur stacks. */
+export function isMobilePerfProfile() {
+  if (typeof window === "undefined") return false;
+  return (
+    isCoarsePointer() || window.matchMedia("(max-width: 767px)").matches
+  );
+}
+
 export function prefersNativeScroll(pathname: string | null) {
   if (!pathname) return false;
   if (pathname.startsWith("/services")) return true;

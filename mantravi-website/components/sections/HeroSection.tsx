@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { motion } from "framer-motion";
@@ -19,9 +20,32 @@ const heroAccentDesktop = ["Built for Growth"];
 
 function HeroVideoBackground() {
   const reducedMotion = useReducedMotion();
+  const mediaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+
+    const container = mediaRef.current;
+    const video = container?.querySelector("video");
+    if (!container || !video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+          void video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: [0, 0.1, 0.25] },
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [reducedMotion]);
 
   return (
-    <div className="hero-media" aria-hidden="true">
+    <div ref={mediaRef} className="hero-media" aria-hidden="true">
       <img
         src="/hero/hero-poster.webp"
         alt=""

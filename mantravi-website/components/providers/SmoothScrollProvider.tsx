@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type Lenis from "lenis";
 import {
   getStableViewportHeight,
+  isCoarsePointer,
   needsScrollTriggerIntegration,
   prefersNativeScroll,
 } from "@/lib/utils/scroll-profile";
@@ -21,15 +22,32 @@ export function useLenis() {
   return useContext(LenisContext);
 }
 
-function attachScrollEndClass(onScroll: () => void) {
+function attachScrollEndClass(
+  onScroll: () => void,
+  classToggleThrottleMs = 0,
+) {
   let scrollEndTimer: ReturnType<typeof setTimeout> | undefined;
+  let isScrollingClassActive = false;
+  let lastClassToggleAt = 0;
 
   const handler = () => {
     onScroll();
-    document.documentElement.classList.add("is-scrolling");
+    const now = Date.now();
+    const canToggleClass =
+      !isScrollingClassActive ||
+      classToggleThrottleMs === 0 ||
+      now - lastClassToggleAt >= classToggleThrottleMs;
+
+    if (canToggleClass) {
+      document.documentElement.classList.add("is-scrolling");
+      isScrollingClassActive = true;
+      lastClassToggleAt = now;
+    }
+
     if (scrollEndTimer) clearTimeout(scrollEndTimer);
     scrollEndTimer = setTimeout(() => {
       document.documentElement.classList.remove("is-scrolling");
+      isScrollingClassActive = false;
     }, 120);
   };
 
@@ -84,7 +102,11 @@ export function SmoothScrollProvider({
     if (prefersReducedMotion || prefersNativeScroll(pathname)) {
       setLenis(null);
 
-      const { handler, cleanup } = attachScrollEndClass(() => {});
+      const scrollClassThrottle = isCoarsePointer() ? 100 : 0;
+      const { handler, cleanup } = attachScrollEndClass(
+        () => {},
+        scrollClassThrottle,
+      );
       window.addEventListener("scroll", handler, { passive: true });
       handler();
 
@@ -97,6 +119,10 @@ export function SmoothScrollProvider({
           if (cancelled) return;
 
           gsap.registerPlugin(ScrollTrigger);
+
+          if (isCoarsePointer()) {
+            ScrollTrigger.config({ ignoreMobileResize: true });
+          }
 
           let scrolling = false;
           let scrollIdleTimer: ReturnType<typeof setTimeout> | undefined;
@@ -208,6 +234,7 @@ export function SmoothScrollProvider({
             ScrollTrigger.update();
           }
         },
+        0,
       );
       instance.on("scroll", handler);
 

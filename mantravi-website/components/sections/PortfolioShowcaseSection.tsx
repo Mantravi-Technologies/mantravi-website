@@ -16,7 +16,7 @@ import { getCaseStudyImage } from "@/lib/content/case-study-images";
 import { cn } from "@/lib/utils";
 import {
   getStableViewportHeight,
-  isCoarsePointer,
+  isMobilePerfProfile,
 } from "@/lib/utils/scroll-profile";
 
 /** Single pin: intro timeline + carousel rotation share one ScrollTrigger progress */
@@ -30,14 +30,43 @@ const INTRO_TRANSITION_VH = 0.55;
 /** Extra viewport scroll after the last card centers before the section unpins */
 const CAROUSEL_EXIT_HOLD_VH = 0.55;
 
+const MOBILE_INTRO_HOLD_VH = 0.45;
+const MOBILE_INTRO_TRANSITION_VH = 0.35;
+/** Viewport height of scroll per card step on mobile (even steps between cards) */
+const MOBILE_CAROUSEL_STEP_VH = 0.4;
+const MOBILE_EXIT_HOLD_VH = 0.2;
+const MOBILE_ROTATION_DEADZONE = 0.02;
+/** Fraction of one step scroll needed to advance to the next card */
+const MOBILE_GESTURE_COMMIT_RATIO = 0.2;
+/** Smooth settle when a mobile gesture completes */
+const MOBILE_CARD_SETTLE_DURATION = 0.45;
+const MOBILE_CARD_SETTLE_EASE = "power2.out";
+const easeGestureProgress = gsap.parseEase("power2.out");
+
+function getScrollMetrics() {
+  const mobile = isMobilePerfProfile();
+  return {
+    introHoldVh: mobile ? MOBILE_INTRO_HOLD_VH : INTRO_HOLD_VH,
+    introTransitionVh: mobile ? MOBILE_INTRO_TRANSITION_VH : INTRO_TRANSITION_VH,
+    carouselPerCard: mobile ? MOBILE_CAROUSEL_STEP_VH : 0.74,
+    carouselBaseVh: mobile ? 0 : 1.1,
+    exitHoldVh: mobile ? MOBILE_EXIT_HOLD_VH : CAROUSEL_EXIT_HOLD_VH,
+    rotationDeadzone: mobile ? MOBILE_ROTATION_DEADZONE : ROTATION_DEADZONE,
+  };
+}
+
+function getRotationDeadzone() {
+  return getScrollMetrics().rotationDeadzone;
+}
+
 function getIntroHoldDistance() {
   if (typeof window === "undefined") return 480;
-  return getStableViewportHeight() * INTRO_HOLD_VH;
+  return getStableViewportHeight() * getScrollMetrics().introHoldVh;
 }
 
 function getIntroTransitionDistance() {
   if (typeof window === "undefined") return 320;
-  return getStableViewportHeight() * INTRO_TRANSITION_VH;
+  return getStableViewportHeight() * getScrollMetrics().introTransitionVh;
 }
 
 function getIntroScrollDistance() {
@@ -46,19 +75,15 @@ function getIntroScrollDistance() {
 
 function getCarouselCardScrollDistance(cardCount: number) {
   if (typeof window === "undefined") return 1650;
-  return getStableViewportHeight() * (1.1 + cardCount * 0.74);
+  const { carouselPerCard, carouselBaseVh } = getScrollMetrics();
+  const vh = getStableViewportHeight();
+  const steps = Math.max(1, cardCount - 1);
+  return vh * (carouselBaseVh + steps * carouselPerCard);
 }
 
 function getCarouselHoldDistance() {
   if (typeof window === "undefined") return 420;
-  return getStableViewportHeight() * CAROUSEL_EXIT_HOLD_VH;
-}
-
-function isMobileCarouselViewport() {
-  if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia("(max-width: 767px)").matches || isCoarsePointer()
-  );
+  return getStableViewportHeight() * getScrollMetrics().exitHoldVh;
 }
 
 function getCarouselScrollDistance(cardCount: number) {
@@ -91,8 +116,53 @@ function angleStep(cardCount: number) {
 }
 
 function cardWidthFromStage(width: number) {
-  if (width < 768) return Math.min(276, Math.max(228, width * 0.68));
+  if (width < 768) return Math.min(238, Math.max(195, width * 0.58));
   return Math.min(258, Math.max(170, width * 0.2));
+}
+
+function overallProgressForCardIndex(
+  index: number,
+  cardCount: number,
+  introPortion: number,
+) {
+  const carouselPhase = carouselPhaseFromIndex(index, cardCount);
+  const carouselRawPhase = visualCarouselPhaseToRawPhase(
+    carouselPhase,
+    cardCount,
+  );
+  return introPortion + carouselRawPhase * (1 - introPortion);
+}
+
+function isInCarouselProgress(
+  progress: number,
+  introPortion: number,
+  cardCount: number,
+) {
+  if (progress <= introPortion) return false;
+  const carouselRaw = (progress - introPortion) / (1 - introPortion);
+  return carouselRaw < getCarouselActivePortion(cardCount);
+}
+
+function getCarouselStepScrollPx(
+  totalScrollDistance: number,
+  cardCount: number,
+  introPortion: number,
+) {
+  const span = totalScrollDistance * (1 - introPortion);
+  const carouselSpan = span * getCarouselActivePortion(cardCount);
+  const steps = Math.max(1, cardCount - 1);
+  return carouselSpan / steps;
+}
+
+function visualProgressBetweenIndices(
+  fromIndex: number,
+  toIndex: number,
+  fraction: number,
+  cardCount: number,
+) {
+  const fromVisual = visualProgressFromIndex(fromIndex, cardCount);
+  const toVisual = visualProgressFromIndex(toIndex, cardCount);
+  return fromVisual + (toVisual - fromVisual) * gsap.utils.clamp(0, 1, fraction);
 }
 
 /** Tight ring radius so adjacent cards sit close like Appinventiv's 360 carousel */
@@ -106,17 +176,18 @@ function radiusFromStageWidth(width: number, cardCount: number) {
 
 
 function carouselPhaseFromIndex(index: number, cardCount: number) {
+  const deadzone = getRotationDeadzone();
   const maxVis = maxVisualProgress(cardCount);
   const visual = visualProgressFromIndex(index, cardCount);
-  if (maxVis <= 0 || visual <= 0) return 0;
+  if (maxVis <= 0 || visual <= 0) return deadzone;
   const raw = visual / maxVis;
-  return ROTATION_DEADZONE + raw * (1 - ROTATION_DEADZONE);
+  return deadzone + raw * (1 - deadzone);
 }
 
 function visualFromCarouselPhase(phase: number, cardCount: number) {
-  if (phase <= ROTATION_DEADZONE) return 0;
-  const normalized =
-    (phase - ROTATION_DEADZONE) / (1 - ROTATION_DEADZONE);
+  const deadzone = getRotationDeadzone();
+  if (phase <= deadzone) return 0;
+  const normalized = (phase - deadzone) / (1 - deadzone);
   return normalized * maxVisualProgress(cardCount);
 }
 
@@ -154,7 +225,7 @@ function applyCarouselVisual(
   cardCount: number,
   ring: HTMLDivElement,
   syncCardStates: (rotationDeg: number, active: number) => void,
-  setActiveIndexIfChanged: (index: number) => void,
+  onActiveIndex: (index: number) => void,
 ) {
   const maxVis = maxVisualProgress(cardCount);
   const carouselProgress = gsap.utils.clamp(0, maxVis, visualProgress);
@@ -162,7 +233,7 @@ function applyCarouselVisual(
   const active = rotationToIndex(rotationDeg, cardCount);
   gsap.set(ring, { rotateY: -rotationDeg, force3D: true });
   syncCardStates(rotationDeg, active);
-  setActiveIndexIfChanged(active);
+  onActiveIndex(active);
 }
 
 function Portfolio360BottomChrome({
@@ -238,7 +309,33 @@ function Portfolio360BottomChrome({
   );
 }
 
-function PortfolioDetailCaption({ study }: { study: CaseStudy }) {
+function PortfolioDetailCaption({
+  study,
+  instant = false,
+}: {
+  study: CaseStudy;
+  instant?: boolean;
+}) {
+  const content = (
+    <>
+      <h3 className="portfolio-360-detail-title line-clamp-2">{study.title}</h3>
+      <p className="portfolio-360-detail-desc line-clamp-2">{study.summary}</p>
+      {study.metrics[0] && (
+        <p className="portfolio-360-detail-metric">
+          {study.metrics[0].value} <span>{study.metrics[0].label}</span>
+        </p>
+      )}
+    </>
+  );
+
+  if (instant) {
+    return (
+      <div key={study.slug} className="portfolio-360-detail-item">
+        {content}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       key={study.slug}
@@ -248,13 +345,7 @@ function PortfolioDetailCaption({ study }: { study: CaseStudy }) {
       transition={{ duration: 0.25 }}
       className="portfolio-360-detail-item"
     >
-      <h3 className="portfolio-360-detail-title line-clamp-2">{study.title}</h3>
-      <p className="portfolio-360-detail-desc line-clamp-2">{study.summary}</p>
-      {study.metrics[0] && (
-        <p className="portfolio-360-detail-metric">
-          {study.metrics[0].value} <span>{study.metrics[0].label}</span>
-        </p>
-      )}
+      {content}
     </motion.div>
   );
 }
@@ -262,9 +353,11 @@ function PortfolioDetailCaption({ study }: { study: CaseStudy }) {
 function CardVisual({
   study,
   isActive,
+  imagePriority = false,
 }: {
   study: CaseStudy;
   isActive: boolean;
+  imagePriority?: boolean;
 }) {
   const cardImage = getCaseStudyImage(study, "homepageCarousel");
 
@@ -292,6 +385,8 @@ function CardVisual({
             fill
             className="object-cover"
             sizes="(max-width: 768px) 80vw, 300px"
+            priority={imagePriority}
+            loading={imagePriority ? undefined : "lazy"}
           />
         ) : (
           <>
@@ -375,13 +470,45 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
   const ringRef = useRef<HTMLDivElement>(null);
   const introScrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const activeIndexRef = useRef(0);
+  const mobilePerfRef = useRef(false);
+  const captionIdleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const gestureStartIndexRef = useRef(0);
+  const gestureStartScrollRef = useRef(0);
+  const isCarouselGesturingRef = useRef(false);
+  const isFinalizingGestureRef = useRef(false);
+  const isAnimatingCardRef = useRef(false);
+  const carouselStepPxRef = useRef(400);
+  const syncRafRef = useRef<number | null>(null);
+  const pendingSyncRef = useRef<{ rotationDeg: number; active: number } | null>(
+    null,
+  );
+  const cardCacheRef = useRef<
+    Map<
+      number,
+      {
+        scale: string;
+        opacity: string;
+        filter: string;
+        zIndex: string;
+        isActive: boolean;
+      }
+    >
+  >(new Map());
   const lenis = useLenis();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [radius, setRadius] = useState(320);
+  const [instantCaption, setInstantCaption] = useState(false);
   const { openContact } = useContact();
 
   const activeStudy = items[activeIndex] ?? items[0];
+
+  useEffect(() => {
+    mobilePerfRef.current = isMobilePerfProfile();
+    setInstantCaption(isMobilePerfProfile());
+  }, []);
 
   const setActiveIndexIfChanged = useCallback((index: number) => {
     if (activeIndexRef.current === index) return;
@@ -389,32 +516,110 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
     setActiveIndex(index);
   }, []);
 
-  const syncCardStates = useCallback(
+  const setActiveIndexFromScroll = useCallback(
+    (index: number) => {
+      if (!mobilePerfRef.current) {
+        setActiveIndexIfChanged(index);
+        return;
+      }
+
+      if (captionIdleTimerRef.current) {
+        clearTimeout(captionIdleTimerRef.current);
+      }
+
+      captionIdleTimerRef.current = setTimeout(() => {
+        setActiveIndexIfChanged(index);
+      }, 120);
+    },
+    [setActiveIndexIfChanged],
+  );
+
+  const applyCardStates = useCallback(
     (rotationDeg: number, active: number) => {
       if (!ringRef.current) return;
+
+      const mobilePerf = mobilePerfRef.current;
       const cards = ringRef.current.querySelectorAll<HTMLElement>(
         "[data-carousel-card]",
       );
+      const sideScaleMin = mobilePerf ? 0.68 : 0.74;
+      const sideOpacityMin = mobilePerf ? 0.38 : 0.5;
+
       cards.forEach((card, i) => {
         const cardAngle = (i * step + rotationDeg) % 360;
         const dist = Math.min(Math.abs(cardAngle), Math.abs(360 - cardAngle));
-        const isActive = i === active;
-        const isMobile = window.matchMedia("(max-width: 767px)").matches;
-        const sideScaleMin = isMobile ? 0.68 : 0.74;
-        const sideOpacityMin = isMobile ? 0.38 : 0.5;
-        const scale = isActive ? 1 : Math.max(sideScaleMin, 1 - dist / 200);
-        card.style.setProperty("--card-scale", String(scale));
-        card.style.opacity = String(
-          isActive ? 1 : Math.max(sideOpacityMin, 1 - dist / 110),
+        const isActiveCard = i === active;
+        const scale = isActiveCard
+          ? 1
+          : Math.max(sideScaleMin, 1 - dist / 200);
+        const opacity = isActiveCard
+          ? 1
+          : Math.max(sideOpacityMin, 1 - dist / 110);
+        const scaleStr = String(scale);
+        const opacityStr = String(opacity);
+        const filterStr =
+          isActiveCard || mobilePerf
+            ? "none"
+            : `blur(${Math.min(1.5, dist / 60)}px) brightness(0.82)`;
+        const zIndexStr = String(
+          isActiveCard ? 10 : Math.max(1, 6 - Math.round(dist / 25)),
         );
-        card.style.filter = isActive
-          ? "none"
-          : `blur(${Math.min(1.5, dist / 60)}px) brightness(0.82)`;
-        card.style.zIndex = String(isActive ? 10 : Math.max(1, 6 - Math.round(dist / 25)));
-        card.classList.toggle("is-active", isActive);
+
+        const cached = cardCacheRef.current.get(i);
+        if (
+          cached &&
+          cached.scale === scaleStr &&
+          cached.opacity === opacityStr &&
+          cached.filter === filterStr &&
+          cached.zIndex === zIndexStr &&
+          cached.isActive === isActiveCard
+        ) {
+          return;
+        }
+
+        card.style.setProperty("--card-scale", scaleStr);
+        card.style.opacity = opacityStr;
+        card.style.filter = filterStr;
+        card.style.zIndex = zIndexStr;
+        card.classList.toggle("is-active", isActiveCard);
+
+        cardCacheRef.current.set(i, {
+          scale: scaleStr,
+          opacity: opacityStr,
+          filter: filterStr,
+          zIndex: zIndexStr,
+          isActive: isActiveCard,
+        });
       });
     },
     [step],
+  );
+
+  const syncCardStates = useCallback(
+    (rotationDeg: number, active: number) => {
+      pendingSyncRef.current = { rotationDeg, active };
+      if (syncRafRef.current !== null) return;
+
+      syncRafRef.current = requestAnimationFrame(() => {
+        syncRafRef.current = null;
+        const pending = pendingSyncRef.current;
+        if (!pending) return;
+        applyCardStates(pending.rotationDeg, pending.active);
+      });
+    },
+    [applyCardStates],
+  );
+
+  useEffect(
+    () => () => {
+      if (syncRafRef.current !== null) {
+        cancelAnimationFrame(syncRafRef.current);
+      }
+      if (captionIdleTimerRef.current) {
+        clearTimeout(captionIdleTimerRef.current);
+      }
+    },
+    [],
   );
 
   const goToIndex = useCallback(
@@ -437,13 +642,15 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
         introPortion,
       );
 
+      setActiveIndexIfChanged(target);
+
       if (lenis) {
         lenis.scrollTo(scrollPos, { duration: 1.1 });
       } else {
         window.scrollTo({ top: scrollPos, behavior: "smooth" });
       }
     },
-    [lenis, cardCount],
+    [lenis, cardCount, setActiveIndexIfChanged],
   );
 
   useEffect(() => {
@@ -460,7 +667,10 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
     const observer = new ResizeObserver(() => {
       updateRadius();
       if (refreshTimer) clearTimeout(refreshTimer);
-      refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
+      refreshTimer = setTimeout(() => {
+        if (document.documentElement.classList.contains("is-scrolling")) return;
+        ScrollTrigger.refresh();
+      }, 200);
     });
     observer.observe(stage);
 
@@ -472,6 +682,11 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+
+    const mobilePerf = isMobilePerfProfile();
+    if (mobilePerf) {
+      ScrollTrigger.config({ ignoreMobileResize: true });
+    }
 
     const trigger = triggerRef.current;
     const scene = sceneRef.current;
@@ -490,6 +705,7 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
     const carouselDistance = getCarouselScrollDistance(cardCount);
     const totalDistance = introDistance + carouselDistance;
     const introPortion = introDistance / totalDistance;
+    let sceneSt: ScrollTrigger;
 
     const applyVisual = (visual: number) => {
       applyCarouselVisual(
@@ -497,16 +713,160 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
         cardCount,
         ring,
         syncCardStates,
-        setActiveIndexIfChanged,
+        setActiveIndexFromScroll,
+      );
+    };
+
+    const updateCarouselStepPx = () => {
+      carouselStepPxRef.current = getCarouselStepScrollPx(
+        totalDistance,
+        cardCount,
+        introPortion,
       );
     };
 
     const syncCarouselPhase = (phase: number) => {
+      if (
+        mobilePerf &&
+        isCarouselGesturingRef.current &&
+        !isFinalizingGestureRef.current
+      ) {
+        const delta = window.scrollY - gestureStartScrollRef.current;
+        const stepPx = carouselStepPxRef.current;
+        const startIdx = gestureStartIndexRef.current;
+
+        let targetIdx = startIdx;
+        if (delta > 0) {
+          targetIdx = Math.min(startIdx + 1, cardCount - 1);
+        } else if (delta < 0) {
+          targetIdx = Math.max(startIdx - 1, 0);
+        }
+
+        if (targetIdx === startIdx) {
+          applyVisual(visualProgressFromIndex(startIdx, cardCount));
+          return;
+        }
+
+        const rawFrac = Math.min(1, Math.abs(delta) / stepPx);
+        const frac = easeGestureProgress(rawFrac);
+        applyVisual(
+          visualProgressBetweenIndices(startIdx, targetIdx, frac, cardCount),
+        );
+        return;
+      }
+
       const visual = visualFromCarouselPhase(phase, cardCount);
       applyVisual(visual);
     };
 
+    let cardSettleTween: gsap.core.Tween | null = null;
+
+    const finalizeCarouselGesture = () => {
+      if (!mobilePerf || isFinalizingGestureRef.current || !sceneSt) return;
+      if (!isCarouselGesturingRef.current) return;
+
+      isFinalizingGestureRef.current = true;
+      isCarouselGesturingRef.current = false;
+
+      const delta = window.scrollY - gestureStartScrollRef.current;
+      const stepPx = carouselStepPxRef.current;
+      const startIdx = gestureStartIndexRef.current;
+
+      let targetIdx = startIdx;
+      if (delta > stepPx * MOBILE_GESTURE_COMMIT_RATIO) {
+        targetIdx = Math.min(startIdx + 1, cardCount - 1);
+      } else if (delta < -stepPx * MOBILE_GESTURE_COMMIT_RATIO) {
+        targetIdx = Math.max(startIdx - 1, 0);
+      }
+
+      const endVisual = visualProgressFromIndex(targetIdx, cardCount);
+      const endScroll = scrollPosForIndex(
+        targetIdx,
+        cardCount,
+        sceneSt,
+        introPortion,
+      );
+
+      let startVisual = visualProgressFromIndex(startIdx, cardCount);
+      if (targetIdx !== startIdx) {
+        const rawFrac = Math.min(1, Math.abs(delta) / stepPx);
+        startVisual = visualProgressBetweenIndices(
+          startIdx,
+          targetIdx,
+          easeGestureProgress(rawFrac),
+          cardCount,
+        );
+      }
+
+      cardSettleTween?.kill();
+      isAnimatingCardRef.current = true;
+
+      const motion = { visual: startVisual, scroll: window.scrollY };
+
+      cardSettleTween = gsap.to(motion, {
+        visual: endVisual,
+        scroll: endScroll,
+        duration:
+          targetIdx === startIdx
+            ? MOBILE_CARD_SETTLE_DURATION * 0.55
+            : MOBILE_CARD_SETTLE_DURATION,
+        ease: MOBILE_CARD_SETTLE_EASE,
+        overwrite: true,
+        onUpdate: () => {
+          window.scrollTo(0, motion.scroll);
+          applyVisual(motion.visual);
+          ScrollTrigger.update();
+        },
+        onComplete: () => {
+          gestureStartIndexRef.current = targetIdx;
+          activeIndexRef.current = targetIdx;
+          setActiveIndexIfChanged(targetIdx);
+          isAnimatingCardRef.current = false;
+          isFinalizingGestureRef.current = false;
+          cardSettleTween = null;
+        },
+      });
+    };
+
+    let finalizeTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const scheduleFinalizeGesture = () => {
+      if (
+        !mobilePerf ||
+        !isCarouselGesturingRef.current ||
+        isAnimatingCardRef.current
+      ) {
+        return;
+      }
+      if (finalizeTimer) clearTimeout(finalizeTimer);
+      finalizeTimer = setTimeout(finalizeCarouselGesture, 90);
+    };
+
+    const beginCarouselGesture = () => {
+      if (
+        !mobilePerf ||
+        isFinalizingGestureRef.current ||
+        isAnimatingCardRef.current ||
+        !sceneSt
+      ) {
+        return;
+      }
+      if (!isInCarouselProgress(sceneSt.progress, introPortion, cardCount)) {
+        return;
+      }
+
+      isCarouselGesturingRef.current = true;
+      gestureStartScrollRef.current = window.scrollY;
+      gestureStartIndexRef.current = activeIndexRef.current;
+    };
+
+    const onTouchStart = () => beginCarouselGesture();
+    const onTouchEnd = () => scheduleFinalizeGesture();
+    const onGestureScroll = () => scheduleFinalizeGesture();
+
     const syncSceneProgress = (progress: number) => {
+      if (isAnimatingCardRef.current) return;
+
       if (progress <= introPortion) {
         const introProgress = progress / introPortion;
         if (introProgress <= introHoldRatio) {
@@ -521,6 +881,18 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
       }
 
       introTl.progress(1);
+
+      if (
+        mobilePerf &&
+        isInCarouselProgress(progress, introPortion, cardCount) &&
+        !isCarouselGesturingRef.current &&
+        !isFinalizingGestureRef.current
+      ) {
+        isCarouselGesturingRef.current = true;
+        gestureStartScrollRef.current = window.scrollY;
+        gestureStartIndexRef.current = activeIndexRef.current;
+      }
+
       const carouselRawPhase = (progress - introPortion) / (1 - introPortion);
       const carouselPhase = rawCarouselPhaseToVisualPhase(
         carouselRawPhase,
@@ -535,18 +907,26 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
 
     const introTl = gsap.timeline({ paused: true });
 
+    introTl.to(
+      intro,
+      mobilePerf
+        ? {
+            opacity: 0,
+            scale: 1.015,
+            duration: 0.42,
+            ease: "power2.inOut",
+          }
+        : {
+            opacity: 0,
+            scale: 1.015,
+            filter: "blur(14px)",
+            duration: 0.42,
+            ease: "power2.inOut",
+          },
+      0,
+    );
+
     introTl
-      .to(
-        intro,
-        {
-          opacity: 0,
-          scale: 1.015,
-          filter: "blur(14px)",
-          duration: 0.42,
-          ease: "power2.inOut",
-        },
-        0,
-      )
       .fromTo(
         focusBackdrop,
         { opacity: 0 },
@@ -566,32 +946,51 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
         CAROUSEL_FADE_START,
       );
 
-    const mobileCarousel = isMobileCarouselViewport();
-
-    const sceneSt = ScrollTrigger.create({
+    sceneSt = ScrollTrigger.create({
       trigger,
       start: "top top",
       end: `+=${totalDistance}`,
       pin: scene,
-      scrub: mobileCarousel ? 0.6 : SCENE_SCRUB,
-      anticipatePin: mobileCarousel ? 0 : 1,
+      scrub: mobilePerf ? true : SCENE_SCRUB,
+      fastScrollEnd: false,
+      anticipatePin: mobilePerf ? 0 : 1,
       invalidateOnRefresh: true,
       id: "portfolio-scene",
       onUpdate: (self) => syncSceneProgress(self.progress),
-      onRefresh: (self) => syncSceneProgress(self.progress),
+      onRefresh: (self) => {
+        updateCarouselStepPx();
+        syncSceneProgress(self.progress);
+      },
     });
 
     introScrollTriggerRef.current = sceneSt;
+    updateCarouselStepPx();
     applyVisual(0);
     syncSceneProgress(sceneSt.progress);
     ScrollTrigger.refresh();
 
+    if (mobilePerf) {
+      window.addEventListener("touchstart", onTouchStart, { passive: true });
+      window.addEventListener("touchend", onTouchEnd, { passive: true });
+      window.addEventListener("touchcancel", onTouchEnd, { passive: true });
+      window.addEventListener("scroll", onGestureScroll, { passive: true });
+    }
+
     return () => {
+      cardSettleTween?.kill();
+      if (finalizeTimer) clearTimeout(finalizeTimer);
+      isAnimatingCardRef.current = false;
+      if (mobilePerf) {
+        window.removeEventListener("touchstart", onTouchStart);
+        window.removeEventListener("touchend", onTouchEnd);
+        window.removeEventListener("touchcancel", onTouchEnd);
+        window.removeEventListener("scroll", onGestureScroll);
+      }
       sceneSt.kill();
       introTl.kill();
       introScrollTriggerRef.current = null;
     };
-  }, [cardCount, syncCardStates, setActiveIndexIfChanged]);
+  }, [cardCount, syncCardStates, setActiveIndexFromScroll, setActiveIndexIfChanged]);
 
   return (
     <div ref={triggerRef} className="portfolio-360-trigger" id="portfolio">
@@ -648,6 +1047,7 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
                         <CardVisual
                           study={study}
                           isActive={i === activeIndex}
+                          imagePriority={i === 0}
                         />
                       </div>
                     ))}
@@ -659,9 +1059,13 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
 
           <div className="portfolio-360-bottom">
             <div className="portfolio-360-details">
-              <AnimatePresence mode="wait">
-                <PortfolioDetailCaption study={activeStudy} />
-              </AnimatePresence>
+              {instantCaption ? (
+                <PortfolioDetailCaption study={activeStudy} instant />
+              ) : (
+                <AnimatePresence mode="wait">
+                  <PortfolioDetailCaption study={activeStudy} />
+                </AnimatePresence>
+              )}
             </div>
 
             <Portfolio360BottomChrome
