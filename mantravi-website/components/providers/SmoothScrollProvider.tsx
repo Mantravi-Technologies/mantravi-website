@@ -111,7 +111,7 @@ export function SmoothScrollProvider({
       window.addEventListener("scroll", handler, { passive: true });
       handler();
 
-      if (needsScrollTriggerIntegration(pathname) && !prefersSimplePortfolio()) {
+      if (needsScrollTriggerIntegration(pathname)) {
         void (async () => {
           const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
             import("gsap"),

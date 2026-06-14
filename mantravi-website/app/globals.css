@@ -796,7 +796,7 @@ html.mobile-nav-open .floating-contact-btn {
   white-space: nowrap;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 380px) {
   .floating-contact-btn__label {
     display: none;
   }
@@ -1938,12 +1938,43 @@ html.is-scrolling .floating-contact-btn {
 }
 
 /* Portfolio swipe carousel (mobile + tablet) */
+.portfolio-swipe-trigger {
+  position: relative;
+  background: #050505;
+  overflow-x: clip;
+}
+
 .portfolio-swipe-scene {
   position: relative;
   background: #050505;
   color: #fff;
   overflow-x: clip;
   padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+.portfolio-swipe-scene--scroll {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: max(100svh, 100dvh);
+  padding-top: var(--header-height, 4rem);
+  box-sizing: border-box;
+}
+
+.portfolio-swipe-scene--scroll .portfolio-360-intro {
+  padding-top: 0;
+}
+
+.portfolio-swipe-carousel-wrap {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  align-content: center;
 }
 
 .portfolio-swipe-scene::before {
@@ -1959,7 +1990,7 @@ html.is-scrolling .floating-contact-btn {
 .portfolio-swipe-viewport {
   position: relative;
   z-index: 1;
-  margin-top: 0.5rem;
+  margin-top: 0;
   overflow: hidden;
   overscroll-behavior-x: contain;
   touch-action: pan-y pinch-zoom;
@@ -1971,13 +2002,27 @@ html.is-scrolling .floating-contact-btn {
   display: flex;
   touch-action: pan-y pinch-zoom;
   backface-visibility: hidden;
-  will-change: transform;
 }
 
 .portfolio-swipe-slide {
   flex: 0 0 85%;
   min-width: 0;
   padding-left: 1rem;
+}
+
+.portfolio-swipe-slide .portfolio-swipe-card {
+  transform: scale(0.9);
+  opacity: 0.72;
+  transition:
+    transform 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.42s ease;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.portfolio-swipe-slide.is-active .portfolio-swipe-card {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .portfolio-swipe-slide:first-child {
@@ -2016,7 +2061,11 @@ html.is-scrolling .floating-contact-btn {
 }
 
 .portfolio-swipe-scene .portfolio-360-card-glow {
-  transition: none;
+  transition: opacity 0.42s ease;
+}
+
+.portfolio-swipe-slide.is-active .portfolio-360-card-glow {
+  opacity: 1;
 }
 
 .portfolio-swipe-scene .portfolio-360-card {

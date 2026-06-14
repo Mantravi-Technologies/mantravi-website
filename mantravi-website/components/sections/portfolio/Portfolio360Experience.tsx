@@ -6,7 +6,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AnimatePresence } from "framer-motion";
 import { useContact } from "@/components/providers/ContactProvider";
 import { useLenis } from "@/components/providers/SmoothScrollProvider";
-import { portfolioSection } from "@/lib/content/site-data";
 import { type CaseStudy } from "@/lib/content/case-studies";
 import { cn } from "@/lib/utils";
 import {
@@ -17,12 +16,12 @@ import {
   CardVisual,
   Portfolio360BottomChrome,
   PortfolioDetailCaption,
+  PortfolioIntroLockup,
 } from "./PortfolioShared";
 
 /** Single pin: intro timeline + carousel rotation share one ScrollTrigger progress */
 const CAROUSEL_FADE_START = 0.18;
 const ROTATION_DEADZONE = 0.14;
-const SCENE_SCRUB = 0.85;
 /** Scroll with SHIP only before text→card transition begins */
 const INTRO_HOLD_VH = 0.7;
 /** Scroll span for SHIP blur/fade + carousel reveal */
@@ -130,6 +129,15 @@ function overallProgressForCardIndex(
     cardCount,
   );
   return introPortion + carouselRawPhase * (1 - introPortion);
+}
+
+/** Discrete ScrollTrigger snap targets — one per card center plus intro + section end */
+function buildCarouselSnapPoints(cardCount: number, introPortion: number) {
+  const points = new Set<number>([0, introPortion, 1]);
+  for (let i = 0; i < cardCount; i++) {
+    points.add(overallProgressForCardIndex(i, cardCount, introPortion));
+  }
+  return [...points].sort((a, b) => a - b);
 }
 
 function isInCarouselProgress(
@@ -484,6 +492,7 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
     const carouselDistance = getCarouselScrollDistance(cardCount);
     const totalDistance = introDistance + carouselDistance;
     const introPortion = introDistance / totalDistance;
+    const carouselSnapPoints = buildCarouselSnapPoints(cardCount, introPortion);
     let sceneSt: ScrollTrigger;
 
     const applyVisual = (visual: number) => {
@@ -730,12 +739,25 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
       start: "top top",
       end: `+=${totalDistance}`,
       pin: scene,
-      scrub: mobilePerf ? true : SCENE_SCRUB,
+      scrub: true,
+      ...(mobilePerf
+        ? {}
+        : {
+            snap: {
+              snapTo: carouselSnapPoints,
+              directional: true,
+              duration: { min: 0.32, max: 0.52 },
+              delay: 0.05,
+              ease: "power2.out",
+              inertia: false,
+            },
+          }),
       fastScrollEnd: false,
       anticipatePin: mobilePerf ? 0 : 1,
       invalidateOnRefresh: true,
       id: "portfolio-scene",
       onUpdate: (self) => syncSceneProgress(self.progress),
+      onSnapComplete: (self) => syncSceneProgress(self.progress),
       onRefresh: (self) => {
         updateCarouselStepPx();
         syncSceneProgress(self.progress);
@@ -781,19 +803,7 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
         <div className="portfolio-360-grain grain-overlay" aria-hidden="true" />
 
         <div ref={introRef} className="portfolio-360-intro">
-          <div className="portfolio-360-intro-lockup">
-            <div className="portfolio-360-intro-hero">
-              <span className="portfolio-360-intro-label">
-                {portfolioSection.introLabel}
-              </span>
-              <span className="portfolio-360-intro-title title-display">
-                {portfolioSection.introTitle}
-              </span>
-            </div>
-            <span className="portfolio-360-intro-suffix">
-              {portfolioSection.introSuffix}
-            </span>
-          </div>
+          <PortfolioIntroLockup />
         </div>
 
         <div

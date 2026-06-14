@@ -43,9 +43,7 @@ export function prefersNativeScroll(pathname: string | null) {
   return false;
 }
 
-/** Homepage portfolio pin needs ScrollTrigger — desktop 360 only. */
+/** Homepage portfolio pin / intro — desktop 360 and mobile swipe intro. */
 export function needsScrollTriggerIntegration(pathname: string | null) {
-  if (pathname !== "/") return false;
-  if (typeof window === "undefined") return true;
-  return !prefersSimplePortfolio();
+  return pathname === "/";
 }

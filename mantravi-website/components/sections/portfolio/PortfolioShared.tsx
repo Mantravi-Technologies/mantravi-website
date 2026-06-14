@@ -201,6 +201,24 @@ export function CardVisual({
   );
 }
 
+export function PortfolioIntroLockup() {
+  return (
+    <div className="portfolio-360-intro-lockup">
+      <div className="portfolio-360-intro-hero">
+        <span className="portfolio-360-intro-label">
+          {portfolioSection.introLabel}
+        </span>
+        <span className="portfolio-360-intro-title title-display">
+          {portfolioSection.introTitle}
+        </span>
+      </div>
+      <span className="portfolio-360-intro-suffix">
+        {portfolioSection.introSuffix}
+      </span>
+    </div>
+  );
+}
+
 export function PortfolioSectionHeader() {
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-12 text-center sm:py-16">
