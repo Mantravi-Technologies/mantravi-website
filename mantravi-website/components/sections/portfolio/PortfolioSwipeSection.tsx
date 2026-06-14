@@ -8,7 +8,6 @@ import { useContact } from "@/components/providers/ContactProvider";
 import { type CaseStudy } from "@/lib/content/case-studies";
 import { cn } from "@/lib/utils";
 import {
-  buildSwipeSnapPoints,
   cardIndexFromSnapProgress,
   getLastCardSnapProgress,
   getSectionExitProgress,
@@ -44,9 +43,6 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
   const isEmblaDraggingRef = useRef(false);
   const isScrollSyncingRef = useRef(false);
   const scrollSyncTweenRef = useRef<gsap.core.Tween | null>(null);
-  const captionTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "center",
@@ -68,31 +64,8 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
     setActiveIndex(index);
   }, []);
 
-  const queueCaptionIndex = useCallback(
-    (index: number) => {
-      if (captionTimerRef.current) clearTimeout(captionTimerRef.current);
-      captionTimerRef.current = setTimeout(() => {
-        flushCaptionIndex(index);
-        captionTimerRef.current = undefined;
-      }, 80);
-    },
-    [flushCaptionIndex],
-  );
-
-  const syncEmblaIndex = useCallback(
-    (index: number, jump: boolean) => {
-      const target = normalizeIndex(index, cardCount);
-      if (syncedEmblaIndexRef.current === target) return;
-      syncedEmblaIndexRef.current = target;
-      emblaApiRef.current?.scrollTo(target, jump);
-      queueCaptionIndex(target);
-    },
-    [cardCount, queueCaptionIndex],
-  );
-
   useEffect(
     () => () => {
-      if (captionTimerRef.current) clearTimeout(captionTimerRef.current);
       scrollSyncTweenRef.current?.kill();
     },
     [],
@@ -138,7 +111,9 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         onComplete: () => {
           isScrollSyncingRef.current = false;
           lastSnapCardRef.current = index;
+          syncedEmblaIndexRef.current = index;
           scrollSyncTweenRef.current = null;
+          flushCaptionIndex(index);
         },
       });
     },
@@ -217,15 +192,6 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       lastCardProgress,
       sectionExitProgress,
     ]);
-    const carouselSnapPoints = buildSwipeSnapPoints(cardCount, layout).filter(
-      (p) =>
-        p > layout.introPortion + 0.0001 &&
-        p < sectionExitProgress - 0.0001,
-    );
-    const snapCarouselDirectional =
-      carouselSnapPoints.length > 0
-        ? ScrollTrigger.snapDirectional(carouselSnapPoints)
-        : null;
 
     gsap.set(intro, {
       opacity: 1,
@@ -314,8 +280,6 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
 
       if (progress <= layout.introPortion) {
         syncIntroTimeline(progress);
-        lastSnapCardRef.current = 0;
-        syncEmblaIndex(0, true);
         return;
       }
 
@@ -323,10 +287,6 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         lastIntroProgress = 1;
         introTl.progress(1);
       }
-
-      const idx = cardIndexFromSnapProgress(progress, cardCount, layout);
-      lastSnapCardRef.current = idx;
-      syncEmblaIndex(idx, false);
     };
 
     const resolveSnapProgress = (progress: number, direction: number) => {
@@ -335,30 +295,59 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         return direction >= 0 ? layout.introPortion : 0;
       }
 
-      // Last card hold → one forward scroll releases to next section
+      // Last card → one forward scroll exits to next section
       if (progress >= lastCardProgress - 0.0001) {
         if (direction < 0) {
           if (progress > lastCardProgress + 0.002) {
             return snapExitDirectional(progress, direction);
           }
           if (cardCount > 1) {
-            return scrollProgressForCardIndex(cardCount - 2, cardCount, layout);
+            const prevIdx = cardCount - 2;
+            return scrollProgressForCardIndex(prevIdx, cardCount, layout);
           }
           return lastCardProgress;
         }
         return snapExitDirectional(progress, direction);
       }
 
-      if (!snapCarouselDirectional) return layout.introPortion;
+      // Carousel — exactly one card per scroll gesture (never skip)
+      const settled = lastSnapCardRef.current;
 
-      const snapped = snapCarouselDirectional(progress, direction);
-      let idx = cardIndexFromSnapProgress(snapped, cardCount, layout);
-      idx = gsap.utils.clamp(
-        lastSnapCardRef.current - 1,
-        lastSnapCardRef.current + 1,
-        idx,
-      );
-      return scrollProgressForCardIndex(idx, cardCount, layout);
+      if (settled <= 0 && direction < 0) {
+        return 0;
+      }
+
+      const targetIdx =
+        direction > 0
+          ? Math.min(settled + 1, cardCount - 1)
+          : direction < 0
+            ? Math.max(settled - 1, 0)
+            : settled;
+
+      return scrollProgressForCardIndex(targetIdx, cardCount, layout);
+    };
+
+    const commitSnapToCards = (progress: number) => {
+      if (isEmblaDraggingRef.current || isScrollSyncingRef.current) return;
+
+      let idx: number;
+      if (progress >= sectionExitProgress - 0.002) {
+        idx = cardCount - 1;
+      } else if (progress <= layout.introPortion + 0.001) {
+        idx = 0;
+      } else {
+        idx = cardIndexFromSnapProgress(progress, cardCount, layout);
+      }
+
+      if (syncedEmblaIndexRef.current === idx) {
+        lastSnapCardRef.current = idx;
+        return;
+      }
+
+      lastSnapCardRef.current = idx;
+      syncedEmblaIndexRef.current = idx;
+      emblaApiRef.current?.scrollTo(idx, false);
+      flushCaptionIndex(idx);
     };
 
     const sceneSt = ScrollTrigger.create({
@@ -370,8 +359,8 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       snap: {
         snapTo: (progress, self) =>
           resolveSnapProgress(progress, self?.direction ?? 1),
-        duration: { min: 0.36, max: 0.54 },
-        delay: 0.08,
+        duration: { min: 0.38, max: 0.56 },
+        delay: 0.12,
         ease: "power2.inOut",
         inertia: false,
       },
@@ -379,19 +368,16 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       invalidateOnRefresh: true,
       id: "portfolio-swipe-scene",
       onUpdate: (self) => syncSceneProgress(self.progress),
-      onSnapComplete: (self) => {
-        const idx =
-          self.progress >= sectionExitProgress - 0.002
-            ? cardCount - 1
-            : cardIndexFromSnapProgress(self.progress, cardCount, layout);
-        lastSnapCardRef.current = idx;
-        flushCaptionIndex(idx);
+      onSnapComplete: (self) => commitSnapToCards(self.progress),
+      onRefresh: (self) => {
+        syncSceneProgress(self.progress);
+        commitSnapToCards(self.progress);
       },
-      onRefresh: (self) => syncSceneProgress(self.progress),
     });
 
     sceneStRef.current = sceneSt;
     syncSceneProgress(sceneSt.progress);
+    commitSnapToCards(sceneSt.progress);
     ScrollTrigger.refresh();
 
     return () => {
@@ -400,16 +386,19 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       introTl.kill();
       sceneStRef.current = null;
     };
-  }, [cardCount, syncEmblaIndex, flushCaptionIndex]);
+  }, [cardCount, flushCaptionIndex]);
 
   const goToIndex = useCallback(
     (index: number) => {
       const target = normalizeIndex(index, cardCount);
 
-      syncEmblaIndex(target, false);
+      lastSnapCardRef.current = target;
+      syncedEmblaIndexRef.current = target;
+      emblaApiRef.current?.scrollTo(target, false);
+      flushCaptionIndex(target);
       syncScrollToCardIndex(target, true);
     },
-    [cardCount, syncEmblaIndex, syncScrollToCardIndex],
+    [cardCount, flushCaptionIndex, syncScrollToCardIndex],
   );
 
   const guardCardNavigation = useCallback(() => clickAllowedRef.current, []);
