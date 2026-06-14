@@ -41,8 +41,8 @@
   --header-height: 4.5rem;
 }
 
-html.is-scrolling .animate-marquee:not(.logo-marquee-track),
-html.is-scrolling .animate-marquee-reverse:not(.logo-marquee-track) {
+html.is-scrolling .animate-marquee,
+html.is-scrolling .animate-marquee-reverse {
   animation-play-state: paused;
 }
 
@@ -626,6 +626,71 @@ html.is-scrolling .service-case-card__client {
 
 .blog-post-hero-cover img {
   object-position: center 35%;
+}
+
+/* Blog detail — readable display title on small screens */
+.blog-post-title {
+  font-size: 1.75rem;
+  line-height: 1.12;
+}
+
+@media (min-width: 640px) {
+  .blog-post-title {
+    font-size: 1.875rem;
+    line-height: 1.1;
+  }
+}
+
+@media (min-width: 768px) {
+  .blog-post-title {
+    font-size: 2.25rem;
+    line-height: 1.08;
+  }
+}
+
+@media (min-width: 1024px) {
+  .blog-post-title {
+    font-size: 2.75rem;
+    line-height: 1.05;
+  }
+}
+
+/* Blog rich content — prevent grid overflow and improve mobile rhythm */
+.rich-content {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.rich-content a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.rich-content .blog-rich-table {
+  max-width: 100%;
+}
+
+@media (max-width: 639px) {
+  .blog-rich-table-th,
+  .blog-rich-table-td {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .blog-rich-table-th-first,
+  .blog-rich-table-td-first {
+    padding-left: 1rem;
+  }
+
+  .blog-rich-table-th:last-child,
+  .blog-rich-table-td:last-child {
+    padding-right: 1rem;
+  }
+
+  .blog-rich-table-col-label {
+    min-width: 7rem;
+  }
 }
 
 .mandala-dot {
@@ -1870,6 +1935,102 @@ html.is-scrolling .floating-contact-btn {
 
 .portfolio-360-fallback-stage {
   max-width: min(100%, 22rem);
+}
+
+/* Portfolio swipe carousel (mobile + tablet) */
+.portfolio-swipe-scene {
+  position: relative;
+  background: #050505;
+  color: #fff;
+  overflow-x: clip;
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+.portfolio-swipe-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 40%, rgba(0, 229, 255, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(255, 255, 255, 0.06) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.portfolio-swipe-viewport {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.5rem;
+  overflow: hidden;
+  overscroll-behavior-x: contain;
+  touch-action: pan-y pinch-zoom;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.portfolio-swipe-track {
+  display: flex;
+  touch-action: pan-y pinch-zoom;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.portfolio-swipe-slide {
+  flex: 0 0 85%;
+  min-width: 0;
+  padding-left: 1rem;
+}
+
+.portfolio-swipe-slide:first-child {
+  padding-left: 7.5vw;
+}
+
+.portfolio-swipe-slide:last-child {
+  padding-right: 7.5vw;
+}
+
+@media (min-width: 640px) {
+  .portfolio-swipe-slide {
+    flex-basis: 72%;
+  }
+
+  .portfolio-swipe-slide:first-child {
+    padding-left: 14vw;
+  }
+
+  .portfolio-swipe-slide:last-child {
+    padding-right: 14vw;
+  }
+}
+
+.portfolio-swipe-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 3.85;
+  max-height: min(52dvh, 22rem);
+  margin-inline: auto;
+}
+
+.portfolio-swipe-scene .portfolio-360-card-inner {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+.portfolio-swipe-scene .portfolio-360-card-glow {
+  transition: none;
+}
+
+.portfolio-swipe-scene .portfolio-360-card {
+  transition: none;
+}
+
+.portfolio-swipe-scene .portfolio-360-card-meta--on-card {
+  display: none;
+}
+
+.portfolio-swipe-scene .portfolio-360-bottom {
+  position: relative;
+  z-index: 2;
+  margin-top: 0.75rem;
 }
 
 .portfolio-360-fallback-card {
@@ -3452,4 +3613,60 @@ html.is-scrolling .floating-contact-btn {
 .services-editorial__metrics-dot {
   margin-inline: 0.4rem;
   opacity: 0.35;
+}
+
+/* Mobile + tablet perf: reduce GPU-heavy effects */
+@media (max-width: 1023px) {
+  .labs-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(8, 14, 28, 0.88);
+    will-change: auto;
+  }
+
+  .floating-contact-btn {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(5, 5, 5, 0.96);
+  }
+
+  .portfolio-360-nav-btn {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .testimonials-band .backdrop-blur-md {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .section-cinematic .backdrop-blur-sm {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .case-study-shipped-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .blog-rich-cta .blur-3xl {
+    display: none;
+  }
+
+  header[class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+.blog-rich-table {
+  -webkit-overflow-scrolling: touch;
+}
+
+.case-study-facts-scroll {
+  -webkit-overflow-scrolling: touch;
 }

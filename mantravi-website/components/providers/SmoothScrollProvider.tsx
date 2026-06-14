@@ -8,6 +8,7 @@ import {
   isCoarsePointer,
   needsScrollTriggerIntegration,
   prefersNativeScroll,
+  prefersSimplePortfolio,
 } from "@/lib/utils/scroll-profile";
 
 const LenisContext = createContext<Lenis | null>(null);
@@ -110,7 +111,7 @@ export function SmoothScrollProvider({
       window.addEventListener("scroll", handler, { passive: true });
       handler();
 
-      if (needsScrollTriggerIntegration(pathname)) {
+      if (needsScrollTriggerIntegration(pathname) && !prefersSimplePortfolio()) {
         void (async () => {
           const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
             import("gsap"),
@@ -227,6 +228,7 @@ export function SmoothScrollProvider({
         }, 150);
       };
 
+      const scrollClassThrottle = isCoarsePointer() ? 100 : 0;
       const { handler, cleanup: cleanupScrollClass } = attachScrollEndClass(
         () => {
           markScrolling();
@@ -234,7 +236,7 @@ export function SmoothScrollProvider({
             ScrollTrigger.update();
           }
         },
-        0,
+        scrollClassThrottle,
       );
       instance.on("scroll", handler);
 

@@ -3,7 +3,7 @@ import type { BlogFaqItem } from "@/lib/content/blog-data";
 export function BlogKeyTakeaways({ items }: { items: string[] }) {
   if (!items.length) return null;
   return (
-    <aside className="mb-8 border border-[#050505]/10 bg-[#f8fafc] px-5 py-5 md:px-6">
+    <aside className="mb-6 border border-[#050505]/10 bg-[#f8fafc] px-4 py-4 sm:mb-8 sm:px-5 sm:py-5 md:px-6">
       <p className="text-sm font-bold text-[#050505]">Key takeaways</p>
       <ul className="mt-3 space-y-2">
         {items.map((item) => (
@@ -23,8 +23,8 @@ export function BlogKeyTakeaways({ items }: { items: string[] }) {
 export function BlogFaqSection({ faqs }: { faqs: BlogFaqItem[] }) {
   if (!faqs.length) return null;
   return (
-    <section className="mt-12 border-t border-[#050505]/10 pt-10">
-      <h2 className="text-2xl font-bold text-[#050505]">
+    <section className="mt-10 border-t border-[#050505]/10 pt-8 sm:mt-12 sm:pt-10">
+      <h2 className="text-xl font-bold text-[#050505] sm:text-2xl">
         Frequently asked questions
       </h2>
       <dl className="mt-6 space-y-6">

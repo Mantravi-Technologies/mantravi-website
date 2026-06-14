@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   PortableText,
@@ -38,7 +39,7 @@ const components: PortableTextComponents = {
       return (
         <h2
           id={id}
-          className="mb-4 mt-10 scroll-mt-28 text-2xl font-bold text-[#050505] first:mt-0"
+          className="mb-4 mt-8 scroll-mt-24 text-xl font-bold text-[#050505] first:mt-0 sm:mt-10 sm:scroll-mt-28 sm:text-2xl"
         >
           {children}
         </h2>
@@ -50,14 +51,14 @@ const components: PortableTextComponents = {
       return (
         <h3
           id={id}
-          className="mb-3 mt-8 scroll-mt-28 text-xl font-bold text-[#050505]"
+          className="mb-3 mt-6 scroll-mt-24 text-lg font-bold text-[#050505] sm:mt-8 sm:scroll-mt-28 sm:text-xl"
         >
           {children}
         </h3>
       );
     },
     normal: ({ children }) => (
-      <p className="my-4 text-base leading-relaxed text-[#050505]/75">{children}</p>
+      <p className="my-4 text-[0.9375rem] leading-[1.75] text-[#050505]/75 sm:text-base sm:leading-relaxed">{children}</p>
     ),
   },
   list: {
@@ -100,9 +101,16 @@ const components: PortableTextComponents = {
       const alt = (value?.alt as string) || "";
       const caption = value?.caption as string | undefined;
       return (
-        <figure className="my-8 overflow-hidden rounded-xl border border-[#050505]/10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt={alt} className="w-full object-cover" />
+        <figure className="my-6 max-w-full overflow-hidden rounded-xl border border-[#050505]/10 sm:my-8">
+          <Image
+            src={url}
+            alt={alt}
+            width={1200}
+            height={675}
+            className="h-auto w-full object-cover"
+            sizes="(max-width: 768px) 100vw, 768px"
+            loading="lazy"
+          />
           {caption && (
             <figcaption className="border-t border-[#050505]/10 bg-white px-4 py-2 text-sm text-[#050505]/60">
               {caption}
@@ -117,7 +125,10 @@ const components: PortableTextComponents = {
         (value?.rows as { cells?: string[] }[] | undefined) ?? [];
       if (!headers.length) return null;
       return (
-        <figure className="blog-rich-table not-prose my-8 overflow-x-auto rounded-xl border border-[#050505]/10 shadow-sm">
+        <figure
+          className="blog-rich-table not-prose my-6 w-full max-w-full overflow-x-auto rounded-xl border border-[#050505]/10 shadow-sm sm:my-8"
+          data-lenis-prevent
+        >
           <table className="w-full min-w-[520px] border-collapse text-left text-sm">
             <colgroup>
               <col className="blog-rich-table-col-label" />
@@ -178,7 +189,7 @@ const components: PortableTextComponents = {
       return (
         <aside
           className={cn(
-            "my-8 rounded-xl border-l-4 px-5 py-4",
+            "my-6 rounded-xl border-l-4 px-4 py-3.5 sm:my-8 sm:px-5 sm:py-4",
             variant === "warning" && "border-amber-500 bg-amber-50",
             variant === "tip" && "border-primary bg-primary/5",
             variant === "insight" && "border-violet-500 bg-violet-50",
@@ -199,8 +210,8 @@ const components: PortableTextComponents = {
       <BlogRichCta value={value as Record<string, unknown>} />
     ),
     richQuote: ({ value }) => (
-      <blockquote className="my-8 border-l-4 border-primary pl-6">
-        <p className="text-lg italic leading-relaxed text-[#050505]/80">
+      <blockquote className="my-6 border-l-4 border-primary pl-4 sm:my-8 sm:pl-6">
+        <p className="text-base italic leading-relaxed text-[#050505]/80 sm:text-lg">
           &ldquo;{String(value?.quote ?? "")}&rdquo;
         </p>
         {(value?.attribution || value?.role) && (
@@ -221,7 +232,7 @@ const components: PortableTextComponents = {
 export function RichContent({ value, className }: RichContentProps) {
   if (!value?.length) return null;
   return (
-    <div className={cn("prose-mantravi rich-content max-w-none", className)}>
+    <div className={cn("prose-mantravi rich-content min-w-0 max-w-full", className)}>
       <PortableText value={value} components={components} />
     </div>
   );

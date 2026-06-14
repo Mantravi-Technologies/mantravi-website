@@ -86,22 +86,22 @@ export default async function BlogPostPage({ params }: Props) {
       <article>
         <header className="border-b border-[#050505]/10 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="py-8 md:py-10">
+            <div className="py-6 sm:py-8 md:py-10">
               <Link
                 href="/blog"
-                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary hover:underline"
               >
-                <ArrowLeft className="h-4 w-4" /> Back to Blog
+                <ArrowLeft className="h-4 w-4 shrink-0" /> Back to Blog
               </Link>
-              <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-primary">
+              <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-primary sm:mt-5">
                 {post.category}
               </p>
-              <h1 className="title-display mt-3 max-w-4xl text-[#050505] text-3xl md:text-4xl lg:text-[2.75rem] lg:leading-tight">
+              <h1 className="blog-post-title title-display mt-3 max-w-4xl break-words text-[#050505]">
                 {post.title}
               </h1>
             </div>
             {post.featuredImage && (
-              <div className="pb-8 md:pb-10">
+              <div className="pb-6 sm:pb-8 md:pb-10">
                 <BlogPostCover
                   title={post.title}
                   gradient={post.imageGradient}
@@ -113,7 +113,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         </header>
 
-        <div className="bg-white py-8 md:py-12">
+        <div className="bg-white py-6 sm:py-8 md:py-12">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <BlogArticleMeta
               author={post.author}
@@ -140,7 +140,7 @@ export default async function BlogPostPage({ params }: Props) {
       </article>
 
       {related.length > 0 && (
-        <section className="border-t border-[#050505]/10 bg-white py-14 md:py-16">
+        <section className="border-t border-[#050505]/10 bg-white py-10 sm:py-14 md:py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <h2 className="title-display text-2xl text-[#050505] md:text-3xl">
               Related Articles

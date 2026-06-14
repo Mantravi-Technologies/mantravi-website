@@ -29,7 +29,7 @@ export function BlogRichCta({ value }: BlogRichCtaProps) {
   };
 
   const primaryButtonClass = cn(
-    "inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-sm font-bold uppercase tracking-wide transition-all",
+    "inline-flex w-full min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold uppercase tracking-wide transition-all sm:w-auto sm:px-7",
     "bg-primary text-[#050505] shadow-[0_0_24px_rgba(0,229,255,0.45)]",
     "hover:bg-primary/90 hover:shadow-[0_0_32px_rgba(0,229,255,0.55)] hover:-translate-y-0.5",
   );
@@ -43,7 +43,7 @@ export function BlogRichCta({ value }: BlogRichCtaProps) {
           : "border-[#050a30]/20 bg-gradient-to-br from-[#050a30] via-[#050a30] to-[#0a1654]",
       )}
     >
-      <div className="relative px-6 py-7 md:px-8 md:py-8">
+      <div className="relative px-4 py-6 sm:px-6 sm:py-7 md:px-8 md:py-8">
         <div
           className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/20 blur-3xl"
           aria-hidden="true"
@@ -55,7 +55,7 @@ export function BlogRichCta({ value }: BlogRichCtaProps) {
             </p>
           )}
           {headline && (
-            <p className="mt-2 max-w-2xl text-xl font-bold leading-snug text-white md:text-2xl">
+            <p className="mt-2 max-w-2xl text-lg font-bold leading-snug text-white sm:text-xl md:text-2xl">
               {headline}
             </p>
           )}

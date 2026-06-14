@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 function MobileArticleToc({ items }: { items: ReturnType<typeof extractTocFromPortableText> }) {
   if (!items.length) return null;
   return (
-    <details className="mb-8 rounded-lg border border-[#050505]/10 bg-[#f8fafc] lg:hidden">
-      <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-[#050505]">
+    <details className="mb-6 rounded-lg border border-[#050505]/10 bg-[#f8fafc] sm:mb-8 lg:hidden">
+      <summary className="cursor-pointer px-4 py-3.5 text-sm font-semibold text-[#050505] [min-height:2.75rem]">
         In this article
       </summary>
       <ul className="space-y-2 border-t border-[#050505]/10 px-4 py-3">
@@ -38,8 +38,10 @@ export function BlogPostLayout({ blocks }: { blocks: PortableTextBlock[] }) {
   return (
     <div>
       <MobileArticleToc items={toc} />
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-16">
-        <RichContent value={blocks} />
+      <div className="grid min-w-0 gap-8 sm:gap-10 lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-16">
+        <div className="min-w-0">
+          <RichContent value={blocks} />
+        </div>
         <StickyContentSidebar items={toc} />
       </div>
     </div>

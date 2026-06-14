@@ -129,7 +129,10 @@ function ProjectFacts({ study }: { study: CaseStudy }) {
   ];
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+    <div
+      className="case-study-facts-scroll flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden"
+      data-lenis-prevent
+    >
       {facts.map((f) => (
         <div
           key={f.label}
@@ -262,7 +265,7 @@ function ShippedWork({ items }: { items: string[] }) {
           {items.map((item) => (
             <div
               key={item}
-              className="min-w-0 w-full rounded-xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm transition-colors hover:border-primary/30"
+              className="case-study-shipped-card min-w-0 w-full rounded-xl border border-white/10 bg-white/[0.04] p-5 transition-colors hover:border-primary/30"
             >
               <div className="mb-3 h-0.5 w-10 rounded-full bg-primary" aria-hidden />
               <p className="text-sm leading-relaxed break-words text-slate-200 sm:text-base">

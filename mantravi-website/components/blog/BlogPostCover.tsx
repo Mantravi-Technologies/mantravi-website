@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export function BlogPostCover({
@@ -17,13 +18,13 @@ export function BlogPostCover({
         className={cn("relative overflow-hidden bg-[#050505]", className)}
         aria-hidden={title ? undefined : true}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={featuredImage}
           alt=""
-          className="h-full w-full object-cover object-center"
-          loading="eager"
-          decoding="async"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+          priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
       </div>

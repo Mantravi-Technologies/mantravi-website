@@ -9,12 +9,21 @@ export function getStableViewportHeight() {
   return window.visualViewport?.height ?? window.innerHeight;
 }
 
-/** Mobile/touch perf profile: lighter scroll-linked effects, no GPU blur stacks. */
+const TABLET_MAX_WIDTH = 1023;
+
+/** Mobile/tablet perf profile: lighter scroll-linked effects, no GPU blur stacks. */
 export function isMobilePerfProfile() {
   if (typeof window === "undefined") return false;
   return (
-    isCoarsePointer() || window.matchMedia("(max-width: 767px)").matches
+    isCoarsePointer() ||
+    window.matchMedia(`(max-width: ${TABLET_MAX_WIDTH}px)`).matches
   );
+}
+
+/** Simple swipe portfolio instead of pinned 360 carousel (mobile + tablet). */
+export function prefersSimplePortfolio() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia(`(max-width: ${TABLET_MAX_WIDTH}px)`).matches;
 }
 
 export function prefersNativeScroll(pathname: string | null) {
@@ -22,10 +31,21 @@ export function prefersNativeScroll(pathname: string | null) {
   if (pathname.startsWith("/services")) return true;
   // Touch devices: Lenis touch smoothing causes global snap-back on homepage
   if (pathname === "/" && isCoarsePointer()) return true;
+  // Long-form content on touch — native momentum scroll
+  if (
+    isCoarsePointer() &&
+    (pathname.startsWith("/portfolio") ||
+      pathname.startsWith("/blog") ||
+      pathname.startsWith("/about"))
+  ) {
+    return true;
+  }
   return false;
 }
 
-/** Homepage portfolio pin needs ScrollTrigger — with or without Lenis. */
+/** Homepage portfolio pin needs ScrollTrigger — desktop 360 only. */
 export function needsScrollTriggerIntegration(pathname: string | null) {
-  return pathname === "/";
+  if (pathname !== "/") return false;
+  if (typeof window === "undefined") return true;
+  return !prefersSimplePortfolio();
 }
