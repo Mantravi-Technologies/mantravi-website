@@ -19,12 +19,10 @@ import {
   SWIPE_CAROUSEL_FADE_START,
 } from "@/lib/utils/portfolio-intro-scroll";
 import {
-  easeGestureFraction,
   getCarouselStepPx,
   getSwipeExitHoldPx,
   isInSwipeGestureZone,
   resolveGestureTarget,
-  resolveInterimCardIndex,
   scrollYForProgress,
   wrapCardIndex,
 } from "@/lib/utils/portfolio-mobile-scroll";
@@ -36,8 +34,9 @@ import {
   PortfolioIntroLockup,
 } from "./PortfolioShared";
 
-const GESTURE_FINALIZE_MS = 140;
-const GESTURE_SETTLE_EASE = "power3.out";
+const GESTURE_FINALIZE_MS = 120;
+const GESTURE_SETTLE_EASE = "power2.out";
+const NAV_SETTLE_DURATION = 0.36;
 
 export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
   const cardCount = items.length;
@@ -50,9 +49,11 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
   const introRef = useRef<HTMLDivElement>(null);
   const focusBackdropRef = useRef<HTMLDivElement>(null);
   const carouselWrapRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const sceneStRef = useRef<ScrollTrigger | null>(null);
   const emblaApiRef = useRef<ReturnType<typeof useEmblaCarousel>[1]>(null);
   const activeIndexRef = useRef(0);
+  const visualIndexRef = useRef(0);
   const settledCardRef = useRef(0);
   const pendingCardRef = useRef<number | null>(null);
   const isProgrammaticRef = useRef(false);
@@ -64,7 +65,6 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
   const isFinalizingGestureRef = useRef(false);
   const isAnimatingGestureRef = useRef(false);
   const isTouchActiveRef = useRef(false);
-  const previewCardRef = useRef(-1);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "center",
@@ -72,7 +72,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
     containScroll: "trimSnaps",
     dragFree: false,
     loop: false,
-    duration: 24,
+    duration: 20,
     skipSnaps: false,
   });
 
@@ -80,18 +80,34 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
     emblaApiRef.current = emblaApi;
   }, [emblaApi]);
 
+  const setSlideVisual = useCallback((index: number) => {
+    const idx = Math.max(0, Math.min(index, cardCount - 1));
+    if (visualIndexRef.current === idx) return;
+    visualIndexRef.current = idx;
+
+    const track = trackRef.current;
+    if (!track) return;
+
+    const slides = track.children;
+    for (let i = 0; i < slides.length; i++) {
+      slides[i].classList.toggle("is-active", i === idx);
+    }
+  }, [cardCount]);
+
   const flushCaptionIndex = useCallback((index: number) => {
     if (activeIndexRef.current === index) return;
     activeIndexRef.current = index;
     setActiveIndex(index);
   }, []);
 
-  const applyCardIndex = useCallback(
+  const commitCardIndex = useCallback(
     (index: number, animateEmbla = false) => {
       const idx = Math.max(0, Math.min(index, cardCount - 1));
       settledCardRef.current = idx;
       gestureStartIndexRef.current = idx;
-      previewCardRef.current = idx;
+      visualIndexRef.current = idx;
+
+      setSlideVisual(idx);
 
       if (emblaApiRef.current?.selectedScrollSnap() !== idx) {
         isProgrammaticEmblaScrollRef.current = true;
@@ -99,22 +115,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       }
       flushCaptionIndex(idx);
     },
-    [cardCount, flushCaptionIndex],
-  );
-
-  const previewCardIndex = useCallback(
-    (index: number, animateEmbla = true) => {
-      const idx = Math.max(0, Math.min(index, cardCount - 1));
-      if (previewCardRef.current === idx) return;
-      previewCardRef.current = idx;
-
-      if (emblaApiRef.current?.selectedScrollSnap() !== idx) {
-        isProgrammaticEmblaScrollRef.current = true;
-        emblaApiRef.current?.scrollTo(idx, animateEmbla);
-      }
-      flushCaptionIndex(idx);
-    },
-    [cardCount, flushCaptionIndex],
+    [cardCount, flushCaptionIndex, setSlideVisual],
   );
 
   const scrollToProgress = useCallback(
@@ -140,6 +141,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         return;
       }
 
+      isAnimatingGestureRef.current = true;
       const motion = { scroll: window.scrollY };
 
       navTweenRef.current = gsap.to(motion, {
@@ -152,8 +154,13 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         },
         onComplete: () => {
           ScrollTrigger.update();
+          isAnimatingGestureRef.current = false;
           navTweenRef.current = null;
           onDone?.();
+        },
+        onInterrupt: () => {
+          isAnimatingGestureRef.current = false;
+          navTweenRef.current = null;
         },
       });
     },
@@ -164,7 +171,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
     (
       index: number,
       immediate: boolean,
-      duration = 0.38,
+      duration = NAV_SETTLE_DURATION,
       onDone?: () => void,
     ) => {
       const layout = getSwipeScrollLayout(cardCount);
@@ -188,6 +195,8 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       const idx = emblaApi.selectedScrollSnap();
       settledCardRef.current = idx;
       gestureStartIndexRef.current = idx;
+      visualIndexRef.current = idx;
+      setSlideVisual(idx);
       flushCaptionIndex(idx);
     };
 
@@ -204,12 +213,9 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       const idx = emblaApi.selectedScrollSnap();
       if (idx === settledCardRef.current) return;
 
-      settledCardRef.current = idx;
-      gestureStartIndexRef.current = idx;
-      flushCaptionIndex(idx);
-
       isProgrammaticRef.current = true;
-      scrollToCardIndex(idx, true, 0.38, () => {
+      commitCardIndex(idx, false);
+      scrollToCardIndex(idx, true, NAV_SETTLE_DURATION, () => {
         isProgrammaticRef.current = false;
       });
     };
@@ -218,9 +224,12 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       clickAllowedRef.current = false;
     };
 
-    settledCardRef.current = emblaApi.selectedScrollSnap();
-    gestureStartIndexRef.current = emblaApi.selectedScrollSnap();
-    flushCaptionIndex(emblaApi.selectedScrollSnap());
+    const idx = emblaApi.selectedScrollSnap();
+    settledCardRef.current = idx;
+    gestureStartIndexRef.current = idx;
+    visualIndexRef.current = idx;
+    setSlideVisual(idx);
+    flushCaptionIndex(idx);
 
     emblaApi.on("settle", onSettle);
     emblaApi.on("reInit", onReInit);
@@ -231,7 +240,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       emblaApi.off("reInit", onReInit);
       emblaApi.off("pointerDown", onPointerDown);
     };
-  }, [emblaApi, flushCaptionIndex, scrollToCardIndex]);
+  }, [emblaApi, commitCardIndex, flushCaptionIndex, scrollToCardIndex, setSlideVisual]);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -339,86 +348,20 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
           (introProgress - introHoldRatio) / (1 - introHoldRatio),
         );
       }
-      if (Math.abs(tlProgress - lastIntroProgress) < 0.002) return;
+      if (Math.abs(tlProgress - lastIntroProgress) < 0.004) return;
       lastIntroProgress = tlProgress;
       introTl.progress(tlProgress);
     };
 
-    const syncGesturePreview = (delta: number) => {
-      if (
-        !useMobileGesture ||
-        !isCarouselGesturingRef.current ||
-        isFinalizingGestureRef.current ||
-        isAnimatingGestureRef.current
-      ) {
-        return;
-      }
-
-      const startIdx = gestureStartIndexRef.current;
-      const interimIdx = resolveInterimCardIndex(
-        startIdx,
-        delta,
-        carouselStepPx,
-        cardCount,
-      );
-      previewCardIndex(interimIdx, true);
-    };
-
-    const syncSettledFromProgress = (progress: number) => {
-      if (!useMobileGesture || isProgrammaticRef.current) return;
-
-      const lastIdx = cardCount - 1;
-      if (progress >= lastCardProgress - 0.001) {
-        if (settledCardRef.current !== lastIdx) {
-          settledCardRef.current = lastIdx;
-          gestureStartIndexRef.current = lastIdx;
-          previewCardRef.current = lastIdx;
-          isProgrammaticEmblaScrollRef.current = true;
-          emblaApiRef.current?.scrollTo(lastIdx, false);
-          flushCaptionIndex(lastIdx);
-        }
-        return;
-      }
-
-      if (
-        progress > layout.introPortion + 0.001 &&
-        isInSwipeCarouselZone(progress, layout)
-      ) {
-        const idx = Math.max(
-          0,
-          Math.min(
-            lastIdx,
-            Math.round(
-              ((progress - layout.introPortion) / layout.carouselPortion) *
-                (cardCount - 1),
-            ),
-          ),
-        );
-        if (settledCardRef.current !== idx) {
-          settledCardRef.current = idx;
-          gestureStartIndexRef.current = idx;
-          previewCardRef.current = idx;
-          isProgrammaticEmblaScrollRef.current = true;
-          emblaApiRef.current?.scrollTo(idx, false);
-          flushCaptionIndex(idx);
-        }
-      }
-    };
+    const isBusy = () =>
+      isAnimatingGestureRef.current ||
+      isFinalizingGestureRef.current ||
+      isProgrammaticRef.current ||
+      isCarouselGesturingRef.current ||
+      isTouchActiveRef.current;
 
     const syncSceneProgress = (progress: number) => {
       if (isAnimatingGestureRef.current) return;
-
-      syncSettledFromProgress(progress);
-
-      if (
-        useMobileGesture &&
-        isCarouselGesturingRef.current &&
-        !isFinalizingGestureRef.current &&
-        !isProgrammaticRef.current
-      ) {
-        const delta = window.scrollY - gestureStartScrollRef.current;
-        syncGesturePreview(delta);
-      }
 
       if (
         useMobileGesture &&
@@ -431,15 +374,11 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         isCarouselGesturingRef.current = true;
         gestureStartScrollRef.current = window.scrollY;
         gestureStartIndexRef.current = settledCardRef.current;
+        scene.classList.add("portfolio-swipe-scene--gesturing");
       }
 
       if (progress <= layout.introPortion) {
         syncIntroTimeline(progress);
-        if (useMobileGesture && progress <= layout.introPortion * 0.55) {
-          settledCardRef.current = 0;
-          gestureStartIndexRef.current = 0;
-          previewCardRef.current = 0;
-        }
         return;
       }
 
@@ -517,11 +456,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         return;
       }
 
-      settledCardRef.current = idx;
-      gestureStartIndexRef.current = idx;
-      isProgrammaticEmblaScrollRef.current = true;
-      emblaApiRef.current?.scrollTo(idx, false);
-      flushCaptionIndex(idx);
+      commitCardIndex(idx, false);
     };
 
     let finalizeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -536,10 +471,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
 
       isFinalizingGestureRef.current = true;
       isCarouselGesturingRef.current = false;
-
-      const removeGesturingClass = () => {
-        scene.classList.remove("portfolio-swipe-scene--gesturing");
-      };
+      scene.classList.remove("portfolio-swipe-scene--gesturing");
 
       const delta = window.scrollY - gestureStartScrollRef.current;
       const startIdx = gestureStartIndexRef.current;
@@ -563,78 +495,45 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         gesture.targetIdx !== startIdx ||
         Math.abs(gesture.targetProgress - startProgress) > 0.0001;
 
-      const settleProgress = committed
-        ? gesture.targetProgress
-        : startProgress;
+      const settleProgress = committed ? gesture.targetProgress : startProgress;
       const settleIdx = committed ? gesture.targetIdx : startIdx;
       const targetScroll = scrollYForProgress(settleProgress, sceneSt);
 
       navTweenRef.current?.kill();
-      isAnimatingGestureRef.current = true;
 
-      const motion = { scroll: window.scrollY };
-      const startScroll = window.scrollY;
-      const startEmblaIdx =
-        emblaApiRef.current?.selectedScrollSnap() ?? startIdx;
+      const finish = () => {
+        isFinalizingGestureRef.current = false;
 
-      navTweenRef.current = gsap.to(motion, {
-        scroll: targetScroll,
-        duration: committed
-          ? SWIPE_CARD_SETTLE_DURATION
-          : SWIPE_CARD_SETTLE_DURATION * 0.5,
-        ease: GESTURE_SETTLE_EASE,
-        overwrite: true,
-        onUpdate: () => {
-          window.scrollTo(0, motion.scroll);
-          const frac = gsap.utils.clamp(
-            0,
-            1,
-            Math.abs(motion.scroll - startScroll) /
-              Math.max(1, Math.abs(targetScroll - startScroll)),
-          );
-          const easedFrac = easeGestureFraction(
-            frac * carouselStepPx,
-            carouselStepPx,
-          );
-          const interimIdx =
-            settleIdx === startEmblaIdx
-              ? settleIdx
-              : Math.round(
-                  startEmblaIdx + (settleIdx - startEmblaIdx) * easedFrac,
-                );
-          if (emblaApiRef.current?.selectedScrollSnap() !== interimIdx) {
-            isProgrammaticEmblaScrollRef.current = true;
-            emblaApiRef.current?.scrollTo(interimIdx, false);
-            flushCaptionIndex(interimIdx);
-          }
+        if (gesture.exitingSection && committed) {
+          settledCardRef.current = cardCount - 1;
+          gestureStartIndexRef.current = cardCount - 1;
+          return;
+        }
+
+        if (gesture.showingIntro && committed) {
+          commitCardIndex(0, true);
+          return;
+        }
+
+        commitCardIndex(settleIdx, true);
+      };
+
+      if (!committed && Math.abs(window.scrollY - targetScroll) < 2) {
+        setSlideVisual(settleIdx);
+        finish();
+        return;
+      }
+
+      isProgrammaticRef.current = true;
+      scrollToProgress(
+        settleProgress,
+        false,
+        committed ? SWIPE_CARD_SETTLE_DURATION : SWIPE_CARD_SETTLE_DURATION * 0.45,
+        () => {
+          isProgrammaticRef.current = false;
+          finish();
         },
-        onComplete: () => {
-          ScrollTrigger.update();
-          isAnimatingGestureRef.current = false;
-          isFinalizingGestureRef.current = false;
-          navTweenRef.current = null;
-
-          if (gesture.exitingSection && committed) {
-            settledCardRef.current = cardCount - 1;
-            gestureStartIndexRef.current = cardCount - 1;
-            previewCardRef.current = cardCount - 1;
-            removeGesturingClass();
-            return;
-          }
-
-          if (gesture.showingIntro && committed) {
-            settledCardRef.current = 0;
-            gestureStartIndexRef.current = 0;
-            previewCardRef.current = 0;
-            applyCardIndex(0, true);
-            removeGesturingClass();
-            return;
-          }
-
-          applyCardIndex(settleIdx, true);
-          removeGesturingClass();
-        },
-      });
+      );
     };
 
     const scheduleFinalizeGesture = () => {
@@ -652,21 +551,14 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
 
     const beginCarouselGesture = () => {
       const sceneSt = sceneStRef.current;
-      if (
-        !useMobileGesture ||
-        !sceneSt ||
-        isFinalizingGestureRef.current ||
-        isAnimatingGestureRef.current ||
-        isProgrammaticRef.current
-      ) {
-        return;
-      }
+      if (!useMobileGesture || !sceneSt || isBusy()) return;
 
       const progress = sceneSt.progress;
-      if (progress < layout.introPortion - 0.001 && progress > 0.02) {
-        return;
-      }
-      if (!isInSwipeGestureZone(progress, layout) && progress < layout.introPortion) {
+      if (progress < layout.introPortion - 0.001 && progress > 0.02) return;
+      if (
+        !isInSwipeGestureZone(progress, layout) &&
+        progress < layout.introPortion
+      ) {
         return;
       }
       if (progress >= sectionExitProgress - 0.001) return;
@@ -688,14 +580,9 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
     };
 
     const onGestureScroll = () => {
-      if (isTouchActiveRef.current) {
-        const sceneSt = sceneStRef.current;
-        if (sceneSt && isCarouselGesturingRef.current) {
-          syncGesturePreview(window.scrollY - gestureStartScrollRef.current);
-        }
-        return;
+      if (!isTouchActiveRef.current) {
+        scheduleFinalizeGesture();
       }
-      scheduleFinalizeGesture();
     };
 
     const sceneSt = ScrollTrigger.create({
@@ -704,6 +591,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       end: `+=${layout.totalDistance}`,
       pin: scene,
       scrub: true,
+      fastScrollEnd: true,
       ...(useMobileGesture
         ? {}
         : {
@@ -729,13 +617,6 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         syncSceneProgress(self.progress);
         if (!useMobileGesture) {
           commitSnapToCards();
-        } else if (self.progress > layout.introPortion + 0.001) {
-          const idx = isInSwipeCarouselZone(self.progress, layout)
-            ? settledCardRef.current
-            : cardCount - 1;
-          settledCardRef.current = idx;
-          gestureStartIndexRef.current = idx;
-          applyCardIndex(idx);
         }
       },
     });
@@ -770,61 +651,46 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       introTl.kill();
       sceneStRef.current = null;
     };
-  }, [cardCount, applyCardIndex, flushCaptionIndex, previewCardIndex]);
+  }, [cardCount, commitCardIndex, setSlideVisual]);
+
+  const runProgrammaticNav = useCallback(
+    (target: number) => {
+      navTweenRef.current?.kill();
+      isCarouselGesturingRef.current = false;
+      isFinalizingGestureRef.current = false;
+      sceneRef.current?.classList.remove("portfolio-swipe-scene--gesturing");
+      isProgrammaticRef.current = true;
+      pendingCardRef.current = null;
+
+      settledCardRef.current = target;
+      gestureStartIndexRef.current = target;
+      setSlideVisual(target);
+
+      scrollToCardIndex(target, false, NAV_SETTLE_DURATION, () => {
+        commitCardIndex(target, true);
+        isProgrammaticRef.current = false;
+      });
+    },
+    [commitCardIndex, scrollToCardIndex, setSlideVisual],
+  );
 
   const navigateByDelta = useCallback(
     (delta: number) => {
       const current = activeIndexRef.current;
       const target = wrapCardIndex(current + delta, cardCount);
       if (target === current && cardCount <= 1) return;
-
-      navTweenRef.current?.kill();
-      isCarouselGesturingRef.current = false;
-      isFinalizingGestureRef.current = false;
-      isAnimatingGestureRef.current = false;
-      sceneRef.current?.classList.remove("portfolio-swipe-scene--gesturing");
-      isProgrammaticRef.current = true;
-      pendingCardRef.current = null;
-
-      settledCardRef.current = target;
-      gestureStartIndexRef.current = target;
-      previewCardRef.current = target;
-      isProgrammaticEmblaScrollRef.current = true;
-      emblaApiRef.current?.scrollTo(target, true);
-      flushCaptionIndex(target);
-
-      scrollToCardIndex(target, false, SWIPE_CARD_SETTLE_DURATION, () => {
-        isProgrammaticRef.current = false;
-      });
+      runProgrammaticNav(target);
     },
-    [cardCount, flushCaptionIndex, scrollToCardIndex],
+    [cardCount, runProgrammaticNav],
   );
 
   const goToIndex = useCallback(
     (index: number) => {
       const target = Math.max(0, Math.min(index, cardCount - 1));
       if (target === activeIndexRef.current) return;
-
-      navTweenRef.current?.kill();
-      isCarouselGesturingRef.current = false;
-      isFinalizingGestureRef.current = false;
-      isAnimatingGestureRef.current = false;
-      sceneRef.current?.classList.remove("portfolio-swipe-scene--gesturing");
-      isProgrammaticRef.current = true;
-      pendingCardRef.current = null;
-
-      settledCardRef.current = target;
-      gestureStartIndexRef.current = target;
-      previewCardRef.current = target;
-      isProgrammaticEmblaScrollRef.current = true;
-      emblaApiRef.current?.scrollTo(target, true);
-      flushCaptionIndex(target);
-
-      scrollToCardIndex(target, false, SWIPE_CARD_SETTLE_DURATION, () => {
-        isProgrammaticRef.current = false;
-      });
+      runProgrammaticNav(target);
     },
-    [cardCount, flushCaptionIndex, scrollToCardIndex],
+    [cardCount, runProgrammaticNav],
   );
 
   const goToPrev = useCallback(() => {
@@ -859,7 +725,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
 
         <div ref={carouselWrapRef} className="portfolio-swipe-carousel-wrap">
           <div className="portfolio-swipe-viewport" ref={emblaRef}>
-            <div className="portfolio-swipe-track">
+            <div className="portfolio-swipe-track" ref={trackRef}>
               {items.map((study, i) => (
                 <div
                   key={study.slug}

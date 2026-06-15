@@ -1996,12 +1996,19 @@ html.is-scrolling .floating-contact-btn {
   touch-action: pan-y pinch-zoom;
   -webkit-user-select: none;
   user-select: none;
+  contain: layout style paint;
 }
 
 .portfolio-swipe-track {
   display: flex;
   touch-action: pan-y pinch-zoom;
   backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.portfolio-swipe-scene--gesturing .portfolio-swipe-track {
+  will-change: transform;
 }
 
 .portfolio-swipe-slide {
@@ -2011,23 +2018,21 @@ html.is-scrolling .floating-contact-btn {
 }
 
 .portfolio-swipe-slide .portfolio-swipe-card {
-  transform: scale(0.9);
+  transform: scale(0.9) translateZ(0);
   opacity: 0.72;
   transition:
-    transform 0.48s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.42s ease;
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.28s ease;
   transform-origin: center center;
-  will-change: transform;
 }
 
 html.is-scrolling .portfolio-swipe-slide .portfolio-swipe-card,
 .portfolio-swipe-scene--gesturing .portfolio-swipe-slide .portfolio-swipe-card {
   transition: none;
-  will-change: auto;
 }
 
 .portfolio-swipe-slide.is-active .portfolio-swipe-card {
-  transform: scale(1);
+  transform: scale(1) translateZ(0);
   opacity: 1;
 }
 
