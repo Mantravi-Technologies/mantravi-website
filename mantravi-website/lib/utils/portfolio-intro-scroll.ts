@@ -141,6 +141,12 @@ export function getSectionExitProgress() {
   return 1;
 }
 
+/** Progress after scrolling partway through the exit hold (before section unpins) */
+export function getExitCommitProgress(layout: SwipeScrollLayout) {
+  const lastCard = layout.introPortion + layout.carouselPortion;
+  return lastCard + layout.exitPortion * SWIPE_GESTURE_COMMIT_RATIO;
+}
+
 export function cardIndexFromSnapProgress(
   progress: number,
   cardCount: number,

@@ -9,13 +9,16 @@ import { type CaseStudy } from "@/lib/content/case-studies";
 import { cn } from "@/lib/utils";
 import {
   cardIndexFromSnapProgress,
+  getExitCommitProgress,
   getLastCardSnapProgress,
   getSectionExitProgress,
   getSwipeIntroHoldRatio,
   getSwipeScrollLayout,
+  isInSwipeCarouselZone,
   scrollProgressForCardIndex,
   SWIPE_CAROUSEL_FADE_START,
 } from "@/lib/utils/portfolio-intro-scroll";
+import { isCoarsePointer } from "@/lib/utils/scroll-profile";
 import {
   CardVisual,
   Portfolio360BottomChrome,
@@ -40,6 +43,8 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
   const activeIndexRef = useRef(0);
   const syncedEmblaIndexRef = useRef(-1);
   const lastSnapCardRef = useRef(0);
+  const pendingSnapCardRef = useRef<number | null>(null);
+  const emblaSettleFromUserRef = useRef(false);
   const isEmblaDraggingRef = useRef(false);
   const isScrollSyncingRef = useRef(false);
   const scrollSyncTweenRef = useRef<gsap.core.Tween | null>(null);
@@ -106,9 +111,9 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         overwrite: true,
         onUpdate: () => {
           window.scrollTo(0, motion.scroll);
-          ScrollTrigger.update();
         },
         onComplete: () => {
+          ScrollTrigger.update();
           isScrollSyncingRef.current = false;
           lastSnapCardRef.current = index;
           syncedEmblaIndexRef.current = index;
@@ -136,12 +141,20 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       const idx = emblaApi.selectedScrollSnap();
       syncedEmblaIndexRef.current = idx;
       flushCaptionIndex(idx);
-      syncScrollToCardIndex(idx, true);
+
+      // Only sync vertical scroll after a horizontal user swipe — not after
+      // programmatic scrollTo from commitSnapToCards (avoids snap feedback loop).
+      if (emblaSettleFromUserRef.current) {
+        emblaSettleFromUserRef.current = false;
+        lastSnapCardRef.current = idx;
+        syncScrollToCardIndex(idx, true);
+      }
     };
 
     const onPointerDown = () => {
       clickAllowedRef.current = false;
       isEmblaDraggingRef.current = true;
+      emblaSettleFromUserRef.current = true;
       scrollSyncTweenRef.current?.kill();
       isScrollSyncingRef.current = false;
     };
@@ -188,10 +201,12 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
     const introHoldRatio = getSwipeIntroHoldRatio();
     const lastCardProgress = getLastCardSnapProgress(cardCount, layout);
     const sectionExitProgress = getSectionExitProgress();
+    const exitCommitProgress = getExitCommitProgress(layout);
     const snapExitDirectional = ScrollTrigger.snapDirectional([
       lastCardProgress,
       sectionExitProgress,
     ]);
+    const useNativeScrub = isCoarsePointer();
 
     gsap.set(intro, {
       opacity: 1,
@@ -290,24 +305,46 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
     };
 
     const resolveSnapProgress = (progress: number, direction: number) => {
+      if (isEmblaDraggingRef.current || isScrollSyncingRef.current) {
+        return scrollProgressForCardIndex(
+          lastSnapCardRef.current,
+          cardCount,
+          layout,
+        );
+      }
+
       if (progress < layout.introPortion * 0.55) return 0;
       if (progress < layout.introPortion) {
         return direction >= 0 ? layout.introPortion : 0;
       }
 
-      // Last card → one forward scroll exits to next section
+      // Last card + exit hold — require scrolling through exit hold before unpins
       if (progress >= lastCardProgress - 0.0001) {
         if (direction < 0) {
+          if (progress > exitCommitProgress) {
+            return lastCardProgress;
+          }
           if (progress > lastCardProgress + 0.002) {
             return snapExitDirectional(progress, direction);
           }
           if (cardCount > 1) {
             const prevIdx = cardCount - 2;
-            return scrollProgressForCardIndex(prevIdx, cardCount, layout);
+            const prevProgress = scrollProgressForCardIndex(
+              prevIdx,
+              cardCount,
+              layout,
+            );
+            lastSnapCardRef.current = prevIdx;
+            pendingSnapCardRef.current = prevIdx;
+            return prevProgress;
           }
           return lastCardProgress;
         }
-        return snapExitDirectional(progress, direction);
+
+        if (progress < exitCommitProgress) {
+          return lastCardProgress;
+        }
+        return sectionExitProgress;
       }
 
       // Carousel — exactly one card per scroll gesture (never skip)
@@ -324,6 +361,8 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
             ? Math.max(settled - 1, 0)
             : settled;
 
+      lastSnapCardRef.current = targetIdx;
+      pendingSnapCardRef.current = targetIdx;
       return scrollProgressForCardIndex(targetIdx, cardCount, layout);
     };
 
@@ -335,9 +374,13 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         idx = cardCount - 1;
       } else if (progress <= layout.introPortion + 0.001) {
         idx = 0;
+      } else if (isInSwipeCarouselZone(progress, layout)) {
+        idx = pendingSnapCardRef.current ?? lastSnapCardRef.current;
       } else {
         idx = cardIndexFromSnapProgress(progress, cardCount, layout);
       }
+
+      pendingSnapCardRef.current = null;
 
       if (syncedEmblaIndexRef.current === idx) {
         lastSnapCardRef.current = idx;
@@ -346,6 +389,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
 
       lastSnapCardRef.current = idx;
       syncedEmblaIndexRef.current = idx;
+      emblaSettleFromUserRef.current = false;
       emblaApiRef.current?.scrollTo(idx, false);
       flushCaptionIndex(idx);
     };
@@ -355,12 +399,14 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       start: "top top",
       end: `+=${layout.totalDistance}`,
       pin: scene,
-      scrub: 0.45,
+      scrub: useNativeScrub ? true : 0.45,
       snap: {
         snapTo: (progress, self) =>
           resolveSnapProgress(progress, self?.direction ?? 1),
-        duration: { min: 0.38, max: 0.56 },
-        delay: 0.12,
+        duration: useNativeScrub
+          ? { min: 0.28, max: 0.42 }
+          : { min: 0.38, max: 0.56 },
+        delay: useNativeScrub ? 0.06 : 0.12,
         ease: "power2.inOut",
         inertia: false,
       },
@@ -393,7 +439,9 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       const target = normalizeIndex(index, cardCount);
 
       lastSnapCardRef.current = target;
+      pendingSnapCardRef.current = target;
       syncedEmblaIndexRef.current = target;
+      emblaSettleFromUserRef.current = false;
       emblaApiRef.current?.scrollTo(target, false);
       flushCaptionIndex(target);
       syncScrollToCardIndex(target, true);
