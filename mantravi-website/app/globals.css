@@ -2020,7 +2020,8 @@ html.is-scrolling .floating-contact-btn {
   will-change: transform;
 }
 
-html.is-scrolling .portfolio-swipe-slide .portfolio-swipe-card {
+html.is-scrolling .portfolio-swipe-slide .portfolio-swipe-card,
+.portfolio-swipe-scene--gesturing .portfolio-swipe-slide .portfolio-swipe-card {
   transition: none;
   will-change: auto;
 }
