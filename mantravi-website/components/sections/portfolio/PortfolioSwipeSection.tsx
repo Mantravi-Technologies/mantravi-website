@@ -24,8 +24,8 @@ import {
   isInSwipeGestureZone,
   resolveGestureTarget,
   scrollYForProgress,
-  wrapCardIndex,
-} from "@/lib/utils/portfolio-mobile-scroll";
+} from "@/lib/utils/portfolio-swipe-gesture";
+import { wrapCardIndex } from "@/lib/utils/portfolio-mobile-scroll";
 import { isCoarsePointer } from "@/lib/utils/scroll-profile";
 import {
   CardVisual,

@@ -2093,6 +2093,163 @@ html.is-scrolling .portfolio-swipe-slide .portfolio-swipe-card,
   margin-top: 0.75rem;
 }
 
+/* Portfolio mobile — single pinned controller + flat card track */
+.portfolio-mobile-trigger {
+  position: relative;
+  background: #050505;
+  overflow-x: clip;
+}
+
+.portfolio-mobile-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--header-height, 4rem) + 1rem) 1.5rem 2rem;
+  color: #fff;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.portfolio-mobile-scene {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  height: 100%;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding-top: var(--header-height, 4rem);
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  background: #050505;
+  color: #fff;
+  overflow-x: clip;
+  touch-action: pan-y;
+}
+
+.portfolio-mobile-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% 0%,
+      rgba(0, 229, 255, 0.06),
+      transparent 55%
+    ),
+    #050505;
+  pointer-events: none;
+}
+
+.portfolio-mobile-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+      ellipse 58% 44% at 50% 38%,
+      rgba(0, 229, 255, 0.05) 0%,
+      rgba(0, 0, 0, 0.32) 62%,
+      rgba(0, 0, 0, 0.62) 100%
+    ),
+    rgba(0, 0, 0, 0.2);
+  transition: opacity 0.28s ease;
+  will-change: opacity;
+}
+
+.portfolio-mobile-carousel-wrap {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  align-content: start;
+  padding-top: 0.15rem;
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+.portfolio-mobile-viewport {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.portfolio-mobile-track {
+  display: flex;
+  align-items: center;
+  column-gap: 0.875rem;
+  min-height: min(56dvh, 23.5rem);
+  backface-visibility: hidden;
+}
+
+.portfolio-mobile-slide {
+  flex: 0 0 80vw;
+  width: 80vw;
+  max-width: 20.5rem;
+  min-width: 0;
+}
+
+.portfolio-mobile-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 3.85;
+  max-height: min(56dvh, 23.5rem);
+  margin-inline: auto;
+  transform: scale(0.9) translateZ(0);
+  opacity: 0.66;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.38s ease;
+  transform-origin: center center;
+  backface-visibility: hidden;
+  overflow: hidden;
+  border-radius: 1.1rem;
+}
+
+.portfolio-mobile-slide.is-active .portfolio-mobile-card {
+  transform: scale(1) translateZ(0);
+  opacity: 1;
+}
+
+.portfolio-mobile-scene.is-embla-dragging .portfolio-mobile-card {
+  transition-duration: 0.18s;
+}
+
+.portfolio-mobile-bottom {
+  position: relative;
+  z-index: 2;
+  margin-top: 0.45rem;
+}
+
+.portfolio-mobile-scene .portfolio-360-card-inner {
+  -webkit-user-drag: none;
+  user-drag: none;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.48);
+}
+
+.portfolio-mobile-scene .portfolio-360-card-glow {
+  display: none;
+}
+
+.portfolio-mobile-scene .portfolio-360-card-meta--on-card {
+  display: none;
+}
+
 .portfolio-360-fallback-card {
   position: relative;
   width: 100%;
