@@ -6,7 +6,7 @@ export const siteConfig = {
     "We help startups and enterprises design, build, and launch web, mobile, and AI products with clear timelines and reliable delivery.",
   url: "https://mantravi.com",
   email: "hello@mantravi.com",
-  phone: "+91 98765 43210",
+  phone: "+91 96486 15125",
   mission:
     "To empower businesses with technology solutions that drive innovation and measurable growth.",
   vision:
