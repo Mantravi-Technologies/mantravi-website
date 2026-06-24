@@ -123,3 +123,47 @@ export function creativeWorkSchema(study: {
     ...(study.featuredImage ? { image: study.featuredImage } : {}),
   };
 }
+
+export function localBusinessServiceSchema(input: {
+  name: string;
+  description: string;
+  url: string;
+  cityName: string;
+  stateName: string;
+  areasServed: string[];
+  serviceType?: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+    provider: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+      email: siteConfig.email,
+      telephone: siteConfig.phone,
+    },
+    areaServed: [
+      {
+        "@type": "City",
+        name: input.cityName,
+        containedInPlace: {
+          "@type": "State",
+          name: input.stateName,
+          containedInPlace: {
+            "@type": "Country",
+            name: "India",
+          },
+        },
+      },
+      ...input.areasServed.map((area) => ({
+        "@type": "Place",
+        name: area,
+      })),
+    ],
+    serviceType: input.serviceType ?? "Mobile App Development",
+  };
+}

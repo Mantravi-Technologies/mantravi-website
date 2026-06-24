@@ -25,7 +25,11 @@ export function buildPageMetadata({
   authors,
 }: PageMetadataInput): Metadata {
   const url = path.startsWith("http") ? path : `${siteConfig.url}${path}`;
-  const ogImage = image ?? `${siteConfig.url}${DEFAULT_OG}`;
+  const ogImage = image
+    ? image.startsWith("http")
+      ? image
+      : `${siteConfig.url}${image.startsWith("/") ? image : `/${image}`}`
+    : `${siteConfig.url}${DEFAULT_OG}`;
 
   return {
     title,

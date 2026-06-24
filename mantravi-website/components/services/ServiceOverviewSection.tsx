@@ -13,12 +13,14 @@ export function ServiceOverviewSection({
   outcomes,
   overviewImage,
   showImage = true,
+  title = "What We Deliver",
 }: {
   intro: string;
   introExtended: string;
   outcomes: string[];
   overviewImage: ServiceImageSlotConfig;
   showImage?: boolean;
+  title?: string;
 }) {
   return (
     <SectionShell id="overview" variant="cream" className="!py-16 md:!py-20">
@@ -36,7 +38,7 @@ export function ServiceOverviewSection({
           variants={fadeUp}
         >
           <SectionHeading
-            title="What We Deliver"
+            title={title}
             description={intro}
             display
             align="left"

@@ -4,6 +4,7 @@ import { siteConfig } from "@/lib/content/site-data";
 import { getPortfolioListing } from "@/lib/content/portfolio";
 import { getAllBlogPosts } from "@/lib/content/blog";
 import { getAllServiceSlugs } from "@/lib/content/services-data";
+import { getAllLocationPageEntries, getLocationPagePath } from "@/lib/content/city-pages-data";
 
 const BUILD_DATE = new Date();
 
@@ -24,6 +25,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: BUILD_DATE,
     changeFrequency: "monthly" as const,
     priority: 0.85,
+  }));
+
+  const locationPages = getAllLocationPageEntries().map(({ pageType, slug }) => ({
+    url: `${base}${getLocationPagePath(pageType, slug)}`,
+    lastModified: BUILD_DATE,
+    changeFrequency: "monthly" as const,
+    priority: 0.82,
   }));
 
   const caseStudies = await getPortfolioListing();
@@ -52,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticPages,
     ...servicePages,
+    ...locationPages,
     ...portfolioPages,
     ...blogPages,
     ...categoryPages,
