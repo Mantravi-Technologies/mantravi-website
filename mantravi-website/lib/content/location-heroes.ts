@@ -38,6 +38,10 @@ export const cityHeroImages: Record<CitySlug, CityHeroImage> = {
     src: "/images/locations/coimbatore-hero.webp",
     alt: "Western Ghats valley and palm groves near Coimbatore",
   },
+  ghaziabad: {
+    src: "/images/locations/ghaziabad-hero.webp",
+    alt: "Ghaziabad NCR East skyline and urban development at sunset",
+  },
 };
 
 export function getCityHeroImage(slug: CitySlug): CityHeroImage {

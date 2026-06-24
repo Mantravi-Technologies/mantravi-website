@@ -280,3 +280,141 @@ export const webDifferentiators: ServiceDifferentiator[] = [
       "Analytics reviews, SEO iterations, and conversion improvements after go-live.",
   },
 ];
+
+export const marketingProcess: ServiceProcessStep[] = [
+  {
+    num: "01",
+    title: "Audit & Goals",
+    description:
+      "Review your brand, competitors, local search presence, and channels to define clear growth targets.",
+  },
+  {
+    num: "02",
+    title: "Strategy",
+    description:
+      "Build a keyword, content, and campaign roadmap aligned to your budget and sales cycle.",
+  },
+  {
+    num: "03",
+    title: "Create & Optimize",
+    description:
+      "Ship SEO pages, ad campaigns, social content, and landing pages with conversion in mind.",
+  },
+  {
+    num: "04",
+    title: "Measure",
+    description:
+      "Track rankings, leads, calls, and ROAS — refine what moves the needle each month.",
+  },
+  {
+    num: "05",
+    title: "Scale",
+    description:
+      "Double down on winning channels and hand off playbooks your team can run.",
+  },
+];
+
+export const marketingCapabilities: ServiceCapability[] = [
+  {
+    id: "local-seo",
+    title: "Local SEO & Google Business Profile",
+    description:
+      "Rank in map pack and local search for city and neighbourhood keywords that drive calls and walk-ins.",
+  },
+  {
+    id: "seo-content",
+    title: "SEO & Content Marketing",
+    description:
+      "Keyword research, on-page SEO, blog strategy, and content that ranks and converts.",
+  },
+  {
+    id: "google-ads",
+    title: "Google Ads & PPC",
+    description:
+      "Search, display, and Performance Max campaigns tuned for lead generation and ROAS.",
+  },
+  {
+    id: "meta-ads",
+    title: "Meta & Social Media Ads",
+    description:
+      "Facebook and Instagram campaigns for awareness, leads, and retargeting in your city.",
+  },
+  {
+    id: "social",
+    title: "Social Media Management",
+    description:
+      "Content calendars, reels, and community management that build trust and inbound enquiries.",
+  },
+  {
+    id: "cro",
+    title: "Landing Pages & CRO",
+    description:
+      "High-converting campaign pages, A/B tests, and funnel optimization for paid and organic traffic.",
+  },
+  {
+    id: "reputation",
+    title: "Reputation & Review Management",
+    description:
+      "Review generation workflows and response strategy for Google, Justdial, and industry platforms.",
+  },
+  {
+    id: "analytics",
+    title: "Marketing Analytics & Reporting",
+    description:
+      "GA4, Search Console, call tracking, and monthly dashboards tied to leads and revenue.",
+  },
+];
+
+export const marketingTechStack: TechStackCategory[] = [
+  {
+    category: "SEO & Analytics",
+    description:
+      "Technical SEO audits, rank tracking, and performance reporting.",
+    items: ["Google Analytics", "Search Console", "Ahrefs", "Semrush"],
+  },
+  {
+    category: "Paid Media",
+    description:
+      "Campaign management across search and social with conversion tracking.",
+    items: ["Google Ads", "Meta Ads", "LinkedIn Ads", "GTM"],
+  },
+  {
+    category: "Content & CMS",
+    description:
+      "SEO-ready content systems for blogs, landing pages, and local pages.",
+    items: ["WordPress", "Sanity", "Webflow", "Notion"],
+  },
+  {
+    category: "CRM & Automation",
+    description:
+      "Lead capture, email nurture, and pipeline tools connected to campaigns.",
+    items: ["HubSpot", "Zoho CRM", "Mailchimp", "WhatsApp API"],
+  },
+];
+
+export const marketingDifferentiators: ServiceDifferentiator[] = [
+  {
+    num: "01",
+    title: "Lead-Focused SEO",
+    description:
+      "We optimize for calls, form fills, and store visits — not vanity traffic or irrelevant keywords.",
+  },
+  {
+    num: "02",
+    title: "Creative + Technical",
+    description:
+      "Design, development, and marketing under one roof so your site and campaigns stay aligned.",
+  },
+  {
+    num: "03",
+    title: "Transparent Reporting",
+    description:
+      "Monthly dashboards with rankings, spend, leads, and clear next steps — no black-box agency reports.",
+  },
+  {
+    num: "04",
+    title: "Industry Playbooks",
+    description:
+      "Proven frameworks for real estate, healthcare, retail, and professional services in Indian markets.",
+  },
+];

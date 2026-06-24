@@ -1,4 +1,6 @@
 import type { ServiceSeoContent } from "./service-seo-extensions";
+import { digitalMarketingCityPages } from "./digital-marketing-location-pages";
+import { ghaziabadCityPages } from "./ghaziabad-location-pages";
 import { tier2MobileCityPages } from "./tier2-location-pages";
 import { websiteCityPages } from "./website-location-pages";
 import type {
@@ -623,11 +625,15 @@ export const mobileAppCityPages: CityPage[] = [
       "Common questions about app development cost, timelines, and working with Mantravi in Bhopal and Madhya Pradesh.",
   },
   ...tier2MobileCityPages,
+  ...ghaziabadCityPages.filter(
+    (p) => p.pageType === "mobile-app-development-company",
+  ),
 ];
 
 export const locationPages: CityPage[] = [
   ...mobileAppCityPages,
   ...websiteCityPages,
+  ...digitalMarketingCityPages,
 ];
 
 export function getAllCitySlugs(): CitySlug[] {
@@ -640,6 +646,7 @@ export function getAllCitySlugs(): CitySlug[] {
     "chandigarh",
     "nagpur",
     "coimbatore",
+    "ghaziabad",
   ];
 }
 
@@ -679,12 +686,21 @@ export function getOtherCities(currentSlug: CitySlug): CityPage[] {
   return getOtherLocationPages("mobile-app-development-company", currentSlug);
 }
 
+export function getCompanionLocationPages(page: CityPage): CityPage[] {
+  const types: LocationPageType[] = [
+    "mobile-app-development-company",
+    "website-development-company",
+    "digital-marketing-company",
+  ];
+  return types
+    .filter((t) => t !== page.pageType)
+    .map((t) => getLocationPage(t, page.slug))
+    .filter((p): p is CityPage => Boolean(p));
+}
+
+/** @deprecated Use getCompanionLocationPages */
 export function getCompanionLocationPage(
   page: CityPage,
 ): CityPage | undefined {
-  const companionType: LocationPageType =
-    page.pageType === "mobile-app-development-company"
-      ? "website-development-company"
-      : "mobile-app-development-company";
-  return getLocationPage(companionType, page.slug);
+  return getCompanionLocationPages(page)[0];
 }

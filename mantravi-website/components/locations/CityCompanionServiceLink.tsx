@@ -5,51 +5,51 @@ import { ArrowRight } from "lucide-react";
 import { SectionShell } from "@/components/ui/SectionShell";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import {
-  getCompanionLocationPage,
+  getCompanionLocationPages,
   getLocationPagePath,
 } from "@/lib/content/city-pages-data";
-import type { CityPage } from "@/lib/content/location-types";
+import type { CityPage, LocationPageType } from "@/lib/content/location-types";
 
-const companionCopy: Record<
-  CityPage["pageType"],
-  { label: string; cta: string }
-> = {
-  "mobile-app-development-company": {
-    label: "Website development",
-    cta: "Need a website in",
-  },
-  "website-development-company": {
-    label: "Mobile app development",
-    cta: "Need a mobile app in",
-  },
+const serviceLabels: Record<LocationPageType, string> = {
+  "mobile-app-development-company": "Mobile app development",
+  "website-development-company": "Website development",
+  "digital-marketing-company": "Digital marketing",
 };
 
 export function CityCompanionServiceLink({ page }: { page: CityPage }) {
-  const companion = getCompanionLocationPage(page);
-  if (!companion) return null;
-
-  const copy = companionCopy[page.pageType];
+  const companions = getCompanionLocationPages(page);
+  if (!companions.length) return null;
 
   return (
     <SectionShell variant="light" className="!py-10 md:!py-12">
       <ScrollReveal>
-        <div className="mx-auto flex max-w-4xl flex-col items-start justify-between gap-4 rounded-2xl border border-[#050505]/10 bg-white px-6 py-5 sm:flex-row sm:items-center sm:px-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-              Also in {page.cityName}
-            </p>
-            <p className="mt-1 text-base font-medium text-[#050505] md:text-lg">
-              {copy.cta} {page.cityName}? Explore our {copy.label.toLowerCase()}{" "}
-              services.
-            </p>
-          </div>
-          <Link
-            href={getLocationPagePath(companion.pageType, companion.slug)}
-            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
-          >
-            {companion.title}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+        <div className="mx-auto max-w-4xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Also in {page.cityName}
+          </p>
+          <p className="mt-1 text-base font-medium text-[#050505] md:text-lg">
+            Explore more Mantravi services for {page.cityName}.
+          </p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {companions.map((companion) => (
+              <li key={companion.pageType}>
+                <Link
+                  href={getLocationPagePath(companion.pageType, companion.slug)}
+                  className="group flex items-center justify-between rounded-2xl border border-[#050505]/10 bg-white px-5 py-4 transition-colors hover:border-primary/40 hover:bg-primary/[0.03]"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-[#050505]">
+                      {serviceLabels[companion.pageType]}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[#050505]/60 line-clamp-1">
+                      {companion.title}
+                    </p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-primary opacity-70 transition-all group-hover:translate-x-0.5 group-hover:opacity-100" />
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </ScrollReveal>
     </SectionShell>

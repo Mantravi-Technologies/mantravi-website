@@ -23,6 +23,11 @@ const sectionCopy: Record<
     description: (city) =>
       `Explore Mantravi website development services beyond ${city}.`,
   },
+  "digital-marketing-company": {
+    title: "Digital Marketing in Other Cities",
+    description: (city) =>
+      `Explore Mantravi digital marketing and SEO services beyond ${city}.`,
+  },
 };
 
 export function CityRelatedLocations({

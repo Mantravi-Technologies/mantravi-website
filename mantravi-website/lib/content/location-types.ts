@@ -16,11 +16,13 @@ export type CitySlug =
   | "jaipur"
   | "chandigarh"
   | "nagpur"
-  | "coimbatore";
+  | "coimbatore"
+  | "ghaziabad";
 
 export type LocationPageType =
   | "mobile-app-development-company"
-  | "website-development-company";
+  | "website-development-company"
+  | "digital-marketing-company";
 
 export type CityPage = {
   pageType: LocationPageType;

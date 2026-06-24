@@ -22,7 +22,20 @@ import {
 const serviceTypeByPage: Record<LocationPageType, string> = {
   "mobile-app-development-company": "Mobile App Development",
   "website-development-company": "Website Development",
+  "digital-marketing-company": "Digital Marketing",
 };
+
+function getCaseStudyTags(pageType: LocationPageType): string[] {
+  if (pageType === "digital-marketing-company") return ["web", "ui"];
+  if (pageType === "website-development-company") return ["web", "ui"];
+  return ["mobile", "web", "ui"];
+}
+
+function getCaseStudyService(pageType: LocationPageType): string {
+  return pageType === "digital-marketing-company"
+    ? "consulting"
+    : "product-engineering";
+}
 
 export async function renderLocationPage(
   pageType: LocationPageType,
@@ -32,10 +45,8 @@ export async function renderLocationPage(
   if (!page) notFound();
 
   const caseStudies = await getServiceCaseStudies(
-    "product-engineering",
-    pageType === "website-development-company"
-      ? ["web", "ui"]
-      : ["mobile", "web", "ui"],
+    getCaseStudyService(pageType),
+    getCaseStudyTags(pageType),
     4,
   );
 

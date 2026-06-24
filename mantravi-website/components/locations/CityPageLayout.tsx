@@ -29,6 +29,7 @@ const placeholderImage = {
 const ctaLabel: Record<CityPage["pageType"], string> = {
   "mobile-app-development-company": "mobile app",
   "website-development-company": "website",
+  "digital-marketing-company": "digital marketing",
 };
 
 export function CityPageLayout({

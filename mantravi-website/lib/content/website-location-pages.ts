@@ -1,4 +1,5 @@
 import type { CityPage } from "./location-types";
+import { ghaziabadCityPages } from "./ghaziabad-location-pages";
 import { tier2WebsiteCityPages } from "./tier2-location-pages";
 import type {
   ServiceCapability,
@@ -606,5 +607,8 @@ export const websiteCityPages: CityPage[] = [
     faqDescription:
       "Common questions about web development cost, SEO, and timelines in Bhopal and MP.",
   },
+  ...ghaziabadCityPages.filter(
+    (p) => p.pageType === "website-development-company",
+  ),
   ...tier2WebsiteCityPages,
 ];
