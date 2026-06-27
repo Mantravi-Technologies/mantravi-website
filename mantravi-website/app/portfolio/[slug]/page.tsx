@@ -14,6 +14,8 @@ import { resolveCaseStudyBody } from "@/lib/content/portable-text";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { breadcrumbSchema, creativeWorkSchema } from "@/lib/seo/schema";
 
+export const revalidate = 60;
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {

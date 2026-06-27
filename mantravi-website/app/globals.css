@@ -580,10 +580,46 @@ html.is-scrolling .service-case-card__client {
   }
 }
 
-/* Blog tables — isolated from prose; readable headers + balanced columns */
+/* Blog tables — horizontal scroll when content is wider than the column */
+.blog-rich-table-figure {
+  margin: 0;
+  max-width: 100%;
+}
+
+.blog-rich-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(5 5 5 / 0.1);
+  box-shadow: 0 1px 2px rgb(5 5 5 / 0.06);
+  scrollbar-gutter: stable;
+}
+
+.blog-rich-table-scroll:focus-visible {
+  outline: 2px solid rgb(14 165 233 / 0.55);
+  outline-offset: 2px;
+}
+
+.blog-rich-table__table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
 .blog-rich-table-col-label {
-  width: 34%;
+  width: auto;
   min-width: 9.5rem;
+}
+
+.blog-rich-table-col-data {
+  min-width: 10rem;
 }
 
 .blog-rich-table-th {
@@ -594,6 +630,7 @@ html.is-scrolling .service-case-card__client {
   color: #fff !important;
   background-color: #050a30;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .blog-rich-table-th-first {
@@ -611,6 +648,7 @@ html.is-scrolling .service-case-card__client {
   line-height: 1.55;
   color: rgb(15 23 42 / 0.82);
   vertical-align: top;
+  min-width: 10rem;
 }
 
 .blog-rich-table-td-first {
@@ -667,7 +705,8 @@ html.is-scrolling .service-case-card__client {
   word-break: break-word;
 }
 
-.rich-content .blog-rich-table {
+.rich-content .blog-rich-table-figure,
+.rich-content .blog-rich-table-scroll {
   max-width: 100%;
 }
 
@@ -690,6 +729,11 @@ html.is-scrolling .service-case-card__client {
 
   .blog-rich-table-col-label {
     min-width: 7rem;
+  }
+
+  .blog-rich-table-col-data,
+  .blog-rich-table-td {
+    min-width: 8.5rem;
   }
 }
 
@@ -3880,7 +3924,7 @@ html.is-scrolling .portfolio-swipe-slide .portfolio-swipe-card,
   }
 }
 
-.blog-rich-table {
+.blog-rich-table-scroll {
   -webkit-overflow-scrolling: touch;
 }
 
@@ -4126,5 +4170,23 @@ html.is-scrolling .portfolio-swipe-slide .portfolio-swipe-card,
   .city-scroll-hero__copy,
   .city-scroll-hero__copy-cta {
     transition: none !important;
+    will-change: auto;
+  }
+}
+
+/* Lighter scroll on long geo landing pages (mobile) */
+@media (max-width: 767px) {
+  .city-page-layout > section,
+  .city-page-layout > div > section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
+  }
+
+  .city-scroll-hero__copy {
+    will-change: auto;
+  }
+
+  .city-scroll-hero__frame {
+    will-change: auto;
   }
 }

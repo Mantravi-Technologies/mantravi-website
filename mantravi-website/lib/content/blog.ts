@@ -3,7 +3,11 @@ import {
   blogCategories,
   type BlogPost,
 } from "@/lib/content/blog-data";
-import { getBlogPostsFromSanity, getBlogPostBySlugFromSanity } from "@/lib/sanity/queries";
+import {
+  getBlogPostsFromSanity,
+  getBlogPostBySlugFromSanity,
+  isSanityConfigured,
+} from "@/lib/sanity/queries";
 
 function published(posts: BlogPost[]) {
   return posts.filter((p) => p.status === "published");
@@ -18,6 +22,7 @@ function byDateDesc(posts: BlogPost[]) {
 
 async function loadBlogPosts(): Promise<BlogPost[]> {
   const fromSanity = await getBlogPostsFromSanity();
+  if (isSanityConfigured) return fromSanity;
   return fromSanity.length > 0 ? fromSanity : blogPosts;
 }
 
@@ -56,8 +61,8 @@ export async function getBlogPostBySlug(
 ): Promise<BlogPost | null> {
   const fromSanity = await getBlogPostBySlugFromSanity(slug);
   if (fromSanity) return fromSanity;
-  const all = await loadBlogPosts();
-  return all.find((p) => p.slug === slug && p.status === "published") ?? null;
+  if (isSanityConfigured) return null;
+  return blogPosts.find((p) => p.slug === slug && p.status === "published") ?? null;
 }
 
 export async function getBlogRelated(

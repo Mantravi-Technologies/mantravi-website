@@ -26,17 +26,28 @@ export function prefersSimplePortfolio() {
   return window.matchMedia(`(max-width: ${TABLET_MAX_WIDTH}px)`).matches;
 }
 
+export function isLocationPage(pathname: string | null) {
+  if (!pathname) return false;
+  return (
+    pathname.includes("-development-company-") ||
+    pathname.includes("-marketing-company-")
+  );
+}
+
 export function prefersNativeScroll(pathname: string | null) {
   if (!pathname) return false;
   if (pathname.startsWith("/services")) return true;
   // Touch devices: Lenis touch smoothing causes global snap-back on homepage
   if (pathname === "/" && isCoarsePointer()) return true;
-  // Long-form content on touch — native momentum scroll
+  // Long-form article pages — native scroll so tables and nested regions scroll correctly
+  if (pathname.startsWith("/portfolio") || pathname.startsWith("/blog")) {
+    return true;
+  }
+  // Long geo landing pages — native momentum scroll on touch
+  if (isCoarsePointer() && isLocationPage(pathname)) return true;
   if (
     isCoarsePointer() &&
-    (pathname.startsWith("/portfolio") ||
-      pathname.startsWith("/blog") ||
-      pathname.startsWith("/about"))
+    (pathname.startsWith("/about") || pathname.startsWith("/contact"))
   ) {
     return true;
   }

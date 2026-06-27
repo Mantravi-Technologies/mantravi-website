@@ -8,6 +8,8 @@ import { blogCategories } from "@/lib/content/blog-data";
 import { getBlogByCategory } from "@/lib/content/blog";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
+export const revalidate = 60;
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {

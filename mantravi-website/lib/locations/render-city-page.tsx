@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
+import { AiCityPageLayout } from "@/components/locations/ai/AiCityPageLayout";
 import { CityPageLayout } from "@/components/locations/CityPageLayout";
 import { JsonLdMulti } from "@/components/seo/JsonLd";
+import { AI_NEURAL_HERO } from "@/lib/content/ai-development-location-pages";
 import {
   getLocationPage,
   getLocationPagePath,
@@ -23,18 +25,20 @@ const serviceTypeByPage: Record<LocationPageType, string> = {
   "mobile-app-development-company": "Mobile App Development",
   "website-development-company": "Website Development",
   "digital-marketing-company": "Digital Marketing",
+  "ai-development-company": "AI Development",
 };
 
 function getCaseStudyTags(pageType: LocationPageType): string[] {
   if (pageType === "digital-marketing-company") return ["web", "ui"];
   if (pageType === "website-development-company") return ["web", "ui"];
+  if (pageType === "ai-development-company") return ["ai", "web"];
   return ["mobile", "web", "ui"];
 }
 
 function getCaseStudyService(pageType: LocationPageType): string {
-  return pageType === "digital-marketing-company"
-    ? "consulting"
-    : "product-engineering";
+  if (pageType === "digital-marketing-company") return "consulting";
+  if (pageType === "ai-development-company") return "ai-data";
+  return "product-engineering";
 }
 
 export async function renderLocationPage(
@@ -51,7 +55,10 @@ export async function renderLocationPage(
   );
 
   const pagePath = getLocationPagePath(pageType, slug);
-  const heroImage = getCityHeroImage(slug);
+  const heroImage =
+    pageType === "ai-development-company"
+      ? AI_NEURAL_HERO
+      : getCityHeroImage(slug);
 
   const schemas = [
     locationWebPageSchema(page, pagePath, heroImage),
@@ -72,7 +79,11 @@ export async function renderLocationPage(
   return (
     <>
       <JsonLdMulti schemas={schemas} />
-      <CityPageLayout page={page} caseStudies={caseStudies} />
+      {pageType === "ai-development-company" ? (
+        <AiCityPageLayout page={page} caseStudies={caseStudies} />
+      ) : (
+        <CityPageLayout page={page} caseStudies={caseStudies} />
+      )}
     </>
   );
 }

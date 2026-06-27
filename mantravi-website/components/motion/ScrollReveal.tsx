@@ -2,7 +2,7 @@
 
 import { motion, type Variants } from "framer-motion";
 import { fadeUp, viewportDefaults } from "@/lib/animations/variants";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useLightScrollMotion } from "@/hooks/useLightScrollMotion";
 import { cn } from "@/lib/utils";
 
 type ScrollRevealProps = {
@@ -18,7 +18,11 @@ export function ScrollReveal({
   variants = fadeUp,
   delay = 0,
 }: ScrollRevealProps) {
-  const reduced = useReducedMotion();
+  const lightMotion = useLightScrollMotion();
+
+  if (lightMotion) {
+    return <div className={cn(className)}>{children}</div>;
+  }
 
   return (
     <motion.div
@@ -26,9 +30,7 @@ export function ScrollReveal({
       initial="hidden"
       whileInView="visible"
       viewport={viewportDefaults}
-      variants={
-        reduced ? { hidden: { opacity: 0 }, visible: { opacity: 1 } } : variants
-      }
+      variants={variants}
       transition={delay ? { delay } : undefined}
     >
       {children}

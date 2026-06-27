@@ -124,61 +124,69 @@ const components: PortableTextComponents = {
       const rows =
         (value?.rows as { cells?: string[] }[] | undefined) ?? [];
       if (!headers.length) return null;
+      const caption = value?.caption ? String(value.caption) : undefined;
       return (
-        <figure
-          className="blog-rich-table not-prose my-6 w-full max-w-full overflow-x-auto rounded-xl border border-[#050505]/10 shadow-sm sm:my-8"
-          data-lenis-prevent
-        >
-          <table className="w-full min-w-[520px] border-collapse text-left text-sm">
-            <colgroup>
-              <col className="blog-rich-table-col-label" />
-              {headers.slice(1).map((h) => (
-                <col key={h} />
-              ))}
-            </colgroup>
-            <thead>
-              <tr>
-                {headers.map((h, j) => (
-                  <th
-                    key={h}
-                    scope="col"
-                    className={cn(
-                      "blog-rich-table-th",
-                      j === 0 && "blog-rich-table-th-first",
-                    )}
-                  >
-                    {h}
-                  </th>
+        <figure className="blog-rich-table-figure not-prose my-6 sm:my-8">
+          <div
+            className="blog-rich-table-scroll"
+            data-lenis-prevent
+            data-lenis-prevent-touch
+            data-lenis-prevent-wheel
+            tabIndex={0}
+            role="region"
+            aria-label={caption ?? "Scrollable table"}
+          >
+            <table className="blog-rich-table__table">
+              <colgroup>
+                <col className="blog-rich-table-col-label" />
+                {headers.slice(1).map((h) => (
+                  <col key={h} className="blog-rich-table-col-data" />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, i) => (
-                <tr
-                  key={i}
-                  className={cn(
-                    "border-t border-[#050505]/10",
-                    i % 2 === 0 ? "bg-white" : "bg-[#f8fafc]",
-                  )}
-                >
-                  {(row.cells ?? []).map((cell, j) => (
-                    <td
-                      key={j}
+              </colgroup>
+              <thead>
+                <tr>
+                  {headers.map((h, j) => (
+                    <th
+                      key={h}
+                      scope="col"
                       className={cn(
-                        "blog-rich-table-td",
-                        j === 0 && "blog-rich-table-td-first",
+                        "blog-rich-table-th",
+                        j === 0 && "blog-rich-table-th-first",
                       )}
                     >
-                      {cell}
-                    </td>
+                      {h}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {value?.caption && (
-            <figcaption className="border-t border-[#050505]/10 bg-[#f8fafc] px-5 py-2.5 text-xs font-medium text-[#050505]/60">
-              {String(value.caption)}
+              </thead>
+              <tbody>
+                {rows.map((row, i) => (
+                  <tr
+                    key={i}
+                    className={cn(
+                      "border-t border-[#050505]/10",
+                      i % 2 === 0 ? "bg-white" : "bg-[#f8fafc]",
+                    )}
+                  >
+                    {(row.cells ?? []).map((cell, j) => (
+                      <td
+                        key={j}
+                        className={cn(
+                          "blog-rich-table-td",
+                          j === 0 && "blog-rich-table-td-first",
+                        )}
+                      >
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {caption && (
+            <figcaption className="mt-2 text-xs font-medium text-[#050505]/60">
+              {caption}
             </figcaption>
           )}
         </figure>

@@ -1,3 +1,4 @@
+import { aiDevelopmentCityPages } from "./ai-development-location-pages";
 import type { ServiceSeoContent } from "./service-seo-extensions";
 import { digitalMarketingCityPages } from "./digital-marketing-location-pages";
 import { ghaziabadCityPages } from "./ghaziabad-location-pages";
@@ -634,6 +635,7 @@ export const locationPages: CityPage[] = [
   ...mobileAppCityPages,
   ...websiteCityPages,
   ...digitalMarketingCityPages,
+  ...aiDevelopmentCityPages,
 ];
 
 export function getAllCitySlugs(): CitySlug[] {
@@ -691,6 +693,7 @@ export function getCompanionLocationPages(page: CityPage): CityPage[] {
     "mobile-app-development-company",
     "website-development-company",
     "digital-marketing-company",
+    "ai-development-company",
   ];
   return types
     .filter((t) => t !== page.pageType)

@@ -235,7 +235,7 @@ function ProjectStory({ blocks, fallback }: { blocks: PortableTextBlock[]; fallb
         <h2 className="mt-3 text-2xl font-bold text-[#050505] sm:text-3xl">
           Approach &amp; execution
         </h2>
-        <div className="mt-8 case-study-prose max-w-none lg:max-w-5xl xl:max-w-6xl">
+        <div className="mt-8 min-w-0 case-study-prose max-w-none lg:max-w-5xl xl:max-w-6xl">
           {blocks.length > 0 ? (
             <RichContent value={blocks} />
           ) : (

@@ -16,8 +16,6 @@ import {
   getAllBlogPosts,
   getBlogPostBySlug,
   getBlogRelated,
-  getAllBlogPostsSync,
-  getBlogPostBySlugSync,
 } from "@/lib/content/blog";
 import { resolveBlogBody } from "@/lib/content/portable-text";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -27,18 +25,18 @@ import {
   faqPageSchema,
 } from "@/lib/seo/schema";
 
+export const revalidate = 60;
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
   const posts = await getAllBlogPosts();
-  const slugs = posts.length > 0 ? posts : getAllBlogPostsSync();
-  return slugs.map((p) => ({ slug: p.slug }));
+  return posts.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post =
-    (await getBlogPostBySlug(slug)) ?? getBlogPostBySlugSync(slug);
+  const post = await getBlogPostBySlug(slug);
   if (!post) return { title: "Post Not Found" };
   return buildPageMetadata({
     title: post.seoTitle ?? post.title,
@@ -54,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = (await getBlogPostBySlug(slug)) ?? getBlogPostBySlugSync(slug);
+  const post = await getBlogPostBySlug(slug);
   if (!post) notFound();
 
   const related = await getBlogRelated(post, 3);

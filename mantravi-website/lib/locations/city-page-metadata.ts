@@ -5,6 +5,7 @@ import {
   type CitySlug,
   type LocationPageType,
 } from "@/lib/content/city-pages-data";
+import { AI_NEURAL_HERO } from "@/lib/content/ai-development-location-pages";
 import { getCityHeroImage } from "@/lib/content/location-heroes";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -15,7 +16,10 @@ export function createLocationPageMetadata(
   const page = getLocationPage(pageType, slug);
   if (!page) return { title: "Location" };
 
-  const heroImage = getCityHeroImage(slug);
+  const heroImage =
+    pageType === "ai-development-company"
+      ? AI_NEURAL_HERO
+      : getCityHeroImage(slug);
   const base = buildPageMetadata({
     title: page.seoTitle,
     description: page.metaDescription,

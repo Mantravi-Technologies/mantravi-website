@@ -1,4 +1,5 @@
-import { getSanityClient, imageUrlFromSanity, isSanityConfigured } from "./client";
+import { getSanityServerClient, imageUrlFromSanity, isSanityConfigured } from "./client";
+import { SANITY_BLOG_TAG, SANITY_CASE_STUDY_TAG, withSanityCache } from "./cache";
 import {
   caseStudies as fallbackCaseStudies,
   type CaseStudy,
@@ -161,67 +162,92 @@ function normalizeBlogPost(raw: Record<string, unknown>): BlogPost {
 }
 
 export async function getCaseStudiesFromSanity(): Promise<CaseStudy[]> {
-  const client = getSanityClient();
-  if (!client) return [];
+  return withSanityCache(["sanity-case-studies"], [SANITY_CASE_STUDY_TAG], async () => {
+    const client = getSanityServerClient();
+    if (!client) return [];
 
-  try {
-    const results = await client.fetch<
-      Record<string, unknown>[]
-    >(`*[_type == "caseStudy" && coalesce(status, "published") == "published"] | order(homepageOrder asc, order asc) ${caseStudyListFields}`);
-    if (!results?.length) return [];
-    return results.map(normalizeCaseStudy);
-  } catch {
-    return [];
-  }
+    try {
+      const results = await client.fetch<
+        Record<string, unknown>[]
+      >(`*[_type == "caseStudy" && coalesce(status, "published") == "published"] | order(homepageOrder asc, order asc) ${caseStudyListFields}`);
+      if (!results?.length) return [];
+      return results.map(normalizeCaseStudy);
+    } catch {
+      return [];
+    }
+  });
 }
 
 export async function getCaseStudyBySlugFromSanity(
   slug: string,
 ): Promise<CaseStudy | null> {
-  const client = getSanityClient();
-  if (!client) return null;
+  return withSanityCache(
+    ["sanity-case-study", slug],
+    [SANITY_CASE_STUDY_TAG, `${SANITY_CASE_STUDY_TAG}:${slug}`],
+    async () => {
+      const client = getSanityServerClient();
+      if (!client) return null;
 
-  try {
-    const result = await client.fetch<Record<string, unknown> | null>(
-      `*[_type == "caseStudy" && slug.current == $slug && coalesce(status, "published") == "published"][0] ${caseStudyDetailFields}`,
-      { slug },
-    );
-    return result ? normalizeCaseStudy(result) : null;
-  } catch {
-    return null;
-  }
+      try {
+        const result = await client.fetch<Record<string, unknown> | null>(
+          `*[_type == "caseStudy" && slug.current == $slug && coalesce(status, "published") == "published"][0] ${caseStudyDetailFields}`,
+          { slug },
+        );
+        return result ? normalizeCaseStudy(result) : null;
+      } catch {
+        return null;
+      }
+    },
+  );
 }
 
-export async function getBlogPostsFromSanity(): Promise<BlogPost[]> {
-  const client = getSanityClient();
-  if (!client) return [];
+const publishedBlogFilter =
+  'coalesce(status, "published") == "published"';
 
-  try {
-    const results = await client.fetch<
-      Record<string, unknown>[]
-    >(`*[_type == "blogPost"] | order(publishedAt desc) ${blogPostListFields}`);
-    if (!results?.length) return [];
-    return results.map(normalizeBlogPost);
-  } catch {
-    return [];
-  }
+export async function getBlogPostsFromSanity(): Promise<BlogPost[]> {
+  return withSanityCache(["sanity-blog-posts"], [SANITY_BLOG_TAG], async () => {
+    const client = getSanityServerClient();
+    if (!client) return [];
+
+    try {
+      const results = await client.fetch<
+        Record<string, unknown>[]
+      >(`*[_type == "blogPost" && ${publishedBlogFilter}] | order(publishedAt desc) ${blogPostListFields}`);
+      if (!results?.length) return [];
+      return results.map(normalizeBlogPost);
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[sanity] getBlogPostsFromSanity failed:", error);
+      }
+      return [];
+    }
+  });
 }
 
 export async function getBlogPostBySlugFromSanity(
   slug: string,
 ): Promise<BlogPost | null> {
-  const client = getSanityClient();
-  if (!client) return null;
+  return withSanityCache(
+    ["sanity-blog-post", slug],
+    [SANITY_BLOG_TAG, `${SANITY_BLOG_TAG}:${slug}`],
+    async () => {
+      const client = getSanityServerClient();
+      if (!client) return null;
 
-  try {
-    const result = await client.fetch<Record<string, unknown> | null>(
-      `*[_type == "blogPost" && slug.current == $slug][0] ${blogPostDetailFields}`,
-      { slug },
-    );
-    return result ? normalizeBlogPost(result) : null;
-  } catch {
-    return null;
-  }
+      try {
+        const result = await client.fetch<Record<string, unknown> | null>(
+          `*[_type == "blogPost" && slug.current == $slug && ${publishedBlogFilter}][0] ${blogPostDetailFields}`,
+          { slug },
+        );
+        return result ? normalizeBlogPost(result) : null;
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.error(`[sanity] getBlogPostBySlugFromSanity(${slug}) failed:`, error);
+        }
+        return null;
+      }
+    },
+  );
 }
 
 /** @deprecated Use getCaseStudiesFromSanity */

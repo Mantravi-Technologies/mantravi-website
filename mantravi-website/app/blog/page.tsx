@@ -14,6 +14,8 @@ import {
 
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = buildPageMetadata({
   title: "Blog",
   description:

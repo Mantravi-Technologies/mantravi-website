@@ -10,14 +10,24 @@ export const isSanityConfigured = Boolean(
   projectId && /^[a-z0-9-]+$/.test(projectId),
 );
 
-export function getSanityClient(): SanityClient | null {
+function createSanityClient(useCdn: boolean): SanityClient | null {
   if (!isSanityConfigured) return null;
   return createClient({
     projectId: projectId!,
     dataset,
     apiVersion,
-    useCdn: true,
+    useCdn,
   });
+}
+
+/** Browser-safe client (CDN). Prefer getSanityServerClient in Server Components. */
+export function getSanityClient(): SanityClient | null {
+  return createSanityClient(true);
+}
+
+/** Fresh API reads for build-time and server rendering — avoids stale CDN cache. */
+export function getSanityServerClient(): SanityClient | null {
+  return createSanityClient(false);
 }
 
 const builder = projectId

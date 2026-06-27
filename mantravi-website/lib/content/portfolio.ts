@@ -5,6 +5,7 @@ import {
 import {
   getCaseStudiesFromSanity,
   getCaseStudyBySlugFromSanity,
+  isSanityConfigured,
 } from "@/lib/sanity/queries";
 
 function published(studies: CaseStudy[]) {
@@ -19,6 +20,7 @@ function sortByHomepageOrder(studies: CaseStudy[]) {
 
 async function loadCaseStudies(): Promise<CaseStudy[]> {
   const fromSanity = await getCaseStudiesFromSanity();
+  if (isSanityConfigured) return fromSanity;
   return fromSanity.length > 0 ? fromSanity : caseStudies;
 }
 
@@ -61,6 +63,7 @@ export async function getCaseStudyBySlug(
 ): Promise<CaseStudy | null> {
   const fromSanity = await getCaseStudyBySlugFromSanity(slug);
   if (fromSanity) return fromSanity;
+  if (isSanityConfigured) return null;
   return caseStudies.find((c) => c.slug === slug && c.status === "published") ?? null;
 }
 

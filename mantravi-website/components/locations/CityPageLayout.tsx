@@ -30,6 +30,7 @@ const ctaLabel: Record<CityPage["pageType"], string> = {
   "mobile-app-development-company": "mobile app",
   "website-development-company": "website",
   "digital-marketing-company": "digital marketing",
+  "ai-development-company": "AI development",
 };
 
 export function CityPageLayout({
@@ -46,7 +47,7 @@ export function CityPageLayout({
   }));
 
   return (
-    <>
+    <div className="city-page-layout">
       <CityScrollHero page={page} />
       <ServiceMetricsBand metrics={page.trustMetrics} />
       <ServiceOverviewSection
@@ -103,6 +104,6 @@ export function CityPageLayout({
           <FAQAccordion items={faqItems} variant="light" />
         </div>
       </SectionShell>
-    </>
+    </div>
   );
 }

@@ -14,6 +14,7 @@ const serviceLabels: Record<LocationPageType, string> = {
   "mobile-app-development-company": "Mobile app development",
   "website-development-company": "Website development",
   "digital-marketing-company": "Digital marketing",
+  "ai-development-company": "AI development",
 };
 
 export function CityCompanionServiceLink({ page }: { page: CityPage }) {

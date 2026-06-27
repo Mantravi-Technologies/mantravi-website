@@ -22,7 +22,8 @@ export type CitySlug =
 export type LocationPageType =
   | "mobile-app-development-company"
   | "website-development-company"
-  | "digital-marketing-company";
+  | "digital-marketing-company"
+  | "ai-development-company";
 
 export type CityPage = {
   pageType: LocationPageType;
