@@ -8,6 +8,16 @@ import { useContact } from "@/components/providers/ContactProvider";
 import { type CaseStudy } from "@/lib/content/case-studies";
 import { cn } from "@/lib/utils";
 import {
+  PORTFOLIO_EMBLA_DURATION,
+  PORTFOLIO_NAV_DURATION,
+  PORTFOLIO_SCRUB_SMOOTH,
+  PORTFOLIO_SETTLE_DURATION,
+  PORTFOLIO_SETTLE_EASE,
+  PORTFOLIO_SNAP_DELAY,
+  PORTFOLIO_SNAP_DURATION,
+  PORTFOLIO_SNAP_EASE,
+} from "@/lib/utils/portfolio-motion";
+import {
   getExitCommitProgress,
   getLastCardSnapProgress,
   getSectionExitProgress,
@@ -15,9 +25,9 @@ import {
   getSwipeScrollLayout,
   isInSwipeCarouselZone,
   scrollProgressForCardIndex,
-  SWIPE_CARD_SETTLE_DURATION,
   SWIPE_CAROUSEL_FADE_START,
 } from "@/lib/utils/portfolio-intro-scroll";
+import { syncEmblaToFloatIndex } from "@/lib/utils/portfolio-embla-sync";
 import {
   getCarouselStepPx,
   getSwipeExitHoldPx,
@@ -35,8 +45,8 @@ import {
 } from "./PortfolioShared";
 
 const GESTURE_FINALIZE_MS = 120;
-const GESTURE_SETTLE_EASE = "power2.out";
-const NAV_SETTLE_DURATION = 0.36;
+const GESTURE_SETTLE_EASE = PORTFOLIO_SETTLE_EASE;
+const NAV_SETTLE_DURATION = PORTFOLIO_NAV_DURATION;
 
 export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
   const cardCount = items.length;
@@ -72,7 +82,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
     containScroll: "trimSnaps",
     dragFree: false,
     loop: false,
-    duration: 20,
+    duration: PORTFOLIO_EMBLA_DURATION,
     skipSnaps: false,
   });
 
@@ -386,6 +396,27 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
         lastIntroProgress = 1;
         introTl.progress(1);
       }
+
+      if (
+        !useMobileGesture &&
+        !isCarouselGesturingRef.current &&
+        !isFinalizingGestureRef.current &&
+        !isProgrammaticRef.current &&
+        isInSwipeCarouselZone(progress, layout)
+      ) {
+        const afterIntro = progress - layout.introPortion;
+        const phase = gsap.utils.clamp(0, 1, afterIntro / layout.carouselPortion);
+        const floatIdx = phase * (cardCount - 1);
+
+        isProgrammaticEmblaScrollRef.current = true;
+        const activeIdx = syncEmblaToFloatIndex(
+          emblaApiRef.current ?? undefined,
+          floatIdx,
+          cardCount,
+        );
+        setSlideVisual(activeIdx);
+        flushCaptionIndex(activeIdx);
+      }
     };
 
     const resolveSnapProgress = (progress: number, direction: number) => {
@@ -528,7 +559,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       scrollToProgress(
         settleProgress,
         false,
-        committed ? SWIPE_CARD_SETTLE_DURATION : SWIPE_CARD_SETTLE_DURATION * 0.45,
+        committed ? PORTFOLIO_SETTLE_DURATION : PORTFOLIO_SETTLE_DURATION * 0.45,
         () => {
           isProgrammaticRef.current = false;
           finish();
@@ -590,7 +621,7 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
       start: "top top",
       end: `+=${layout.totalDistance}`,
       pin: scene,
-      scrub: true,
+      scrub: PORTFOLIO_SCRUB_SMOOTH,
       fastScrollEnd: true,
       ...(useMobileGesture
         ? {}
@@ -598,9 +629,9 @@ export function PortfolioSwipeSection({ items }: { items: CaseStudy[] }) {
             snap: {
               snapTo: (progress, self) =>
                 resolveSnapProgress(progress, self?.direction ?? 1),
-              duration: { min: 0.28, max: 0.42 },
-              delay: 0.08,
-              ease: "power2.out",
+              duration: PORTFOLIO_SNAP_DURATION,
+              delay: PORTFOLIO_SNAP_DELAY,
+              ease: PORTFOLIO_SNAP_EASE,
               inertia: false,
             },
           }),

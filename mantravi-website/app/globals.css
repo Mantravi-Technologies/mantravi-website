@@ -1606,8 +1606,12 @@ html.is-scrolling .floating-contact-btn {
   backface-visibility: hidden;
   transform-origin: center center;
   transition:
-    opacity 0.28s ease-out,
-    filter 0.28s ease-out;
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.is-scrolling .portfolio-360-card {
+  transition: none;
 }
 
 .portfolio-360-card.is-active {
@@ -2065,8 +2069,8 @@ html.is-scrolling .floating-contact-btn {
   transform: scale(0.9) translateZ(0);
   opacity: 0.72;
   transition:
-    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.28s ease;
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: center center;
 }
 
@@ -2255,12 +2259,21 @@ html.is-scrolling .portfolio-swipe-slide .portfolio-swipe-card,
   transform: scale(0.9) translateZ(0);
   opacity: 0.66;
   transition:
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.38s ease;
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: center center;
   backface-visibility: hidden;
   overflow: hidden;
   border-radius: 1.1rem;
+}
+
+html.is-scrolling .portfolio-mobile-card {
+  transition: none;
+}
+
+.portfolio-mobile-scene.is-vertical-scrolling .portfolio-mobile-card,
+html.is-scrolling .portfolio-mobile-scene .portfolio-mobile-card {
+  transition: none;
 }
 
 .portfolio-mobile-slide.is-active .portfolio-mobile-card {
@@ -2269,7 +2282,7 @@ html.is-scrolling .portfolio-swipe-slide .portfolio-swipe-card,
 }
 
 .portfolio-mobile-scene.is-embla-dragging .portfolio-mobile-card {
-  transition-duration: 0.18s;
+  transition-duration: 0.22s;
 }
 
 .portfolio-mobile-bottom {

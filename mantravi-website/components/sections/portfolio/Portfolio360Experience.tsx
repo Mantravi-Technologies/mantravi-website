@@ -13,6 +13,14 @@ import {
   isMobilePerfProfile,
 } from "@/lib/utils/scroll-profile";
 import {
+  PORTFOLIO_SCRUB_SMOOTH,
+  PORTFOLIO_SETTLE_DURATION,
+  PORTFOLIO_SETTLE_EASE,
+  PORTFOLIO_SNAP_DELAY,
+  PORTFOLIO_SNAP_DURATION,
+  PORTFOLIO_SNAP_EASE,
+} from "@/lib/utils/portfolio-motion";
+import {
   CardVisual,
   Portfolio360BottomChrome,
   PortfolioDetailCaption,
@@ -21,7 +29,7 @@ import {
 
 /** Single pin: intro timeline + carousel rotation share one ScrollTrigger progress */
 const CAROUSEL_FADE_START = 0.18;
-const ROTATION_DEADZONE = 0.14;
+const ROTATION_DEADZONE = 0.1;
 /** Scroll with SHIP only before text→card transition begins */
 const INTRO_HOLD_VH = 0.7;
 /** Scroll span for SHIP blur/fade + carousel reveal */
@@ -38,8 +46,8 @@ const MOBILE_ROTATION_DEADZONE = 0.02;
 /** Fraction of one step scroll needed to advance to the next card */
 const MOBILE_GESTURE_COMMIT_RATIO = 0.2;
 /** Smooth settle when a mobile gesture completes */
-const MOBILE_CARD_SETTLE_DURATION = 0.45;
-const MOBILE_CARD_SETTLE_EASE = "power2.out";
+const MOBILE_CARD_SETTLE_DURATION = PORTFOLIO_SETTLE_DURATION;
+const MOBILE_CARD_SETTLE_EASE = PORTFOLIO_SETTLE_EASE;
 const easeGestureProgress = gsap.parseEase("power2.out");
 
 function getScrollMetrics() {
@@ -432,7 +440,7 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
       setActiveIndexIfChanged(target);
 
       if (lenis) {
-        lenis.scrollTo(scrollPos, { duration: 1.1 });
+        lenis.scrollTo(scrollPos, { duration: 1.35 });
       } else {
         window.scrollTo({ top: scrollPos, behavior: "smooth" });
       }
@@ -739,16 +747,16 @@ function Portfolio360Experience({ items }: { items: CaseStudy[] }) {
       start: "top top",
       end: `+=${totalDistance}`,
       pin: scene,
-      scrub: true,
+      scrub: PORTFOLIO_SCRUB_SMOOTH,
       ...(mobilePerf
         ? {}
         : {
             snap: {
               snapTo: carouselSnapPoints,
               directional: true,
-              duration: { min: 0.32, max: 0.52 },
-              delay: 0.05,
-              ease: "power2.out",
+              duration: PORTFOLIO_SNAP_DURATION,
+              delay: PORTFOLIO_SNAP_DELAY,
+              ease: PORTFOLIO_SNAP_EASE,
               inertia: false,
             },
           }),

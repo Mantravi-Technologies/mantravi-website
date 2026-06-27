@@ -8,6 +8,16 @@ import { useContact } from "@/components/providers/ContactProvider";
 import { type CaseStudy } from "@/lib/content/case-studies";
 import { cn } from "@/lib/utils";
 import { getStableViewportHeight } from "@/lib/utils/scroll-profile";
+import { syncEmblaToFloatIndex } from "@/lib/utils/portfolio-embla-sync";
+import {
+  PORTFOLIO_EMBLA_DURATION,
+  PORTFOLIO_NAV_DURATION,
+  PORTFOLIO_SCRUB_NATIVE,
+  PORTFOLIO_SETTLE_EASE,
+  PORTFOLIO_SNAP_DELAY,
+  PORTFOLIO_SNAP_DURATION_TOUCH,
+  PORTFOLIO_SNAP_EASE,
+} from "@/lib/utils/portfolio-motion";
 import { wrapCardIndex } from "@/lib/utils/portfolio-mobile-scroll";
 import {
   CardVisual,
@@ -20,9 +30,9 @@ const INTRO_HOLD_VH = 0.45;
 const INTRO_TRANSITION_VH = 0.4;
 const CARD_STEP_VH = 0.58;
 const EXIT_HOLD_VH = 0.38;
-const NAV_DURATION = 0.42;
-const NAV_EASE = "power2.out";
-const EMBLA_DURATION = 28;
+const NAV_DURATION = PORTFOLIO_NAV_DURATION;
+const NAV_EASE = PORTFOLIO_SETTLE_EASE;
+const EMBLA_DURATION = PORTFOLIO_EMBLA_DURATION;
 
 type MobileLayout = {
   totalDistance: number;
@@ -92,6 +102,43 @@ function buildSnapPoints(cardCount: number, layout: MobileLayout) {
   return [...points].sort((a, b) => a - b);
 }
 
+function nearestSnapProgress(
+  progress: number,
+  cardCount: number,
+  layout: MobileLayout,
+) {
+  const points = buildSnapPoints(cardCount, layout);
+  let nearest = points[0];
+  let minDist = Math.abs(progress - nearest);
+
+  for (const point of points) {
+    const dist = Math.abs(progress - point);
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = point;
+    }
+  }
+
+  return nearest;
+}
+
+function resolveMobileSnapProgress(
+  progress: number,
+  direction: number,
+  cardCount: number,
+  layout: MobileLayout,
+) {
+  if (progress < layout.introPortion * 0.55) {
+    return direction < 0 ? 0 : progress < layout.introPortion * 0.35 ? 0 : layout.introPortion;
+  }
+
+  if (progress < layout.introPortion) {
+    return direction >= 0 ? layout.introPortion : 0;
+  }
+
+  return nearestSnapProgress(progress, cardCount, layout);
+}
+
 function scrollYForProgress(progress: number, sceneSt: ScrollTrigger) {
   return sceneSt.start + progress * (sceneSt.end - sceneSt.start);
 }
@@ -106,6 +153,7 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
   const introRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const carouselWrapRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const sceneStRef = useRef<ScrollTrigger | null>(null);
   const layoutRef = useRef<MobileLayout | null>(null);
   const snapPointsRef = useRef<number[]>([]);
@@ -120,6 +168,8 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
   const hasEnteredCarouselRef = useRef(false);
   const suppressIntroRef = useRef(false);
   const gestureSnapLockedRef = useRef(false);
+  const visualFloatRef = useRef(0);
+  const isVerticalScrollingRef = useRef(false);
   const navLockRef = useRef(false);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -127,7 +177,7 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
     axis: "x",
     containScroll: "trimSnaps",
     dragFree: false,
-    loop: true,
+    loop: false,
     duration: EMBLA_DURATION,
     skipSnaps: false,
   });
@@ -210,66 +260,72 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
     [cardCount, setActiveIndexIfChanged, syncEmblaToIndex],
   );
 
-  const snapProgressForDirection = useCallback(
+  const resolveSnapProgress = useCallback(
     (progress: number, direction: number) => {
       const layout = layoutRef.current;
       if (!layout) return progress;
-
-      if (gestureSnapLockedRef.current) {
-        return progressForCard(settledCardRef.current, cardCount, layout);
-      }
-
-      const anchor = gestureActiveRef.current
-        ? gestureBaseCardRef.current
-        : settledCardRef.current;
-      const last = Math.max(0, cardCount - 1);
-      const anchorProgress = progressForCard(anchor, cardCount, layout);
-      const step =
-        cardCount > 1
-          ? layout.carouselPortion / (cardCount - 1)
-          : layout.carouselPortion;
-
-      if (progress < layout.introPortion - step * 0.25) {
-        return direction < 0 || progress < anchorProgress
-          ? 0
-          : progressForCard(0, cardCount, layout);
-      }
-
-      let resolvedDirection = direction;
-      if (resolvedDirection === 0) {
-        const delta = progress - anchorProgress;
-        if (Math.abs(delta) < step * 0.12) return anchorProgress;
-        resolvedDirection = delta > 0 ? 1 : -1;
-      }
-
-      if (resolvedDirection > 0) {
-        if (anchor >= last) return 1;
-        return progressForCard(anchor + 1, cardCount, layout);
-      }
-
-      if (resolvedDirection < 0) {
-        if (anchor <= 0) {
-          if (progress < layout.introPortion * 0.55) return 0;
-          return anchorProgress;
-        }
-        return progressForCard(anchor - 1, cardCount, layout);
-      }
-
-      return anchorProgress;
+      return resolveMobileSnapProgress(progress, direction, cardCount, layout);
     },
     [cardCount],
   );
 
+  const setMobileSlideVisual = useCallback(
+    (floatIdx: number) => {
+      const track = trackRef.current;
+      if (!track) return Math.round(floatIdx);
+
+      const nearest = Math.max(0, Math.min(cardCount - 1, Math.round(floatIdx)));
+      visualFloatRef.current = floatIdx;
+
+      const slides = track.children;
+      for (let i = 0; i < slides.length; i++) {
+        const dist = Math.abs(i - floatIdx);
+        const scale = Math.max(0.88, 1 - dist * 0.1);
+        const opacity = Math.max(0.62, 1 - dist * 0.32);
+        const slide = slides[i] as HTMLElement;
+        const card = slide.querySelector<HTMLElement>(".portfolio-mobile-card");
+
+        slide.classList.toggle("is-active", i === nearest);
+
+        if (card) {
+          card.style.transform = `scale(${scale}) translateZ(0)`;
+          card.style.opacity = String(opacity);
+        }
+      }
+
+      setActiveIndexIfChanged(nearest);
+      return nearest;
+    },
+    [cardCount, setActiveIndexIfChanged],
+  );
+
+  const clearMobileSlideVisual = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const slides = track.children;
+    for (let i = 0; i < slides.length; i++) {
+      const card = slides[i].querySelector<HTMLElement>(".portfolio-mobile-card");
+      if (card) {
+        card.style.removeProperty("transform");
+        card.style.removeProperty("opacity");
+      }
+    }
+  }, []);
+
   const syncCarouselFromProgress = useCallback(
     (progress: number) => {
       const layout = layoutRef.current;
-      if (!layout || progress < layout.introPortion * 0.7) return;
+      if (!layout || progress < layout.introPortion * 0.65) return;
 
-      const idx = cardIndexFromProgress(progress, cardCount, layout);
-      syncEmblaToIndex(idx, false);
-      setActiveIndexIfChanged(idx);
+      const afterIntro = progress - layout.introPortion;
+      const phase = clamp(afterIntro / layout.carouselPortion);
+      const floatIdx = phase * (cardCount - 1);
+
+      syncEmblaToFloatIndex(emblaApi ?? undefined, floatIdx, cardCount);
+      setMobileSlideVisual(floatIdx);
     },
-    [cardCount, setActiveIndexIfChanged, syncEmblaToIndex],
+    [cardCount, emblaApi, setMobileSlideVisual],
   );
 
   const syncSceneProgress = useCallback(
@@ -278,7 +334,6 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
 
       if (isEmblaDraggingRef.current) return;
       if (isProgrammaticRef.current && suppressIntroRef.current) return;
-      if (gestureActiveRef.current) return;
 
       syncCarouselFromProgress(progress);
     },
@@ -433,61 +488,29 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
       start: "top top",
       end: () => `+=${buildLayout().totalDistance}`,
       pin: scene,
-      scrub: true,
-      fastScrollEnd: true,
+      scrub: PORTFOLIO_SCRUB_NATIVE,
+      fastScrollEnd: false,
       anticipatePin: 0,
       invalidateOnRefresh: true,
       id: "portfolio-mobile-controller",
       snap: {
         snapTo: (progress, self) =>
-          snapProgressForDirection(progress, self?.direction ?? 0),
-        duration: { min: 0.34, max: 0.5 },
-        delay: 0.08,
-        ease: "power2.out",
+          resolveSnapProgress(progress, self?.direction ?? 0),
+        duration: PORTFOLIO_SNAP_DURATION_TOUCH,
+        delay: PORTFOLIO_SNAP_DELAY,
+        ease: PORTFOLIO_SNAP_EASE,
         inertia: false,
       },
       onUpdate: (self) => syncSceneProgress(self.progress),
       onRefresh: (self) => syncSceneProgress(self.progress),
       onSnapComplete: (self) => {
         if (isEmblaDraggingRef.current || isProgrammaticRef.current) return;
-        if (gestureSnapLockedRef.current) return;
 
         const layoutNow = layoutRef.current ?? layout;
-        let idx = settledCardRef.current;
-
-        if (gestureActiveRef.current) {
-          gestureSnapLockedRef.current = true;
-
-          const base = gestureBaseCardRef.current;
-          const last = cardCount - 1;
-          const baseProgress = progressForCard(base, cardCount, layoutNow);
-          const step =
-            cardCount > 1
-              ? layoutNow.carouselPortion / (cardCount - 1)
-              : layoutNow.carouselPortion;
-          const delta = self.progress - baseProgress;
-
-          if (self.progress >= 0.995) {
-            idx = last;
-          } else if (self.progress <= 0.005) {
-            idx = 0;
-          } else if (Math.abs(delta) < step * 0.12) {
-            idx = base;
-          } else if (delta > 0) {
-            idx = base >= last ? last : base + 1;
-          } else {
-            idx = base <= 0 ? 0 : base - 1;
-          }
-
-          const clampedProgress = progressForCard(idx, cardCount, layoutNow);
-          if (Math.abs(self.progress - clampedProgress) > 0.008) {
-            scrollToProgress(clampedProgress, 0.36);
-          }
-        } else {
-          idx = cardIndexFromProgress(self.progress, cardCount, layoutNow);
-        }
-
+        const idx = cardIndexFromProgress(self.progress, cardCount, layoutNow);
         commitCardIndex(idx);
+        setMobileSlideVisual(idx);
+        clearMobileSlideVisual();
       },
     });
 
@@ -500,9 +523,11 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
       sceneSt.kill();
       sceneStRef.current = null;
     };
-  }, [cardCount, commitCardIndex, scrollToProgress, snapProgressForDirection, syncCarouselFromProgress, syncSceneProgress]);
+  }, [cardCount, commitCardIndex, clearMobileSlideVisual, resolveSnapProgress, scrollToProgress, setMobileSlideVisual, syncCarouselFromProgress, syncSceneProgress]);
 
   useEffect(() => {
+    const scene = sceneRef.current;
+
     const onTouchStart = () => {
       const layout = layoutRef.current;
       const sceneSt = sceneStRef.current;
@@ -511,13 +536,18 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
       gestureActiveRef.current = true;
       gestureSnapLockedRef.current = false;
       gestureBaseCardRef.current = settledCardRef.current;
+      isVerticalScrollingRef.current = true;
+      scene?.classList.add("is-vertical-scrolling");
     };
 
     const onTouchEnd = () => {
       window.setTimeout(() => {
         gestureActiveRef.current = false;
         gestureSnapLockedRef.current = false;
-      }, 480);
+        isVerticalScrollingRef.current = false;
+        scene?.classList.remove("is-vertical-scrolling");
+        clearMobileSlideVisual();
+      }, 320);
     };
 
     window.addEventListener("touchstart", onTouchStart, { passive: true });
@@ -528,8 +558,9 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("touchcancel", onTouchEnd);
+      scene?.classList.remove("is-vertical-scrolling");
     };
-  }, []);
+  }, [clearMobileSlideVisual]);
 
   const activeStudy = items[activeIndex] ?? items[0];
 
@@ -553,7 +584,7 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
 
         <div ref={carouselWrapRef} className="portfolio-mobile-carousel-wrap">
           <div className="portfolio-mobile-viewport" ref={emblaRef}>
-            <div className="portfolio-mobile-track">
+            <div className="portfolio-mobile-track" ref={trackRef}>
               {items.map((study, i) => (
                 <div
                   key={study.slug}
