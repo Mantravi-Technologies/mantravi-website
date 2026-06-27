@@ -12,11 +12,8 @@ import { syncEmblaToFloatIndex } from "@/lib/utils/portfolio-embla-sync";
 import {
   PORTFOLIO_EMBLA_DURATION,
   PORTFOLIO_NAV_DURATION,
-  PORTFOLIO_SCRUB_NATIVE,
+  PORTFOLIO_SETTLE_DURATION,
   PORTFOLIO_SETTLE_EASE,
-  PORTFOLIO_SNAP_DELAY,
-  PORTFOLIO_SNAP_DURATION_TOUCH,
-  PORTFOLIO_SNAP_EASE,
 } from "@/lib/utils/portfolio-motion";
 import { wrapCardIndex } from "@/lib/utils/portfolio-mobile-scroll";
 import {
@@ -33,6 +30,8 @@ const EXIT_HOLD_VH = 0.38;
 const NAV_DURATION = PORTFOLIO_NAV_DURATION;
 const NAV_EASE = PORTFOLIO_SETTLE_EASE;
 const EMBLA_DURATION = PORTFOLIO_EMBLA_DURATION;
+const GESTURE_COMMIT_RATIO = 0.2;
+const GESTURE_FINALIZE_MS = 120;
 
 type MobileLayout = {
   totalDistance: number;
@@ -82,61 +81,62 @@ function progressForCard(
   return layout.introPortion + phase * layout.carouselPortion;
 }
 
-function cardIndexFromProgress(
-  progress: number,
-  cardCount: number,
-  layout: MobileLayout,
-) {
-  if (cardCount <= 1 || progress <= layout.introPortion) return 0;
-  const afterIntro = progress - layout.introPortion;
-  if (afterIntro >= layout.carouselPortion) return cardCount - 1;
-  const phase = clamp(afterIntro / layout.carouselPortion);
-  return Math.round(phase * (cardCount - 1));
+function carouselStepPx(cardCount: number, layout: MobileLayout) {
+  const steps = Math.max(1, cardCount - 1);
+  return (layout.carouselPortion * layout.totalDistance) / steps;
 }
 
-function buildSnapPoints(cardCount: number, layout: MobileLayout) {
-  const points = new Set<number>([0, layout.introPortion, 1]);
-  for (let i = 0; i < cardCount; i++) {
-    points.add(progressForCard(i, cardCount, layout));
-  }
-  return [...points].sort((a, b) => a - b);
-}
-
-function nearestSnapProgress(
-  progress: number,
+function resolveMobileGestureTarget(
+  startIdx: number,
+  delta: number,
+  stepPx: number,
+  exitHoldPx: number,
   cardCount: number,
+  currentProgress: number,
   layout: MobileLayout,
 ) {
-  const points = buildSnapPoints(cardCount, layout);
-  let nearest = points[0];
-  let minDist = Math.abs(progress - nearest);
+  const lastIdx = Math.max(0, cardCount - 1);
+  const commitStep = stepPx * GESTURE_COMMIT_RATIO;
+  const commitExit = exitHoldPx * GESTURE_COMMIT_RATIO;
+  const startProgress = progressForCard(startIdx, cardCount, layout);
 
-  for (const point of points) {
-    const dist = Math.abs(progress - point);
-    if (dist < minDist) {
-      minDist = dist;
-      nearest = point;
-    }
+  if (startIdx === lastIdx && delta > commitExit) {
+    return { targetIdx: lastIdx, targetProgress: 1 };
   }
 
-  return nearest;
-}
-
-function resolveMobileSnapProgress(
-  progress: number,
-  direction: number,
-  cardCount: number,
-  layout: MobileLayout,
-) {
-  if (progress < layout.introPortion * 0.55) {
-    return direction < 0 ? 0 : progress < layout.introPortion * 0.35 ? 0 : layout.introPortion;
+  if (startIdx === lastIdx && delta < -commitStep && cardCount > 1) {
+    const targetIdx = lastIdx - 1;
+    return {
+      targetIdx,
+      targetProgress: progressForCard(targetIdx, cardCount, layout),
+    };
   }
 
-  if (progress < layout.introPortion) {
-    return direction >= 0 ? layout.introPortion : 0;
+  if (
+    startIdx === 0 &&
+    delta < -commitStep &&
+    currentProgress <= layout.introPortion + 0.02
+  ) {
+    return { targetIdx: 0, targetProgress: 0 };
   }
 
-  return nearestSnapProgress(progress, cardCount, layout);
+  if (delta > commitStep) {
+    const targetIdx = Math.min(startIdx + 1, lastIdx);
+    return {
+      targetIdx,
+      targetProgress: progressForCard(targetIdx, cardCount, layout),
+    };
+  }
+
+  if (delta < -commitStep) {
+    const targetIdx = Math.max(startIdx - 1, 0);
+    return {
+      targetIdx,
+      targetProgress: progressForCard(targetIdx, cardCount, layout),
+    };
+  }
+
+  return { targetIdx: startIdx, targetProgress: startProgress };
 }
 
 function scrollYForProgress(progress: number, sceneSt: ScrollTrigger) {
@@ -156,20 +156,19 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const sceneStRef = useRef<ScrollTrigger | null>(null);
   const layoutRef = useRef<MobileLayout | null>(null);
-  const snapPointsRef = useRef<number[]>([]);
   const activeIndexRef = useRef(0);
   const settledCardRef = useRef(0);
   const navTweenRef = useRef<gsap.core.Tween | null>(null);
   const isEmblaDraggingRef = useRef(false);
   const isProgrammaticRef = useRef(false);
+  const isFinalizingGestureRef = useRef(false);
   const clickAllowedRef = useRef(true);
   const gestureActiveRef = useRef(false);
   const gestureBaseCardRef = useRef(0);
+  const gestureStartScrollRef = useRef(0);
   const hasEnteredCarouselRef = useRef(false);
   const suppressIntroRef = useRef(false);
-  const gestureSnapLockedRef = useRef(false);
   const visualFloatRef = useRef(0);
-  const isVerticalScrollingRef = useRef(false);
   const navLockRef = useRef(false);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -260,15 +259,6 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
     [cardCount, setActiveIndexIfChanged, syncEmblaToIndex],
   );
 
-  const resolveSnapProgress = useCallback(
-    (progress: number, direction: number) => {
-      const layout = layoutRef.current;
-      if (!layout) return progress;
-      return resolveMobileSnapProgress(progress, direction, cardCount, layout);
-    },
-    [cardCount],
-  );
-
   const setMobileSlideVisual = useCallback(
     (floatIdx: number) => {
       const track = trackRef.current;
@@ -316,7 +306,7 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
   const syncCarouselFromProgress = useCallback(
     (progress: number) => {
       const layout = layoutRef.current;
-      if (!layout || progress < layout.introPortion * 0.65) return;
+      if (!layout || progress < layout.introPortion) return;
 
       const afterIntro = progress - layout.introPortion;
       const phase = clamp(afterIntro / layout.carouselPortion);
@@ -333,41 +323,107 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
       syncIntroFromProgress(progress);
 
       if (isEmblaDraggingRef.current) return;
-      if (isProgrammaticRef.current && suppressIntroRef.current) return;
+      if (isFinalizingGestureRef.current) return;
+      if (isProgrammaticRef.current && navTweenRef.current) return;
 
       syncCarouselFromProgress(progress);
     },
     [syncCarouselFromProgress, syncIntroFromProgress],
   );
 
-  const scrollToProgress = useCallback((progress: number, duration = NAV_DURATION) => {
+  const scrollToProgress = useCallback(
+    (
+      progress: number,
+      duration = NAV_DURATION,
+      onComplete?: () => void,
+    ) => {
+      const sceneSt = sceneStRef.current;
+      if (!sceneSt) {
+        onComplete?.();
+        return;
+      }
+
+      const targetY = scrollYForProgress(clamp(progress), sceneSt);
+      const motion = { y: window.scrollY };
+
+      navTweenRef.current?.kill();
+      isProgrammaticRef.current = true;
+
+      navTweenRef.current = gsap.to(motion, {
+        y: targetY,
+        duration,
+        ease: NAV_EASE,
+        overwrite: true,
+        onUpdate: () => {
+          window.scrollTo(0, motion.y);
+          ScrollTrigger.update();
+        },
+        onComplete: () => {
+          window.scrollTo(0, targetY);
+          ScrollTrigger.update();
+          navTweenRef.current = null;
+          isProgrammaticRef.current = false;
+          suppressIntroRef.current = false;
+          onComplete?.();
+        },
+        onInterrupt: () => {
+          navTweenRef.current = null;
+          isProgrammaticRef.current = false;
+        },
+      });
+    },
+    [],
+  );
+
+  const finalizeVerticalGesture = useCallback(() => {
     const sceneSt = sceneStRef.current;
-    if (!sceneSt) return;
+    const layout = layoutRef.current;
+    if (!sceneSt || !layout || isFinalizingGestureRef.current) return;
+    if (isProgrammaticRef.current || isEmblaDraggingRef.current) return;
+    if (!gestureActiveRef.current) return;
 
-    const targetY = scrollYForProgress(clamp(progress), sceneSt);
-    const motion = { y: window.scrollY };
+    const progress = sceneSt.progress;
+    if (progress < layout.introPortion * 0.25) return;
 
-    navTweenRef.current?.kill();
-    isProgrammaticRef.current = true;
+    isFinalizingGestureRef.current = true;
+    gestureActiveRef.current = false;
+    sceneRef.current?.classList.remove("is-vertical-scrolling");
 
-    navTweenRef.current = gsap.to(motion, {
-      y: targetY,
-      duration,
-      ease: NAV_EASE,
-      overwrite: true,
-      onUpdate: () => {
-        window.scrollTo(0, motion.y);
-        ScrollTrigger.update();
-      },
-      onComplete: () => {
-        window.scrollTo(0, targetY);
-        ScrollTrigger.update();
-        navTweenRef.current = null;
-        isProgrammaticRef.current = false;
-        suppressIntroRef.current = false;
-      },
-    });
-  }, []);
+    const delta = window.scrollY - gestureStartScrollRef.current;
+    const startIdx = gestureBaseCardRef.current;
+    const stepPx = carouselStepPx(cardCount, layout);
+    const exitHoldPx = layout.exitPortion * layout.totalDistance;
+
+    const { targetIdx, targetProgress } = resolveMobileGestureTarget(
+      startIdx,
+      delta,
+      stepPx,
+      exitHoldPx,
+      cardCount,
+      progress,
+      layout,
+    );
+
+    const finish = () => {
+      isFinalizingGestureRef.current = false;
+      commitCardIndex(targetIdx);
+      setMobileSlideVisual(targetIdx);
+      clearMobileSlideVisual();
+    };
+
+    if (Math.abs(targetProgress - progress) < 0.002) {
+      finish();
+      return;
+    }
+
+    scrollToProgress(targetProgress, PORTFOLIO_SETTLE_DURATION, finish);
+  }, [
+    cardCount,
+    clearMobileSlideVisual,
+    commitCardIndex,
+    scrollToProgress,
+    setMobileSlideVisual,
+  ]);
 
   const goToCard = useCallback(
     (index: number, syncScroll = true, fromControls = false) => {
@@ -477,41 +533,23 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
 
     const buildLayout = () => {
       layoutRef.current = getMobileLayout(cardCount);
-      snapPointsRef.current = buildSnapPoints(cardCount, layoutRef.current);
       return layoutRef.current;
     };
 
-    const layout = buildLayout();
+    buildLayout();
 
     const sceneSt = ScrollTrigger.create({
       trigger,
       start: "top top",
       end: () => `+=${buildLayout().totalDistance}`,
       pin: scene,
-      scrub: PORTFOLIO_SCRUB_NATIVE,
-      fastScrollEnd: false,
+      scrub: true,
+      fastScrollEnd: true,
       anticipatePin: 0,
       invalidateOnRefresh: true,
       id: "portfolio-mobile-controller",
-      snap: {
-        snapTo: (progress, self) =>
-          resolveSnapProgress(progress, self?.direction ?? 0),
-        duration: PORTFOLIO_SNAP_DURATION_TOUCH,
-        delay: PORTFOLIO_SNAP_DELAY,
-        ease: PORTFOLIO_SNAP_EASE,
-        inertia: false,
-      },
       onUpdate: (self) => syncSceneProgress(self.progress),
       onRefresh: (self) => syncSceneProgress(self.progress),
-      onSnapComplete: (self) => {
-        if (isEmblaDraggingRef.current || isProgrammaticRef.current) return;
-
-        const layoutNow = layoutRef.current ?? layout;
-        const idx = cardIndexFromProgress(self.progress, cardCount, layoutNow);
-        commitCardIndex(idx);
-        setMobileSlideVisual(idx);
-        clearMobileSlideVisual();
-      },
     });
 
     sceneStRef.current = sceneSt;
@@ -523,44 +561,70 @@ export function PortfolioMobileSection({ items }: { items: CaseStudy[] }) {
       sceneSt.kill();
       sceneStRef.current = null;
     };
-  }, [cardCount, commitCardIndex, clearMobileSlideVisual, resolveSnapProgress, scrollToProgress, setMobileSlideVisual, syncCarouselFromProgress, syncSceneProgress]);
+  }, [cardCount, clearMobileSlideVisual, commitCardIndex, finalizeVerticalGesture, scrollToProgress, syncCarouselFromProgress, syncSceneProgress]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const syncNow = () => {
+      const sceneSt = sceneStRef.current;
+      if (sceneSt) syncCarouselFromProgress(sceneSt.progress);
+    };
+
+    syncNow();
+    emblaApi.on("reInit", syncNow);
+
+    return () => {
+      emblaApi.off("reInit", syncNow);
+    };
+  }, [emblaApi, syncCarouselFromProgress]);
 
   useEffect(() => {
     const scene = sceneRef.current;
+    let finalizeTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const scheduleFinalize = () => {
+      if (!gestureActiveRef.current || isProgrammaticRef.current) return;
+      if (finalizeTimer) clearTimeout(finalizeTimer);
+      finalizeTimer = setTimeout(finalizeVerticalGesture, GESTURE_FINALIZE_MS);
+    };
 
     const onTouchStart = () => {
       const layout = layoutRef.current;
       const sceneSt = sceneStRef.current;
-      if (!layout || !sceneSt || sceneSt.progress < layout.introPortion * 0.85) return;
+      if (!layout || !sceneSt) return;
+      if (sceneSt.progress < layout.introPortion * 0.35 && sceneSt.progress > 0.02) {
+        return;
+      }
 
       gestureActiveRef.current = true;
-      gestureSnapLockedRef.current = false;
+      gestureStartScrollRef.current = window.scrollY;
       gestureBaseCardRef.current = settledCardRef.current;
-      isVerticalScrollingRef.current = true;
       scene?.classList.add("is-vertical-scrolling");
     };
 
     const onTouchEnd = () => {
-      window.setTimeout(() => {
-        gestureActiveRef.current = false;
-        gestureSnapLockedRef.current = false;
-        isVerticalScrollingRef.current = false;
-        scene?.classList.remove("is-vertical-scrolling");
-        clearMobileSlideVisual();
-      }, 320);
+      scheduleFinalize();
+    };
+
+    const onScroll = () => {
+      if (gestureActiveRef.current) scheduleFinalize();
     };
 
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchend", onTouchEnd, { passive: true });
     window.addEventListener("touchcancel", onTouchEnd, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
+      if (finalizeTimer) clearTimeout(finalizeTimer);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("touchcancel", onTouchEnd);
+      window.removeEventListener("scroll", onScroll);
       scene?.classList.remove("is-vertical-scrolling");
     };
-  }, [clearMobileSlideVisual]);
+  }, [finalizeVerticalGesture]);
 
   const activeStudy = items[activeIndex] ?? items[0];
 
