@@ -4,7 +4,7 @@ export const siteConfig = {
   tagline: "Web, Mobile & AI Product Engineering",
   description:
     "We help startups and enterprises design, build, and launch web, mobile, and AI products with clear timelines and reliable delivery.",
-  url: "https://mantravi.com",
+  url: "https://www.mantravi.com",
   email: "hello@mantravi.com",
   phone: "+91 96486 15125",
   mission:
