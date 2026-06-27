@@ -100,7 +100,7 @@ export function NavItemWithMega({
         href={href}
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary",
-          dark ? "text-white/90" : "text-foreground",
+          dark ? "text-white" : "text-foreground",
         )}
       >
         {label}
@@ -117,7 +117,7 @@ export function NavItemWithMega({
           isOpen
             ? "text-primary"
             : dark
-              ? "text-white/90 hover:text-primary"
+              ? "text-white hover:text-primary"
               : "text-foreground hover:text-primary",
         )}
       >

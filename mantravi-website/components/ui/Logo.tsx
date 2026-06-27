@@ -22,8 +22,6 @@ export function MantraviLogo({
   className?: string;
   variant?: "dark" | "light";
 }) {
-  const logo = LOGO[variant];
-
   return (
     <Link
       href="/"
@@ -34,13 +32,28 @@ export function MantraviLogo({
       aria-label="Mantravi home"
     >
       <Image
-        src={logo.src}
+        src={LOGO.light.src}
         alt="Mantravi"
-        width={logo.width}
-        height={logo.height}
-        className="h-7 w-auto sm:h-8"
+        width={LOGO.light.width}
+        height={LOGO.light.height}
+        className={cn(
+          "h-7 w-auto sm:h-8",
+          variant === "light" ? "block" : "hidden",
+        )}
         sizes="(max-width: 640px) 140px, 180px"
-        priority
+        priority={variant === "light"}
+      />
+      <Image
+        src={LOGO.dark.src}
+        alt="Mantravi"
+        width={LOGO.dark.width}
+        height={LOGO.dark.height}
+        className={cn(
+          "h-7 w-auto sm:h-8",
+          variant === "dark" ? "block" : "hidden",
+        )}
+        sizes="(max-width: 640px) 140px, 180px"
+        priority={variant === "dark"}
       />
     </Link>
   );

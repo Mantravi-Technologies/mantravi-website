@@ -18,9 +18,10 @@ type MegaType = "services";
 
 const SCROLL_THRESHOLD = 40;
 
-export function Header() {
+export function Header({ initialPathname = "/" }: { initialPathname?: string }) {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const resolvedPath = pathname ?? initialPathname;
+  const isHome = resolvedPath === "/" || resolvedPath === "";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<MegaType | null>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -211,9 +212,12 @@ export function Header() {
           "top-0 z-[100] border-b transition-all duration-300",
           useFixedHeader ? "fixed inset-x-0" : "sticky",
           isHome
-            ? showSolidDark
-              ? "border-white/10 bg-black/90 backdrop-blur-md shadow-lg shadow-black/20"
-              : "border-transparent bg-gradient-to-b from-black/55 via-black/15 to-transparent backdrop-blur-[2px]"
+            ? cn(
+                "home-header border-white/10 text-white",
+                showSolidDark
+                  ? "bg-black shadow-lg shadow-black/20"
+                  : "bg-black/75 backdrop-blur-md",
+              )
             : scrolled
               ? "border-slate-200 bg-white/95 shadow-sm backdrop-blur-md"
               : "border-transparent bg-white/95 backdrop-blur-md",

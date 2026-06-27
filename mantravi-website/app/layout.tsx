@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Instrument_Serif, Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
+import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Footer } from "@/components/layout/Footer";
 import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { ContactProvider } from "@/components/providers/ContactProvider";
@@ -62,7 +62,7 @@ export default function RootLayout({
         <SiteJsonLd />
         <ContactProvider>
           <SmoothScrollProvider>
-            <Header />
+            <SiteHeader />
             <main>{children}</main>
             <Footer />
             <LazyContactUI />
